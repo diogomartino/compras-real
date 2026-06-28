@@ -1,0 +1,3 @@
+- mostrar stickers nos items
+- na página do raffle, quando n tá logado e ele escolhe tickets, no lado esquerdo tem de aparecer um aviso a dizer que é preciso estar logado
+- página download da extensão

@@ -1,0 +1,20 @@
+{
+  "name": "react-bun-trpc-boilerplate",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "knip": "knip --no-config-hints",
+    "knip:deps": "knip --dependencies --no-config-hints",
+    "format": "bun run --filter '*' format",
+    "check-types": "bun run --filter '*' check-types",
+    "lint": "bun run --filter '*' lint"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "knip": "^6.18.0",
+    "typescript": "^5.9.3"
+  }
+}

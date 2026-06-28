@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["apps/client/src/*"],
+      "@myapp/db": ["packages/db/src/index.ts"],
+      "@myapp/email": ["packages/email/index.tsx"],
+      "@myapp/logger": ["packages/logger/src/index.ts"],
+      "@myapp/shared": ["packages/shared/src/index.ts"]
+    },
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "module": "Preserve",
+    "target": "ESNext",
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "types": ["bun", "vite/client"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["packages/**/*", "apps/**/*", "build.ts"]
+}
