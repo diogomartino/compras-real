@@ -1,5 +1,5 @@
 import z from 'zod';
-import { createUser } from '../../db/mutations/users';
+import { createUserWithHousehold } from '../../db/mutations/users';
 import { getUserByEmail } from '../../db/queries/users';
 import { createAccessToken } from '../../helpers/auth-tokens';
 import { publicProcedure } from '../../trpc';
@@ -43,13 +43,17 @@ const registerRoute = publicProcedure
 
     const now = Date.now();
 
-    const user = await createUser({
-      name: input.name,
-      email: input.email,
-      passwordHash: await Bun.password.hash(input.password),
-      createdAt: now,
-      updatedAt: now
-    });
+    const user = await createUserWithHousehold(
+      {
+        name: input.name,
+        email: input.email,
+        passwordHash: await Bun.password.hash(input.password),
+        createdAt: now,
+        updatedAt: now
+      },
+      `${input.name}'s household`,
+      now
+    );
 
     return {
       token: createAccessToken(user.id),
