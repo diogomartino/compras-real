@@ -30,8 +30,7 @@ const addRoute = protectedProcedure
         categoryName: z.string().optional().nullable(),
         defaultQuantityAmount: z.number().positive(),
         defaultQuantityUnit: unitKindSchema,
-        sourceUrl: z.string().optional().nullable(),
-        isArchived: z.boolean()
+        sourceUrl: z.string().optional().nullable()
       })
       .transform((data) => ({
         title: data.title.trim(),
@@ -39,8 +38,7 @@ const addRoute = protectedProcedure
         categoryName: normalizeNull(data.categoryName),
         defaultQuantityAmount: data.defaultQuantityAmount,
         defaultQuantityUnit: data.defaultQuantityUnit as TUnitKind,
-        sourceUrl: normalizeNull(data.sourceUrl),
-        isArchived: data.isArchived
+        sourceUrl: normalizeNull(data.sourceUrl)
       }))
   )
   .mutation(async ({ ctx, input }) => {

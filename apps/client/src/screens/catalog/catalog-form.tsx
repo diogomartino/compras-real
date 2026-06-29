@@ -1,6 +1,13 @@
 import { Combobox, Inline, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import type { TTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { ArrowLeft } from 'lucide-react';
 import {
@@ -10,10 +17,10 @@ import {
   type ChangeEvent,
   type FormEvent
 } from 'react';
-import { formatUnit, unitOptions } from './helpers';
-import type { TCatalogFormMode, TCatalogFormValues } from './types';
 import { CatalogImportCard } from './catalog-import-card';
 import { CatalogPreview } from './catalog-preview';
+import { formatUnit, unitOptions } from './helpers';
+import type { TCatalogFormMode, TCatalogFormValues } from './types';
 
 type TCatalogFormProps = {
   formMode: TCatalogFormMode;
@@ -28,7 +35,7 @@ type TCatalogFormProps = {
   onExtractDetails: () => void;
   onFieldChange: (
     field: keyof TCatalogFormValues,
-    value: string | boolean
+    value: string
   ) => void;
 };
 
@@ -89,18 +96,11 @@ const CatalogForm = memo(
       [onFieldChange]
     );
     const onDefaultQuantityUnitChange = useCallback(
-      (event: ChangeEvent<HTMLSelectElement>) => {
-        onFieldChange('defaultQuantityUnit', event.target.value);
+      (value: string) => {
+        onFieldChange('defaultQuantityUnit', value);
       },
       [onFieldChange]
     );
-    const onArchivedChange = useCallback(
-      (event: ChangeEvent<HTMLInputElement>) => {
-        onFieldChange('isArchived', event.target.checked);
-      },
-      [onFieldChange]
-    );
-
     return (
       <main className="min-h-dvh bg-background text-foreground">
         <form
@@ -214,36 +214,23 @@ const CatalogForm = memo(
                       <Text as="span" size="sm" weight="medium">
                         Quantity unit
                       </Text>
-                      <select
+                      <Select
                         value={values.defaultQuantityUnit}
-                        onChange={onDefaultQuantityUnitChange}
-                        className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-11 w-full rounded-xl border bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
+                        onValueChange={onDefaultQuantityUnitChange}
                       >
-                        {unitOptions.map((unit) => (
-                          <option key={unit} value={unit}>
-                            {formatUnit(unit)}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="h-11 w-full rounded-xl">
+                          <SelectValue placeholder="Select unit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {unitOptions.map((unit) => (
+                            <SelectItem key={unit} value={unit}>
+                              {formatUnit(unit)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </label>
 
-                    <label className="flex items-center gap-3 sm:col-span-2">
-                      <input
-                        checked={values.isArchived}
-                        onChange={onArchivedChange}
-                        type="checkbox"
-                        className="size-4 rounded border-input accent-primary"
-                      />
-                      <Stack gap="none">
-                        <Text as="span" size="sm" weight="medium">
-                          Archived
-                        </Text>
-                        <Text size="xs" tone="muted">
-                          Archived products are hidden from the catalog by
-                          default.
-                        </Text>
-                      </Stack>
-                    </label>
                   </div>
                 </Stack>
               </Surface>

@@ -5,9 +5,8 @@ import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { useForm } from '@/hooks/use-form';
 import {
   useAddProduct,
-  useArchiveProduct,
+  useDeleteProduct,
   useExtractProductDetails,
-  useRestoreProduct,
   useUpdateProduct
 } from '@/mutations/products';
 import { useProducts } from '@/queries/products';
@@ -46,17 +45,14 @@ const Catalog = memo(() => {
     useAddProduct();
   const { mutateAsync: updateProduct, isPending: updateProductPending } =
     useUpdateProduct();
-  const { mutateAsync: archiveProduct, isPending: archiveProductPending } =
-    useArchiveProduct();
-  const { mutateAsync: restoreProduct, isPending: restoreProductPending } =
-    useRestoreProduct();
+  const { mutateAsync: deleteProduct, isPending: deleteProductPending } =
+    useDeleteProduct();
   const {
     mutateAsync: extractProductDetails,
     isPending: extractProductDetailsPending
   } = useExtractProductDetails();
 
   const [query, setQuery] = useState('');
-  const [showArchived, setShowArchived] = useState(false);
   const [formMode, setFormMode] = useState<TCatalogFormMode | undefined>();
   const { values, errors, setValues, setErrors, resetErrors, onChange } =
     useForm<TCatalogFormValues>(emptyCatalogForm);
@@ -70,10 +66,6 @@ const Catalog = memo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return products.filter((product) => {
-      if (!showArchived && product.isArchived) {
-        return false;
-      }
-
       if (!normalizedQuery) {
         return true;
       }
@@ -82,20 +74,11 @@ const Catalog = memo(() => {
         .toLowerCase()
         .includes(normalizedQuery);
     });
-  }, [products, query, showArchived]);
+  }, [products, query]);
 
   const isMutating = useMemo(
-    () =>
-      addProductPending ||
-      updateProductPending ||
-      archiveProductPending ||
-      restoreProductPending,
-    [
-      addProductPending,
-      archiveProductPending,
-      restoreProductPending,
-      updateProductPending
-    ]
+    () => addProductPending || updateProductPending || deleteProductPending,
+    [addProductPending, deleteProductPending, updateProductPending]
   );
   const formIsPending = useMemo(
     () => addProductPending || updateProductPending,
@@ -127,10 +110,6 @@ const Catalog = memo(() => {
     setQuery(event.target.value);
   }, []);
 
-  const onToggleArchived = useCallback(() => {
-    setShowArchived((currentShowArchived) => !currentShowArchived);
-  }, []);
-
   const onImportUrlChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       onChange('sourceUrl', event.target.value);
@@ -148,8 +127,9 @@ const Catalog = memo(() => {
 
       setValues((currentForm) => ({
         ...currentForm,
-        title: details.title || currentForm.title,
+        title: details.name || currentForm.title,
         imageUrl: details.imageUrl || currentForm.imageUrl,
+        categoryName: details.category || currentForm.categoryName,
         sourceUrl: url
       }));
 
@@ -206,17 +186,17 @@ const Catalog = memo(() => {
     ]
   );
 
-  const archive = useCallback(
+  const remove = useCallback(
     async (productId: string) => {
       const product = products.find(
         (currentProduct) => currentProduct.id === productId
       );
       const confirmed = await requestConfirmation({
-        title: 'Archive product?',
+        title: 'Delete product?',
         message: product
-          ? `Archive ${product.title}? It will be hidden from the catalog by default.`
-          : 'Archive this product? It will be hidden from the catalog by default.',
-        confirmLabel: 'Archive',
+          ? `Delete ${product.title}? This will remove it from lists that use it.`
+          : 'Delete this product? This will remove it from lists that use it.',
+        confirmLabel: 'Delete',
         cancelLabel: 'Cancel',
         variant: 'danger'
       });
@@ -226,29 +206,15 @@ const Catalog = memo(() => {
       }
 
       try {
-        await archiveProduct(productId);
-        toast.success('Product archived.');
+        await deleteProduct(productId);
+        toast.success('Product deleted.');
       } catch (error) {
         toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to archive product.'
+          parseTrpcErrors(error)._general ?? 'Failed to delete product.'
         );
       }
     },
-    [archiveProduct, products]
-  );
-
-  const restore = useCallback(
-    async (productId: string) => {
-      try {
-        await restoreProduct(productId);
-        toast.success('Product restored.');
-      } catch (error) {
-        toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to restore product.'
-        );
-      }
-    },
-    [restoreProduct]
+    [deleteProduct, products]
   );
 
   if (!isAuthenticated) {
@@ -278,16 +244,13 @@ const Catalog = memo(() => {
       <CatalogList
         products={visibleProducts}
         query={query}
-        showArchived={showArchived}
         isLoading={productsLoading}
         isMutating={isMutating}
         errorMessage={productsError?.message}
         onQueryChange={onQueryChange}
-        onToggleArchived={onToggleArchived}
         onCreate={openCreate}
         onEdit={openEdit}
-        onArchive={archive}
-        onRestore={restore}
+        onDelete={remove}
       />
       <AppBottomNav />
     </main>

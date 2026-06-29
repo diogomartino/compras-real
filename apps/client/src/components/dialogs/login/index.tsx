@@ -1,4 +1,8 @@
 import { Dialog as DialogType } from '@/components/dialogs/dialogs';
+import {
+  GoogleAuthButton,
+  GoogleAuthSeparator
+} from '@/components/google-auth-button';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,8 +16,9 @@ import { Group } from '@/components/ui/group';
 import { Input } from '@/components/ui/input';
 import { openDialog } from '@/features/dialogs/actions';
 import { useForm } from '@/hooks/use-form';
-import { useLogin } from '@/mutations/auth';
-import { memo, useCallback } from 'react';
+import { useLogin, useRequestPasswordReset } from '@/mutations/auth';
+import { memo, useCallback, useState } from 'react';
+import { toast } from 'sonner';
 import type { TDialogBaseProps } from '../types';
 
 type TLoginForm = {
@@ -23,6 +28,11 @@ type TLoginForm = {
 
 const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
   const { mutateAsync: login, isPending } = useLogin();
+  const {
+    mutateAsync: requestPasswordReset,
+    isPending: requestPasswordResetPending
+  } = useRequestPasswordReset();
+  const [forgotPassword, setForgotPassword] = useState(false);
   const { setTrpcErrors, values, errors, r } = useForm<TLoginForm>({
     email: '',
     password: ''
@@ -41,6 +51,24 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
     openDialog(DialogType.REGISTER);
   }, []);
 
+  const showForgotPassword = useCallback(() => {
+    setForgotPassword(true);
+  }, []);
+
+  const hideForgotPassword = useCallback(() => {
+    setForgotPassword(false);
+  }, []);
+
+  const submitPasswordReset = useCallback(async () => {
+    try {
+      await requestPasswordReset({ email: values.email });
+      toast.success('If that email exists, a reset link has been sent.');
+      setForgotPassword(false);
+    } catch (error) {
+      setTrpcErrors(error);
+    }
+  }, [requestPasswordReset, setTrpcErrors, values.email]);
+
   const onOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
@@ -54,9 +82,13 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent close={close}>
         <DialogHeader>
-          <DialogTitle>Log in</DialogTitle>
+          <DialogTitle>
+            {forgotPassword ? 'Reset password' : 'Log in'}
+          </DialogTitle>
           <DialogDescription>
-            Access your account with your email and password.
+            {forgotPassword
+              ? 'Enter your email and we will send a password reset link.'
+              : 'Access your account with your email and password.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -71,29 +103,64 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
             <Input
               {...r('email', 'email')}
               autoComplete="email"
-              disabled={isPending}
-              onEnter={submit}
+              disabled={isPending || requestPasswordResetPending}
+              onEnter={forgotPassword ? submitPasswordReset : submit}
               placeholder="you@example.com"
             />
           </Group>
 
-          <Group label="Password">
-            <Input
-              {...r('password', 'password')}
-              autoComplete="current-password"
-              disabled={isPending}
-              onEnter={submit}
-              placeholder="Your password"
-            />
-          </Group>
+          {!forgotPassword && (
+            <Group label="Password">
+              <Input
+                {...r('password', 'password')}
+                autoComplete="current-password"
+                disabled={isPending}
+                onEnter={submit}
+                placeholder="Your password"
+              />
+            </Group>
+          )}
+
+          {!forgotPassword && (
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-auto px-0 text-sm"
+              onClick={showForgotPassword}
+            >
+              Forgot password?
+            </Button>
+          )}
+
+          {!forgotPassword && (
+            <>
+              <GoogleAuthSeparator />
+
+              <GoogleAuthButton>Login with Google</GoogleAuthButton>
+            </>
+          )}
         </div>
 
         <DialogFooter className="items-center gap-2 sm:justify-between">
-          <Button variant="ghost" type="button" onClick={openRegister}>
-            Create account
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={forgotPassword ? hideForgotPassword : openRegister}
+          >
+            {forgotPassword ? 'Back to login' : 'Create account'}
           </Button>
-          <Button type="button" disabled={isPending} onClick={submit}>
-            {isPending ? 'Logging in...' : 'Log in'}
+          <Button
+            type="button"
+            disabled={isPending || requestPasswordResetPending}
+            onClick={forgotPassword ? submitPasswordReset : submit}
+          >
+            {forgotPassword
+              ? requestPasswordResetPending
+                ? 'Sending...'
+                : 'Send reset link'
+              : isPending
+                ? 'Logging in...'
+                : 'Log in'}
           </Button>
         </DialogFooter>
       </DialogContent>

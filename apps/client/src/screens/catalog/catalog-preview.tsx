@@ -1,11 +1,4 @@
-import {
-  Inline,
-  Media,
-  Stack,
-  StatusChip,
-  Surface,
-  Text
-} from '@/components/ds';
+import { Inline, Media, Stack, StatusChip, Surface, Text } from '@/components/ds';
 import { memo, useMemo } from 'react';
 import { formatUnit } from './helpers';
 import type { TCatalogFormValues } from './types';
@@ -26,7 +19,7 @@ const CatalogPreview = memo(({ form }: TCatalogPreviewProps) => {
   );
 
   return (
-    <aside className="lg:pt-28">
+    <aside>
       <Surface radius="2xl" padding="lg" className="sticky top-6">
         <Stack gap="md">
           <Media src={form.imageUrl} alt={form.title} size="xl" />
@@ -38,9 +31,6 @@ const CatalogPreview = memo(({ form }: TCatalogPreviewProps) => {
           </Stack>
           <Inline gap="sm">
             <StatusChip tone="info">{quantity}</StatusChip>
-            {form.isArchived && (
-              <StatusChip tone="skipped">Archived</StatusChip>
-            )}
           </Inline>
         </Stack>
       </Surface>

@@ -1,12 +1,21 @@
-import { Heading, Inline, Stack, Surface, Text } from '@/components/ds';
+import { Heading, Stack, Surface, Text } from '@/components/ds';
+import {
+  GoogleAuthButton,
+  GoogleAuthSeparator
+} from '@/components/google-auth-button';
 import { Button } from '@/components/ui/button';
 import { Group } from '@/components/ui/group';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from '@/hooks/use-form';
-import { useLogin, useRegister } from '@/mutations/auth';
-import { CheckCircle2, Home, ShoppingBasket, Sparkles } from 'lucide-react';
-import { memo, useCallback, type FormEvent } from 'react';
+import {
+  useLogin,
+  useRegister,
+  useRequestPasswordReset
+} from '@/mutations/auth';
+import { CheckCircle2, Home, Sparkles } from 'lucide-react';
+import { memo, useCallback, useState, type FormEvent } from 'react';
+import { toast } from 'sonner';
 
 type TLoginForm = {
   email: string;
@@ -22,6 +31,11 @@ type TRegisterForm = {
 
 const LoginForm = memo(() => {
   const { mutateAsync: login, isPending } = useLogin();
+  const {
+    mutateAsync: requestPasswordReset,
+    isPending: requestPasswordResetPending
+  } = useRequestPasswordReset();
+  const [forgotPassword, setForgotPassword] = useState(false);
   const { setTrpcErrors, values, errors, r } = useForm<TLoginForm>({
     email: '',
     password: ''
@@ -38,10 +52,28 @@ const LoginForm = memo(() => {
   const onSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      void submit();
+      submit();
     },
     [submit]
   );
+
+  const showForgotPassword = useCallback(() => {
+    setForgotPassword(true);
+  }, []);
+
+  const hideForgotPassword = useCallback(() => {
+    setForgotPassword(false);
+  }, []);
+
+  const submitPasswordReset = useCallback(async () => {
+    try {
+      await requestPasswordReset({ email: values.email });
+      toast.success('If that email exists, a reset link has been sent.');
+      setForgotPassword(false);
+    } catch (error) {
+      setTrpcErrors(error);
+    }
+  }, [requestPasswordReset, setTrpcErrors, values.email]);
 
   return (
     <form className="space-y-5" onSubmit={onSubmit}>
@@ -51,31 +83,80 @@ const LoginForm = memo(() => {
         </Text>
       )}
 
+      {forgotPassword && (
+        <Text size="sm" tone="muted">
+          Enter your email and we will send a password reset link.
+        </Text>
+      )}
+
       <Group label="Email">
         <Input
           {...r('email', 'email')}
           autoComplete="email"
           className="h-12 rounded-xl bg-background/70"
-          disabled={isPending}
-          onEnter={submit}
+          disabled={isPending || requestPasswordResetPending}
+          onEnter={forgotPassword ? submitPasswordReset : submit}
           placeholder="you@example.com"
         />
       </Group>
 
-      <Group label="Password">
-        <Input
-          {...r('password', 'password')}
-          autoComplete="current-password"
-          className="h-12 rounded-xl bg-background/70"
-          disabled={isPending}
-          onEnter={submit}
-          placeholder="Your password"
-        />
-      </Group>
+      {!forgotPassword && (
+        <Group label="Password">
+          <Input
+            {...r('password', 'password')}
+            autoComplete="current-password"
+            className="h-12 rounded-xl bg-background/70"
+            disabled={isPending}
+            onEnter={submit}
+            placeholder="Your password"
+          />
+        </Group>
+      )}
 
-      <Button className="h-12 w-full rounded-xl" disabled={isPending}>
-        {isPending ? 'Logging in...' : 'Log in'}
+      {!forgotPassword && (
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-auto px-0 text-sm"
+          onClick={showForgotPassword}
+        >
+          Forgot password?
+        </Button>
+      )}
+
+      <Button
+        className="h-12 w-full rounded-xl"
+        disabled={isPending || requestPasswordResetPending}
+        type={forgotPassword ? 'button' : 'submit'}
+        onClick={forgotPassword ? submitPasswordReset : undefined}
+      >
+        {forgotPassword
+          ? requestPasswordResetPending
+            ? 'Sending...'
+            : 'Send reset link'
+          : isPending
+            ? 'Logging in...'
+            : 'Log in'}
       </Button>
+
+      {!forgotPassword && (
+        <>
+          <GoogleAuthSeparator />
+
+          <GoogleAuthButton>Login with Google</GoogleAuthButton>
+        </>
+      )}
+
+      {forgotPassword && (
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full"
+          onClick={hideForgotPassword}
+        >
+          Back to login
+        </Button>
+      )}
     </form>
   );
 });
@@ -100,7 +181,7 @@ const RegisterForm = memo(() => {
   const onSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      void submit();
+      submit();
     },
     [submit]
   );
@@ -135,7 +216,7 @@ const RegisterForm = memo(() => {
         />
       </Group>
 
-      <Group label="Password" bottomDescription="Use at least 8 characters.">
+      <Group label="Password">
         <Input
           {...r('password', 'password')}
           autoComplete="new-password"
@@ -160,6 +241,10 @@ const RegisterForm = memo(() => {
       <Button className="h-12 w-full rounded-xl" disabled={isPending}>
         {isPending ? 'Creating account...' : 'Create account'}
       </Button>
+
+      <GoogleAuthSeparator />
+
+      <GoogleAuthButton>Register with Google</GoogleAuthButton>
     </form>
   );
 });
@@ -171,15 +256,6 @@ const HomeAuthScreen = memo(() => {
       <div className="pointer-events-none fixed -bottom-24 -right-20 size-96 rounded-full bg-accent/60 blur-3xl" />
       <div className="relative mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
         <Stack gap="lg" className="mx-auto max-w-xl lg:mx-0">
-          <Inline gap="sm" className="text-primary">
-            <div className="grid size-12 place-items-center rounded-2xl bg-primary/12 shadow-sm">
-              <ShoppingBasket className="size-6" />
-            </div>
-            <Text weight="semibold" className="text-xl tracking-tight">
-              Compras Real
-            </Text>
-          </Inline>
-
           <Stack gap="md">
             <Heading level={1} size="display">
               Groceries ready before you reach the shop.

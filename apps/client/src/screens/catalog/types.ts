@@ -8,7 +8,6 @@ type TCatalogFormValues = {
   defaultQuantityAmount: string;
   defaultQuantityUnit: TUnitKind;
   sourceUrl: string;
-  isArchived: boolean;
 };
 
 type TCatalogFormMode =

@@ -19,8 +19,7 @@ const emptyCatalogForm: TCatalogFormValues = {
   categoryName: '',
   defaultQuantityAmount: '1',
   defaultQuantityUnit: 'unit',
-  sourceUrl: '',
-  isArchived: false
+  sourceUrl: ''
 };
 
 const formatUnit = (unit: TUnitKind) => {
@@ -39,8 +38,7 @@ const getProductFormValues = (
   categoryName: product.categoryName ?? '',
   defaultQuantityAmount: String(product.defaultQuantityAmount),
   defaultQuantityUnit: product.defaultQuantityUnit,
-  sourceUrl: product.sourceUrl ?? '',
-  isArchived: product.isArchived
+  sourceUrl: product.sourceUrl ?? ''
 });
 
 const getCatalogCategories = (products: TCatalogProduct[]) => {
@@ -59,8 +57,7 @@ const getCatalogInput = (form: TCatalogFormValues) => ({
   categoryName: form.categoryName.trim() || null,
   defaultQuantityAmount: Number(form.defaultQuantityAmount),
   defaultQuantityUnit: form.defaultQuantityUnit,
-  sourceUrl: form.sourceUrl.trim() || null,
-  isArchived: form.isArchived
+  sourceUrl: form.sourceUrl.trim() || null
 });
 
 export {

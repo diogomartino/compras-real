@@ -35,7 +35,6 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import {
-  Archive,
   Check,
   Filter,
   History,
@@ -494,7 +493,7 @@ const Ds = memo(() => {
               <Surface variant="outline">
                 <Stack gap="sm">
                   <Inline justify="between" wrap={false}>
-                    <Text weight="medium">Archive product</Text>
+                    <Text weight="medium">Track product</Text>
                     <Switch />
                   </Inline>
                   <Inline gap="sm">
@@ -535,7 +534,7 @@ const Ds = memo(() => {
             {emptyStateSizes.map((size) => (
               <EmptyState
                 key={size}
-                icon={<Archive className="size-5" />}
+                icon={<PackagePlus className="size-5" />}
                 title={`Size ${size}`}
                 description="Size preview."
                 size={size}

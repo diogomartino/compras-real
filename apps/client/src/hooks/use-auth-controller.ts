@@ -17,13 +17,14 @@ const useAuthController = () => {
     }
 
     if (isError || !user) {
-      void logout();
+      logout();
       return;
     }
 
     setAuthUser({
       userId: user.id,
       email: user.email,
+      avatarUrl: user.avatarUrl,
       isAdmin: user.isAdmin
     });
   }, [user, hasSession, isError, isFetched]);

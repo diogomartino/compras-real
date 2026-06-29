@@ -2,14 +2,7 @@ import { AppBottomNav } from '@/components/app-bottom-nav';
 import { ActionTile, Inline, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { logout } from '@/features/auth/actions';
-import {
-  ListChecks,
-  Plus,
-  Search,
-  ShoppingBasket,
-  Sparkles
-} from 'lucide-react';
+import { ListChecks, Plus, Search, Sparkles } from 'lucide-react';
 import {
   memo,
   useCallback,
@@ -17,26 +10,20 @@ import {
   type ChangeEvent,
   type FormEvent
 } from 'react';
+import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
-type THomeDashboardProps = {
-  email?: string;
-};
-
-const HomeDashboard = memo(({ email }: THomeDashboardProps) => {
+const HomeDashboard = memo(() => {
   const [quickItem, setQuickItem] = useState('');
-
-  const showComingSoon = useCallback((label: string) => {
-    toast.info(`${label} is coming soon.`);
-  }, []);
+  const navigate = useNavigate();
 
   const reviewList = useCallback(() => {
-    showComingSoon('List review');
-  }, [showComingSoon]);
+    navigate('/base-list');
+  }, [navigate]);
 
   const addItem = useCallback(() => {
-    showComingSoon('Add item');
-  }, [showComingSoon]);
+    navigate('/base-list');
+  }, [navigate]);
 
   const onQuickItemChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -62,32 +49,9 @@ const HomeDashboard = memo(({ email }: THomeDashboardProps) => {
     [submitQuickAdd]
   );
 
-  const onLogout = useCallback(() => {
-    void logout();
-  }, []);
-
   return (
     <main className="min-h-dvh bg-background pb-28 text-foreground">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-        <Inline justify="between" wrap={false} className="gap-3">
-          <Inline gap="sm" wrap={false}>
-            <div className="grid size-11 place-items-center rounded-2xl bg-primary/12 text-primary">
-              <ShoppingBasket className="size-5" />
-            </div>
-            <Stack gap="none">
-              <Text weight="semibold" className="leading-tight">
-                Compras Real
-              </Text>
-              <Text size="xs" tone="muted" className="truncate">
-                {email ?? 'Ready to shop'}
-              </Text>
-            </Stack>
-          </Inline>
-          <Button variant="ghost" size="sm" onClick={onLogout}>
-            Log out
-          </Button>
-        </Inline>
-
         <Surface variant="default" radius="2xl" padding="md">
           <Stack gap="md">
             <Inline gap="sm" wrap={false}>
@@ -148,7 +112,7 @@ const HomeDashboard = memo(({ email }: THomeDashboardProps) => {
         </Surface>
       </div>
 
-      <AppBottomNav onLists={reviewList} />
+      <AppBottomNav />
     </main>
   );
 });
@@ -156,4 +120,3 @@ const HomeDashboard = memo(({ email }: THomeDashboardProps) => {
 HomeDashboard.displayName = 'HomeDashboard';
 
 export { HomeDashboard };
-export type { THomeDashboardProps };

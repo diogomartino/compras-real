@@ -1,0 +1,53 @@
+import { TRPCError } from '@trpc/server';
+import z from 'zod';
+import { updateUserPassword } from '../../db/mutations/users';
+import { getUserById } from '../../db/queries/users';
+import { verifyPasswordResetToken } from '../../helpers/auth-tokens';
+import { publicProcedure } from '../../trpc';
+
+const resetPasswordRoute = publicProcedure
+  .input(
+    z.object({
+      token: z.string(),
+      password: z.string(),
+      confirmPassword: z.string()
+    })
+  )
+  .mutation(async ({ ctx, input }) => {
+    if (input.password.length < 8) {
+      ctx.throwValidationError(
+        'password',
+        'Password must be at least 8 characters'
+      );
+    }
+
+    if (input.password !== input.confirmPassword) {
+      ctx.throwValidationError('confirmPassword', 'Passwords do not match');
+    }
+
+    const userId = verifyPasswordResetToken(input.token);
+
+    if (!userId) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Password reset link is invalid or expired'
+      });
+    }
+
+    const user = await getUserById(userId);
+
+    if (!user) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Password reset link is invalid or expired'
+      });
+    }
+
+    await updateUserPassword(user.id, await Bun.password.hash(input.password));
+
+    return {
+      success: true
+    };
+  });
+
+export { resetPasswordRoute };

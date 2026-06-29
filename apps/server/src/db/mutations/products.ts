@@ -10,7 +10,6 @@ type TProductMutationInput = {
   defaultQuantityAmount: number;
   defaultQuantityUnit: TUnitKind;
   sourceUrl: string | null;
-  isArchived: boolean;
   userId: string;
 };
 
@@ -33,7 +32,6 @@ const createProduct = async (input: TProductMutationInput) => {
       defaultQuantityAmount: input.defaultQuantityAmount,
       defaultQuantityUnit: input.defaultQuantityUnit,
       sourceUrl: input.sourceUrl,
-      isArchived: input.isArchived,
       createdAt: now,
       updatedAt: now
     })
@@ -67,7 +65,6 @@ const updateProduct = async (
       defaultQuantityAmount: input.defaultQuantityAmount,
       defaultQuantityUnit: input.defaultQuantityUnit,
       sourceUrl: input.sourceUrl,
-      isArchived: input.isArchived,
       updatedAt: now
     })
     .where(eq(products.id, productId))
@@ -80,22 +77,9 @@ const updateProduct = async (
   return product;
 };
 
-const setProductArchived = async (productId: string, isArchived: boolean) => {
-  const [product] = await db
-    .update(products)
-    .set({
-      isArchived,
-      updatedAt: Date.now()
-    })
-    .where(eq(products.id, productId))
-    .returning();
-
-  if (!product) {
-    throw new Error('Failed to update product archive state');
-  }
-
-  return product;
+const deleteProduct = async (productId: string) => {
+  await db.delete(products).where(eq(products.id, productId));
 };
 
-export { createProduct, setProductArchived, updateProduct };
+export { createProduct, deleteProduct, updateProduct };
 export type { TProductMutationInput };

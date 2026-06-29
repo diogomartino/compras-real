@@ -9,7 +9,6 @@ type TCatalogProduct = {
   defaultQuantityAmount: number;
   defaultQuantityUnit: TUnitKind;
   sourceUrl: string | null;
-  isArchived: boolean;
   createdAt: number;
   updatedAt: number;
 };

@@ -28,7 +28,7 @@ export const setAuthToken = async (token: string) => {
 };
 
 export const setAuthUser = (
-  user: Pick<TAuthState, 'userId' | 'email' | 'isAdmin'>
+  user: Pick<TAuthState, 'userId' | 'email' | 'avatarUrl' | 'isAdmin'>
 ) => store.dispatch(authSliceActions.setUser(user));
 
 export const logout = async () => {

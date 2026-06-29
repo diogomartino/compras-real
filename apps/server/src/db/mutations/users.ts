@@ -1,4 +1,4 @@
-import { db, householdMembers, households, users } from '@myapp/db';
+import { db, eq, householdMembers, households, users } from '@myapp/db';
 import type { TIUser, TUser } from '@myapp/shared';
 
 const createUser = async (data: TIUser): Promise<TUser> => {
@@ -67,4 +67,21 @@ const createUserWithHousehold = async (
   return user;
 };
 
-export { createUser, createUserWithHousehold };
+const updateUserPassword = async (userId: string, passwordHash: string) => {
+  const [user] = await db
+    .update(users)
+    .set({
+      passwordHash,
+      updatedAt: Date.now()
+    })
+    .where(eq(users.id, userId))
+    .returning({ id: users.id });
+
+  if (!user) {
+    throw new Error('Failed to update user password');
+  }
+
+  return user;
+};
+
+export { createUser, createUserWithHousehold, updateUserPassword };

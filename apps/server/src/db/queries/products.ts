@@ -14,7 +14,6 @@ const getCatalogProducts = async (
       defaultQuantityAmount: products.defaultQuantityAmount,
       defaultQuantityUnit: products.defaultQuantityUnit,
       sourceUrl: products.sourceUrl,
-      isArchived: products.isArchived,
       createdAt: products.createdAt,
       updatedAt: products.updatedAt
     })

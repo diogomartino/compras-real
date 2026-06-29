@@ -180,8 +180,6 @@ const products = pgTable(
 
     sourceUrl: text("source_url"),
 
-    isArchived: boolean("is_archived").notNull().default(false),
-
     metadata: jsonb("metadata").$type<Record<string, unknown>>(),
 
     createdAt: numeric("created_at", { mode: "number" }).notNull(),
@@ -190,7 +188,6 @@ const products = pgTable(
   (table) => ({
     householdIdx: index("products_household_id_idx").on(table.householdId),
     categoryIdx: index("products_category_id_idx").on(table.categoryId),
-    archivedIdx: index("products_is_archived_idx").on(table.isArchived),
     householdTitleUniqueIdx: uniqueIndex(
       "products_household_title_unique_idx",
     ).on(table.householdId, table.title),
@@ -243,6 +240,37 @@ const productImportRequests = pgTable(
   }),
 );
 
+const baseLists = pgTable(
+  "base_lists",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    householdId: uuid("household_id")
+      .notNull()
+      .references(() => households.id, {
+        onDelete: "cascade",
+      }),
+
+    name: text("name").notNull(),
+
+    isEnabled: boolean("is_enabled").notNull().default(true),
+
+    createdBy: uuid("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+
+    createdAt: numeric("created_at", { mode: "number" }).notNull(),
+    updatedAt: numeric("updated_at", { mode: "number" }).notNull(),
+  },
+  (table) => ({
+    householdIdx: index("base_lists_household_id_idx").on(table.householdId),
+    createdByIdx: index("base_lists_created_by_idx").on(table.createdBy),
+    householdNameUniqueIdx: uniqueIndex(
+      "base_lists_household_name_unique_idx",
+    ).on(table.householdId, table.name),
+  }),
+);
+
 const baseListItems = pgTable(
   "base_list_items",
   {
@@ -251,6 +279,12 @@ const baseListItems = pgTable(
     householdId: uuid("household_id")
       .notNull()
       .references(() => households.id, {
+        onDelete: "cascade",
+      }),
+
+    baseListId: uuid("base_list_id")
+      .notNull()
+      .references(() => baseLists.id, {
         onDelete: "cascade",
       }),
 
@@ -279,11 +313,12 @@ const baseListItems = pgTable(
     householdIdx: index("base_list_items_household_id_idx").on(
       table.householdId,
     ),
+    baseListIdx: index("base_list_items_base_list_id_idx").on(table.baseListId),
     productIdx: index("base_list_items_product_id_idx").on(table.productId),
     createdByIdx: index("base_list_items_created_by_idx").on(table.createdBy),
-    householdProductUniqueIdx: uniqueIndex(
-      "base_list_items_household_product_unique_idx",
-    ).on(table.householdId, table.productId),
+    baseListProductUniqueIdx: uniqueIndex(
+      "base_list_items_base_list_product_unique_idx",
+    ).on(table.baseListId, table.productId),
   }),
 );
 
@@ -481,6 +516,7 @@ export {
   categories,
   products,
   productImportRequests,
+  baseLists,
   baseListItems,
   ongoingListItems,
   shoppingSessions,

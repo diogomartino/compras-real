@@ -11,7 +11,6 @@ type TProductInput = {
   defaultQuantityAmount: number;
   defaultQuantityUnit: TUnitKind;
   sourceUrl: string | null;
-  isArchived: boolean;
 };
 
 type TUpdateProductInput = TProductInput & {
@@ -39,15 +38,9 @@ const useUpdateProduct = () =>
     onSuccess: invalidateProducts
   });
 
-const useArchiveProduct = () =>
+const useDeleteProduct = () =>
   useMutation({
-    mutationFn: (id: string) => trpc.products.archive.mutate({ id }),
-    onSuccess: invalidateProducts
-  });
-
-const useRestoreProduct = () =>
-  useMutation({
-    mutationFn: (id: string) => trpc.products.restore.mutate({ id }),
+    mutationFn: (id: string) => trpc.products.delete.mutate({ id }),
     onSuccess: invalidateProducts
   });
 
@@ -59,9 +52,8 @@ const useExtractProductDetails = () =>
 
 export {
   useAddProduct,
-  useArchiveProduct,
+  useDeleteProduct,
   useExtractProductDetails,
-  useRestoreProduct,
   useUpdateProduct
 };
 export type {

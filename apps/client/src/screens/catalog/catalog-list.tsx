@@ -9,32 +9,26 @@ import { CatalogProductRow } from './catalog-product-row';
 type TCatalogListProps = {
   products: TCatalogProduct[];
   query: string;
-  showArchived: boolean;
   isLoading: boolean;
   isMutating: boolean;
   errorMessage?: string;
   onQueryChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onToggleArchived: () => void;
   onCreate: () => void;
   onEdit: (product: TCatalogProduct) => void;
-  onArchive: (productId: string) => void;
-  onRestore: (productId: string) => void;
+  onDelete: (productId: string) => void;
 };
 
 const CatalogList = memo(
   ({
     products,
     query,
-    showArchived,
     isLoading,
     isMutating,
     errorMessage,
     onQueryChange,
-    onToggleArchived,
     onCreate,
     onEdit,
-    onArchive,
-    onRestore
+    onDelete
   }: TCatalogListProps) => {
     return (
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
@@ -49,9 +43,6 @@ const CatalogList = memo(
                 placeholder="Search products or categories"
               />
             </div>
-            <Button type="button" variant="outline" onClick={onToggleArchived}>
-              {showArchived ? 'Hide archived' : 'Show archived'}
-            </Button>
             <Button onClick={onCreate} className="rounded-xl">
               <Plus className="size-4" />
               Add product
@@ -79,8 +70,7 @@ const CatalogList = memo(
                 product={product}
                 isMutating={isMutating}
                 onEdit={onEdit}
-                onArchive={onArchive}
-                onRestore={onRestore}
+                onDelete={onDelete}
               />
             ))}
 

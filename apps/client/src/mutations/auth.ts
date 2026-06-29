@@ -20,11 +20,28 @@ type TRegisterInput = {
   confirmPassword: string;
 };
 
+type TRequestPasswordResetInput = {
+  email: string;
+};
+
+type TResetPasswordInput = {
+  token: string;
+  password: string;
+  confirmPassword: string;
+};
+
+type TChangePasswordInput = {
+  currentPassword: string;
+  password: string;
+  confirmPassword: string;
+};
+
 const applyAuthResult = async ({ token, user }: TAuthResult) => {
   await setAuthToken(token);
   setAuthUser({
     userId: user.id,
     email: user.email,
+    avatarUrl: user.avatarUrl,
     isAdmin: user.isAdmin
   });
 };
@@ -41,4 +58,33 @@ const useRegister = () =>
     onSuccess: applyAuthResult
   });
 
-export { useLogin, useRegister };
+const useRequestPasswordReset = () =>
+  useMutation({
+    mutationFn: (input: TRequestPasswordResetInput) =>
+      trpc.auth.requestPasswordReset.mutate(input)
+  });
+
+const useResetPassword = () =>
+  useMutation({
+    mutationFn: (input: TResetPasswordInput) =>
+      trpc.auth.resetPassword.mutate(input)
+  });
+
+const useChangePassword = () =>
+  useMutation({
+    mutationFn: (input: TChangePasswordInput) =>
+      trpc.auth.changePassword.mutate(input)
+  });
+
+export {
+  useChangePassword,
+  useLogin,
+  useRegister,
+  useRequestPasswordReset,
+  useResetPassword
+};
+export type {
+  TChangePasswordInput,
+  TRequestPasswordResetInput,
+  TResetPasswordInput
+};

@@ -7,9 +7,20 @@ CREATE TYPE "public"."unit_kind" AS ENUM('unit', 'kg', 'g', 'liter', 'ml', 'pack
 CREATE TABLE "base_list_items" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"household_id" uuid NOT NULL,
+	"base_list_id" uuid NOT NULL,
 	"product_id" uuid NOT NULL,
 	"quantity_amount" numeric(12, 3) NOT NULL,
 	"quantity_unit" "unit_kind" DEFAULT 'unit' NOT NULL,
+	"created_by" uuid,
+	"created_at" numeric NOT NULL,
+	"updated_at" numeric NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "base_lists" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"household_id" uuid NOT NULL,
+	"name" text NOT NULL,
+	"is_enabled" boolean DEFAULT true NOT NULL,
 	"created_by" uuid,
 	"created_at" numeric NOT NULL,
 	"updated_at" numeric NOT NULL
@@ -123,8 +134,11 @@ CREATE TABLE "users" (
 );
 --> statement-breakpoint
 ALTER TABLE "base_list_items" ADD CONSTRAINT "base_list_items_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "base_list_items" ADD CONSTRAINT "base_list_items_base_list_id_base_lists_id_fk" FOREIGN KEY ("base_list_id") REFERENCES "public"."base_lists"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "base_list_items" ADD CONSTRAINT "base_list_items_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "base_list_items" ADD CONSTRAINT "base_list_items_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "base_lists" ADD CONSTRAINT "base_lists_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "base_lists" ADD CONSTRAINT "base_lists_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "categories" ADD CONSTRAINT "categories_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "household_members" ADD CONSTRAINT "household_members_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "household_members" ADD CONSTRAINT "household_members_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -146,9 +160,13 @@ ALTER TABLE "shopping_sessions" ADD CONSTRAINT "shopping_sessions_household_id_h
 ALTER TABLE "shopping_sessions" ADD CONSTRAINT "shopping_sessions_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shopping_sessions" ADD CONSTRAINT "shopping_sessions_completed_by_users_id_fk" FOREIGN KEY ("completed_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "base_list_items_household_id_idx" ON "base_list_items" USING btree ("household_id");--> statement-breakpoint
+CREATE INDEX "base_list_items_base_list_id_idx" ON "base_list_items" USING btree ("base_list_id");--> statement-breakpoint
 CREATE INDEX "base_list_items_product_id_idx" ON "base_list_items" USING btree ("product_id");--> statement-breakpoint
 CREATE INDEX "base_list_items_created_by_idx" ON "base_list_items" USING btree ("created_by");--> statement-breakpoint
-CREATE UNIQUE INDEX "base_list_items_household_product_unique_idx" ON "base_list_items" USING btree ("household_id","product_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "base_list_items_base_list_product_unique_idx" ON "base_list_items" USING btree ("base_list_id","product_id");--> statement-breakpoint
+CREATE INDEX "base_lists_household_id_idx" ON "base_lists" USING btree ("household_id");--> statement-breakpoint
+CREATE INDEX "base_lists_created_by_idx" ON "base_lists" USING btree ("created_by");--> statement-breakpoint
+CREATE UNIQUE INDEX "base_lists_household_name_unique_idx" ON "base_lists" USING btree ("household_id","name");--> statement-breakpoint
 CREATE INDEX "categories_household_id_idx" ON "categories" USING btree ("household_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "categories_household_name_unique_idx" ON "categories" USING btree ("household_id","name");--> statement-breakpoint
 CREATE INDEX "household_members_household_id_idx" ON "household_members" USING btree ("household_id");--> statement-breakpoint

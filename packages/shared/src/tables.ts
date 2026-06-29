@@ -1,4 +1,5 @@
 import {
+  baseLists,
   baseListItems,
   categories,
   householdMembers,
@@ -8,10 +9,10 @@ import {
   shoppingSessionItems,
   shoppingSessions,
   unitKindEnum,
-  users
-} from '@myapp/db';
+  users,
+} from "@myapp/db";
 
-type TUser = Omit<typeof users.$inferSelect, 'passwordHash'>;
+type TUser = Omit<typeof users.$inferSelect, "passwordHash">;
 type TIUser = typeof users.$inferInsert;
 type THousehold = typeof households.$inferSelect;
 type TIHousehold = typeof households.$inferInsert;
@@ -21,6 +22,8 @@ type TProduct = typeof products.$inferSelect;
 type TIProduct = typeof products.$inferInsert;
 type TCategory = typeof categories.$inferSelect;
 type TICategory = typeof categories.$inferInsert;
+type TBaseList = typeof baseLists.$inferSelect;
+type TIBaseList = typeof baseLists.$inferInsert;
 type TBaseListItem = typeof baseListItems.$inferSelect;
 type TIBaseListItem = typeof baseListItems.$inferInsert;
 type TOngoingListItem = typeof ongoingListItems.$inferSelect;
@@ -33,10 +36,12 @@ type TUnitKind = (typeof unitKindEnum.enumValues)[number];
 
 export type {
   TBaseListItem,
+  TBaseList,
   TCategory,
   THousehold,
   THouseholdMember,
   TIBaseListItem,
+  TIBaseList,
   TICategory,
   TIHousehold,
   TIHouseholdMember,
@@ -50,5 +55,5 @@ export type {
   TShoppingSession,
   TShoppingSessionItem,
   TUnitKind,
-  TUser
+  TUser,
 };

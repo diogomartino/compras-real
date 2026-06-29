@@ -10,7 +10,7 @@ const Header = memo(() => {
   const { email } = useAuth();
   const isAuthenticated = useIsAuthenticated();
   const onLogout = useCallback(() => {
-    void logout();
+    logout();
   }, []);
   const openLogin = useCallback(() => {
     openDialog(Dialog.LOGIN);

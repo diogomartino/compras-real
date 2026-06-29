@@ -1,4 +1,8 @@
 import { Dialog as DialogType } from '@/components/dialogs/dialogs';
+import {
+  GoogleAuthButton,
+  GoogleAuthSeparator
+} from '@/components/google-auth-button';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -91,10 +95,7 @@ const RegisterDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
             />
           </Group>
 
-          <Group
-            label="Password"
-            bottomDescription="Use at least 8 characters."
-          >
+          <Group label="Password">
             <Input
               {...r('password', 'password')}
               autoComplete="new-password"
@@ -113,6 +114,10 @@ const RegisterDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
               placeholder="Repeat your password"
             />
           </Group>
+
+          <GoogleAuthSeparator />
+
+          <GoogleAuthButton>Register with Google</GoogleAuthButton>
         </div>
 
         <DialogFooter className="items-center gap-2 sm:justify-between">
