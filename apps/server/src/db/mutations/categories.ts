@@ -1,5 +1,10 @@
 import { and, categories, db, eq, sql } from '@myapp/db';
 
+type TCategoryInput = {
+  householdId: string;
+  name: string;
+};
+
 const getOrCreateCategoryId = async (
   householdId: string,
   categoryName: string | null,
@@ -43,4 +48,68 @@ const getOrCreateCategoryId = async (
   return category.id;
 };
 
-export { getOrCreateCategoryId };
+const createCategory = async (input: TCategoryInput) => {
+  const now = Date.now();
+  const [category] = await db
+    .insert(categories)
+    .values({
+      householdId: input.householdId,
+      name: input.name.trim(),
+      createdAt: now,
+      updatedAt: now
+    })
+    .returning();
+
+  if (!category) {
+    throw new Error('Failed to create category');
+  }
+
+  return category;
+};
+
+const updateCategory = async (categoryId: string, input: TCategoryInput) => {
+  const [category] = await db
+    .update(categories)
+    .set({
+      name: input.name.trim(),
+      updatedAt: Date.now()
+    })
+    .where(
+      and(
+        eq(categories.id, categoryId),
+        eq(categories.householdId, input.householdId)
+      )
+    )
+    .returning();
+
+  if (!category) {
+    throw new Error('Failed to update category');
+  }
+
+  return category;
+};
+
+const deleteCategory = async (householdId: string, categoryId: string) => {
+  const [category] = await db
+    .delete(categories)
+    .where(
+      and(
+        eq(categories.id, categoryId),
+        eq(categories.householdId, householdId)
+      )
+    )
+    .returning();
+
+  if (!category) {
+    throw new Error('Failed to delete category');
+  }
+
+  return category;
+};
+
+export {
+  createCategory,
+  deleteCategory,
+  getOrCreateCategoryId,
+  updateCategory
+};

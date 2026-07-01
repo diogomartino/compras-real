@@ -1,5 +1,5 @@
 {
-  "id": "2cd0e0f1-cd8d-403d-ba00-5a9007167d8d",
+  "id": "6b1afef2-a64f-490a-a7d5-85571ac35003",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1277,6 +1277,250 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.product_usage_stats": {
+      "name": "product_usage_stats",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "household_id": {
+          "name": "household_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_added_to_ongoing_count": {
+          "name": "total_added_to_ongoing_count",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "total_checked_count": {
+          "name": "total_checked_count",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "total_skipped_count": {
+          "name": "total_skipped_count",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "total_discarded_count": {
+          "name": "total_discarded_count",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "last_added_to_ongoing_at": {
+          "name": "last_added_to_ongoing_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_checked_at": {
+          "name": "last_checked_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_skipped_at": {
+          "name": "last_skipped_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_discarded_at": {
+          "name": "last_discarded_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_used_at": {
+          "name": "last_used_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "product_usage_stats_household_id_idx": {
+          "name": "product_usage_stats_household_id_idx",
+          "columns": [
+            {
+              "expression": "household_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "product_usage_stats_product_id_idx": {
+          "name": "product_usage_stats_product_id_idx",
+          "columns": [
+            {
+              "expression": "product_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "product_usage_stats_household_last_used_idx": {
+          "name": "product_usage_stats_household_last_used_idx",
+          "columns": [
+            {
+              "expression": "household_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "last_used_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "product_usage_stats_household_total_added_idx": {
+          "name": "product_usage_stats_household_total_added_idx",
+          "columns": [
+            {
+              "expression": "household_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "total_added_to_ongoing_count",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "product_usage_stats_household_total_checked_idx": {
+          "name": "product_usage_stats_household_total_checked_idx",
+          "columns": [
+            {
+              "expression": "household_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "total_checked_count",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "product_usage_stats_household_product_unique_idx": {
+          "name": "product_usage_stats_household_product_unique_idx",
+          "columns": [
+            {
+              "expression": "household_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "product_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "product_usage_stats_household_id_households_id_fk": {
+          "name": "product_usage_stats_household_id_households_id_fk",
+          "tableFrom": "product_usage_stats",
+          "tableTo": "households",
+          "columnsFrom": [
+            "household_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "product_usage_stats_product_id_products_id_fk": {
+          "name": "product_usage_stats_product_id_products_id_fk",
+          "tableFrom": "product_usage_stats",
+          "tableTo": "products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.products": {
       "name": "products",
       "schema": "",
@@ -2010,7 +2254,7 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{\"defaultShoppingMode\":\"list\"}'::jsonb"
+          "default": "'{\"defaultShoppingMode\":\"list\",\"compactShoppingList\":true,\"hapticsEnabled\":true,\"soundEnabled\":false,\"wakeLockEnabled\":true}'::jsonb"
         },
         "created_at": {
           "name": "created_at",

@@ -1,5 +1,10 @@
 import type { TOngoingListEntry, TUnitKind } from '@myapp/shared';
 
+type TAudioWindow = Window & {
+  AudioContext?: typeof AudioContext;
+  webkitAudioContext?: typeof AudioContext;
+};
+
 const formatQuantity = (amount: number | string, unit: TUnitKind) => {
   const formattedAmount = Number(amount).toLocaleString(undefined, {
     maximumFractionDigits: 3
@@ -30,9 +35,38 @@ const getGroupedItems = (items: TOngoingListEntry[]) => {
 };
 
 const vibrate = (pattern: VibratePattern) => {
-  if ('vibrate' in navigator) {
-    navigator.vibrate(pattern);
+  if ('vibrate' in navigator && typeof navigator.vibrate === 'function') {
+    return navigator.vibrate(pattern);
   }
+
+  return false;
 };
 
-export { formatQuantity, getGroupedItems, vibrate };
+const playActionTone = (status: 'checked' | 'ignored' | 'discarded') => {
+  const audioWindow = window as TAudioWindow;
+  const AudioContextClass =
+    audioWindow.AudioContext ?? audioWindow.webkitAudioContext;
+
+  if (!AudioContextClass) {
+    return;
+  }
+
+  const context = new AudioContextClass();
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+
+  oscillator.type = 'sine';
+  oscillator.frequency.value = status === 'checked' ? 660 : 220;
+  gain.gain.setValueAtTime(0.0001, context.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.08, context.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.12);
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+  oscillator.start();
+  oscillator.stop(context.currentTime + 0.14);
+  oscillator.addEventListener('ended', () => {
+    void context.close().catch(() => undefined);
+  });
+};
+
+export { formatQuantity, getGroupedItems, playActionTone, vibrate };

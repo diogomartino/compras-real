@@ -17,7 +17,13 @@ import {
 } from '@/components/ui/select';
 import { useForm } from '@/hooks/use-form';
 import type { TOngoingListEntry, TUnitKind } from '@myapp/shared';
-import { memo, useCallback, useEffect, type ChangeEvent, type FormEvent } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  type ChangeEvent,
+  type FormEvent
+} from 'react';
 import { unitOptions } from './helpers';
 
 type TEditOngoingItemForm = {

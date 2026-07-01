@@ -5,7 +5,10 @@ import { App } from './components/app/index.tsx';
 import { Providers } from './components/providers/index.tsx';
 import { ThemeProvider } from './components/theme-provider/index.tsx';
 import { LocalStorageKey } from './helpers/storage.ts';
+import { initI18n } from './i18n';
 import './index.css';
+
+initI18n();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

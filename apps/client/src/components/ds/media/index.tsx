@@ -1,7 +1,14 @@
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { ImageIcon } from 'lucide-react';
-import { memo, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  memo,
+  useEffect,
+  useMemo,
+  useState,
+  type HTMLAttributes,
+  type ReactNode
+} from 'react';
 
 const mediaVariants = cva(
   'relative shrink-0 overflow-hidden border border-border bg-muted text-muted-foreground',
@@ -44,13 +51,43 @@ const Media = memo(
     className,
     ...props
   }: TMediaProps) => {
+    const [imageFailed, setImageFailed] = useState(false);
+    const initials = useMemo(() => {
+      const words = alt.trim().split(/\s+/).filter(Boolean);
+
+      if (words.length === 0) {
+        return undefined;
+      }
+
+      return words
+        .slice(0, 2)
+        .map((word) => word[0]?.toUpperCase())
+        .join('');
+    }, [alt]);
+
+    useEffect(() => {
+      setImageFailed(false);
+    }, [src]);
+
     return (
       <div className={cn(mediaVariants({ size, shape }), className)} {...props}>
-        {src ? (
-          <img src={src} alt={alt} className="size-full object-cover" />
+        {src && !imageFailed ? (
+          <img
+            src={src}
+            alt={alt}
+            className="size-full object-cover"
+            onError={() => setImageFailed(true)}
+          />
         ) : (
-          <div className="grid size-full place-items-center bg-linear-to-br from-muted to-accent/30">
-            {fallback ?? <ImageIcon className="size-5" />}
+          <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary)/0.22),transparent_32%),linear-gradient(135deg,hsl(var(--muted)),hsl(var(--accent)/0.5))]">
+            {fallback ??
+              (initials ? (
+                <span className="text-sm font-black tracking-tight text-primary/80">
+                  {initials}
+                </span>
+              ) : (
+                <ImageIcon className="size-5" />
+              ))}
           </div>
         )}
       </div>

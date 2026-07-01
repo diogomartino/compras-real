@@ -1,5 +1,4 @@
-import type { TUnitKind } from '@myapp/shared';
-import type { TOngoingListEntry } from '@myapp/shared';
+import type { TOngoingListEntry, TUnitKind } from '@myapp/shared';
 
 const unitOptions: TUnitKind[] = [
   'unit',

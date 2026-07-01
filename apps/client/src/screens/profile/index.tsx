@@ -11,14 +11,17 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { logout } from '@/features/auth/actions';
 import { useAuth, useIsAuthenticated } from '@/features/auth/hooks';
 import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { useForm } from '@/hooks/use-form';
 import { useChangePassword, useUpdateSettings } from '@/mutations/auth';
 import { HomeAuthScreen } from '@/screens/home/home-auth-screen';
-import { CircleUserRound, LogOut } from 'lucide-react';
+import { vibrate } from '@/screens/shopping/helpers';
+import { CircleUserRound, History, LogOut } from 'lucide-react';
 import { memo, useCallback, type FormEvent } from 'react';
+import { Link } from 'react-router';
 import { toast } from 'sonner';
 
 type TChangePasswordForm = {
@@ -80,6 +83,31 @@ const Profile = memo(() => {
     [updateSettings]
   );
 
+  const updateSetting = useCallback(
+    async (settings: Parameters<typeof updateSettings>[0]) => {
+      try {
+        await updateSettings(settings);
+        toast.success('Settings updated.');
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? 'Failed to update settings.'
+        );
+      }
+    },
+    [updateSettings]
+  );
+
+  const testHaptics = useCallback(() => {
+    const vibrated = vibrate([80, 50, 120]);
+
+    if (vibrated) {
+      toast.success('Haptic test sent.');
+      return;
+    }
+
+    toast.error('This browser or device is not accepting vibration requests.');
+  }, []);
+
   if (!isAuthenticated) {
     return <HomeAuthScreen />;
   }
@@ -134,7 +162,121 @@ const Profile = memo(() => {
                 </SelectContent>
               </Select>
             </Group>
+
+            <Inline
+              justify="between"
+              wrap={false}
+              className="gap-4 rounded-2xl border border-border p-3"
+            >
+              <Stack gap="xs" className="min-w-0">
+                <Text size="sm" weight="semibold">
+                  Compact aisle list
+                </Text>
+                <Text size="xs" tone="muted">
+                  Use dense rows with sticky category headers while shopping.
+                </Text>
+              </Stack>
+              <Switch
+                checked={auth.settings?.compactShoppingList ?? true}
+                disabled={settingsPending}
+                onCheckedChange={(checked) => {
+                  void updateSetting({ compactShoppingList: checked });
+                }}
+              />
+            </Inline>
+
+            <Inline
+              justify="between"
+              wrap={false}
+              className="gap-4 rounded-2xl border border-border p-3"
+            >
+              <Stack gap="xs" className="min-w-0">
+                <Text size="sm" weight="semibold">
+                  Haptic feedback
+                </Text>
+                <Text size="xs" tone="muted">
+                  Vibrate briefly when checking or skipping products.
+                </Text>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-1 w-fit rounded-full"
+                  onClick={testHaptics}
+                >
+                  Test haptics
+                </Button>
+              </Stack>
+              <Switch
+                checked={auth.settings?.hapticsEnabled ?? true}
+                disabled={settingsPending}
+                onCheckedChange={(checked) => {
+                  void updateSetting({ hapticsEnabled: checked });
+                }}
+              />
+            </Inline>
+
+            <Inline
+              justify="between"
+              wrap={false}
+              className="gap-4 rounded-2xl border border-border p-3"
+            >
+              <Stack gap="xs" className="min-w-0">
+                <Text size="sm" weight="semibold">
+                  Action sounds
+                </Text>
+                <Text size="xs" tone="muted">
+                  Play a soft tone for shopping actions.
+                </Text>
+              </Stack>
+              <Switch
+                checked={auth.settings?.soundEnabled ?? false}
+                disabled={settingsPending}
+                onCheckedChange={(checked) => {
+                  void updateSetting({ soundEnabled: checked });
+                }}
+              />
+            </Inline>
+
+            <Inline
+              justify="between"
+              wrap={false}
+              className="gap-4 rounded-2xl border border-border p-3"
+            >
+              <Stack gap="xs" className="min-w-0">
+                <Text size="sm" weight="semibold">
+                  Keep screen awake
+                </Text>
+                <Text size="xs" tone="muted">
+                  Prevent the screen from sleeping during shopping mode.
+                </Text>
+              </Stack>
+              <Switch
+                checked={auth.settings?.wakeLockEnabled ?? true}
+                disabled={settingsPending}
+                onCheckedChange={(checked) => {
+                  void updateSetting({ wakeLockEnabled: checked });
+                }}
+              />
+            </Inline>
           </Stack>
+        </Surface>
+
+        <Surface radius="2xl" padding="lg">
+          <Inline justify="between" wrap={false} className="gap-4">
+            <Stack gap="xs" className="min-w-0">
+              <Text weight="semibold">Shopping history</Text>
+              <Text size="sm" tone="muted">
+                See finished lists and what was bought or discarded.
+              </Text>
+            </Stack>
+            <Button asChild variant="outline" className="shrink-0 rounded-xl">
+              <Link to="/shopping-history">
+                <History className="size-4" />
+                Open
+              </Link>
+            </Button>
+          </Inline>
         </Surface>
 
         <Surface radius="2xl" padding="lg">

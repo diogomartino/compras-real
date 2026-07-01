@@ -68,6 +68,10 @@ const productImportStatusEnum = pgEnum("product_import_status", [
 
 type TUserSettings = {
   defaultShoppingMode?: "list" | "swipe";
+  compactShoppingList?: boolean;
+  hapticsEnabled?: boolean;
+  soundEnabled?: boolean;
+  wakeLockEnabled?: boolean;
 };
 
 const users = pgTable(
@@ -82,7 +86,13 @@ const users = pgTable(
     settings: jsonb("settings")
       .$type<TUserSettings>()
       .notNull()
-      .default({ defaultShoppingMode: "list" }),
+      .default({
+        defaultShoppingMode: "list",
+        compactShoppingList: true,
+        hapticsEnabled: true,
+        soundEnabled: false,
+        wakeLockEnabled: true,
+      }),
     createdAt: numeric("created_at", { mode: "number" }).notNull(),
     updatedAt: numeric("updated_at", { mode: "number" }).notNull(),
   },
@@ -258,6 +268,75 @@ const productImportRequests = pgTable(
       table.requestedBy,
     ),
     statusIdx: index("product_import_requests_status_idx").on(table.status),
+  }),
+);
+
+const productUsageStats = pgTable(
+  "product_usage_stats",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    householdId: uuid("household_id")
+      .notNull()
+      .references(() => households.id, {
+        onDelete: "cascade",
+      }),
+
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, {
+        onDelete: "cascade",
+      }),
+
+    totalAddedToOngoingCount: numeric("total_added_to_ongoing_count", {
+      mode: "number",
+    })
+      .notNull()
+      .default(0),
+
+    totalCheckedCount: numeric("total_checked_count", { mode: "number" })
+      .notNull()
+      .default(0),
+
+    totalSkippedCount: numeric("total_skipped_count", { mode: "number" })
+      .notNull()
+      .default(0),
+
+    totalDiscardedCount: numeric("total_discarded_count", { mode: "number" })
+      .notNull()
+      .default(0),
+
+    lastAddedToOngoingAt: numeric("last_added_to_ongoing_at", {
+      mode: "number",
+    }),
+
+    lastCheckedAt: numeric("last_checked_at", { mode: "number" }),
+    lastSkippedAt: numeric("last_skipped_at", { mode: "number" }),
+    lastDiscardedAt: numeric("last_discarded_at", { mode: "number" }),
+    lastUsedAt: numeric("last_used_at", { mode: "number" }),
+
+    createdAt: numeric("created_at", { mode: "number" }).notNull(),
+    updatedAt: numeric("updated_at", { mode: "number" }).notNull(),
+  },
+  (table) => ({
+    householdIdx: index("product_usage_stats_household_id_idx").on(
+      table.householdId,
+    ),
+    productIdx: index("product_usage_stats_product_id_idx").on(
+      table.productId,
+    ),
+    householdLastUsedIdx: index(
+      "product_usage_stats_household_last_used_idx",
+    ).on(table.householdId, table.lastUsedAt),
+    householdTotalAddedIdx: index(
+      "product_usage_stats_household_total_added_idx",
+    ).on(table.householdId, table.totalAddedToOngoingCount),
+    householdTotalCheckedIdx: index(
+      "product_usage_stats_household_total_checked_idx",
+    ).on(table.householdId, table.totalCheckedCount),
+    householdProductUniqueIdx: uniqueIndex(
+      "product_usage_stats_household_product_unique_idx",
+    ).on(table.householdId, table.productId),
   }),
 );
 
@@ -606,6 +685,7 @@ export {
   categories,
   products,
   productImportRequests,
+  productUsageStats,
   baseLists,
   baseListItems,
   ongoingLists,

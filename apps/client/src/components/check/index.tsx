@@ -19,11 +19,7 @@ const Check = memo(({ label, checked, onChange }: TCheckProps) => {
 
   return (
     <div className="flex items-center gap-3">
-      <Checkbox
-        id={id}
-        checked={checked}
-        onCheckedChange={onCheckedChange}
-      />
+      <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} />
       <Label htmlFor={id} className="select-none cursor-pointer">
         {label}
       </Label>

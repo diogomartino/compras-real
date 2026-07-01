@@ -20,7 +20,13 @@ const ShoppingGuard = memo(() => {
     ) {
       navigate('/shop');
     }
-  }, [isAuthenticated, isFetching, location.pathname, navigate, shoppingList?.status]);
+  }, [
+    isAuthenticated,
+    isFetching,
+    location.pathname,
+    navigate,
+    shoppingList?.status
+  ]);
 
   return null;
 });

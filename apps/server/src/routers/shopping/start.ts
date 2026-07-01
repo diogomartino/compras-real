@@ -7,8 +7,14 @@ import { protectedProcedure } from '../../trpc';
 import { getOrCreateActiveOngoingList } from '../ongoing-list/helpers';
 
 const startRoute = protectedProcedure.mutation(async ({ ctx }) => {
-  const householdId = await getRequiredHouseholdId(ctx, 'starting shopping mode');
-  const activeList = await getOrCreateActiveOngoingList(householdId, ctx.userId);
+  const householdId = await getRequiredHouseholdId(
+    ctx,
+    'starting shopping mode'
+  );
+  const activeList = await getOrCreateActiveOngoingList(
+    householdId,
+    ctx.userId
+  );
   const details = await getOngoingListDetails(householdId, activeList.id);
 
   if (!details || details.items.length === 0) {

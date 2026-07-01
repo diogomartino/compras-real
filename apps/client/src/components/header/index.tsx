@@ -31,9 +31,7 @@ const Header = memo(() => {
         <div className="flex items-center gap-2">
           {isAuthenticated ? (
             <>
-              <span className="text-sm text-muted-foreground">
-                {email}
-              </span>
+              <span className="text-sm text-muted-foreground">{email}</span>
               <Button variant="outline" onClick={onLogout}>
                 Log out
               </Button>
@@ -43,9 +41,7 @@ const Header = memo(() => {
               <Button variant="ghost" onClick={openLogin}>
                 Log in
               </Button>
-              <Button onClick={openRegister}>
-                Register
-              </Button>
+              <Button onClick={openRegister}>Register</Button>
             </>
           )}
         </div>

@@ -1,4 +1,11 @@
-import { Inline, Media, Stack, StatusChip, Surface, Text } from '@/components/ds';
+import {
+  Inline,
+  Media,
+  Stack,
+  StatusChip,
+  Surface,
+  Text
+} from '@/components/ds';
 import { memo, useMemo } from 'react';
 import { formatUnit } from './helpers';
 import type { TCatalogFormValues } from './types';
@@ -14,7 +21,8 @@ const CatalogPreview = memo(({ form }: TCatalogPreviewProps) => {
     [form.categoryName]
   );
   const quantity = useMemo(
-    () => `${form.defaultQuantityAmount || '0'} ${formatUnit(form.defaultQuantityUnit)}`,
+    () =>
+      `${form.defaultQuantityAmount || '0'} ${formatUnit(form.defaultQuantityUnit)}`,
     [form.defaultQuantityAmount, form.defaultQuantityUnit]
   );
 

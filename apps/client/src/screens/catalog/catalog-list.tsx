@@ -1,10 +1,11 @@
 import { Inline, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PackageSearch, Plus, Search } from 'lucide-react';
+import { FolderTree, PackageSearch, Plus, Search } from 'lucide-react';
 import { memo, type ChangeEvent } from 'react';
-import type { TCatalogProduct } from './types';
+import { Link } from 'react-router';
 import { CatalogProductRow } from './catalog-product-row';
+import type { TCatalogProduct } from './types';
 
 type TCatalogListProps = {
   products: TCatalogProduct[];
@@ -43,10 +44,18 @@ const CatalogList = memo(
                 placeholder="Search products or categories"
               />
             </div>
-            <Button onClick={onCreate} className="rounded-xl">
-              <Plus className="size-4" />
-              Add product
-            </Button>
+            <Inline gap="sm" wrap={false}>
+              <Button asChild variant="outline" className="rounded-xl">
+                <Link to="/categories">
+                  <FolderTree className="size-4" />
+                  <span className="sr-only sm:not-sr-only">Categories</span>
+                </Link>
+              </Button>
+              <Button onClick={onCreate} className="rounded-xl">
+                <Plus className="size-4" />
+                Add product
+              </Button>
+            </Inline>
           </Inline>
         </Surface>
 

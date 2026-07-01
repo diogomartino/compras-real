@@ -33,10 +33,7 @@ type TCatalogFormProps = {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onImportUrlChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onExtractDetails: () => void;
-  onFieldChange: (
-    field: keyof TCatalogFormValues,
-    value: string
-  ) => void;
+  onFieldChange: (field: keyof TCatalogFormValues, value: string) => void;
 };
 
 const CatalogForm = memo(
@@ -230,7 +227,6 @@ const CatalogForm = memo(
                         </SelectContent>
                       </Select>
                     </label>
-
                   </div>
                 </Stack>
               </Surface>

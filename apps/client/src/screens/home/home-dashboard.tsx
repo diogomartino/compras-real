@@ -10,10 +10,18 @@ import {
   useUpdateOngoingListItem
 } from '@/mutations/ongoing-list';
 import { useOngoingList } from '@/queries/ongoing-list';
-import { useProducts } from '@/queries/products';
+import { useProducts, useRecentProducts } from '@/queries/products';
 import type { TOngoingListEntry, TUnitKind } from '@myapp/shared';
 import { PackagePlus, Plus, Search, ShoppingBasket } from 'lucide-react';
-import { memo, useCallback, useMemo, useState, type ChangeEvent } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent
+} from 'react';
+import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { AddProductsDialog } from './add-products-dialog';
 import { EditOngoingItemDialog } from './edit-ongoing-item-dialog';
@@ -24,12 +32,14 @@ const HomeDashboard = memo(() => {
   const [query, setQuery] = useState('');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<TOngoingListEntry>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     data: ongoingList,
     error: ongoingListError,
     isLoading: ongoingListLoading
   } = useOngoingList(true);
   const { data: productsData, isLoading: productsLoading } = useProducts(true);
+  const { data: recentProductsData } = useRecentProducts(addDialogOpen);
   const { mutateAsync: addItems, isPending: addItemsPending } =
     useAddOngoingListItems();
   const { mutateAsync: updateItem, isPending: updateItemPending } =
@@ -39,6 +49,10 @@ const HomeDashboard = memo(() => {
 
   const items = useMemo(() => ongoingList?.items ?? [], [ongoingList]);
   const products = useMemo(() => productsData ?? [], [productsData]);
+  const recentProducts = useMemo(
+    () => recentProductsData ?? [],
+    [recentProductsData]
+  );
   const visibleItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
@@ -60,6 +74,18 @@ const HomeDashboard = memo(() => {
     () => addItemsPending || updateItemPending || removeItemPending,
     [addItemsPending, removeItemPending, updateItemPending]
   );
+
+  useEffect(() => {
+    if (searchParams.get('addProducts') !== '1') {
+      return;
+    }
+
+    setAddDialogOpen(true);
+    setSearchParams((currentParams) => {
+      currentParams.delete('addProducts');
+      return currentParams;
+    });
+  }, [searchParams, setSearchParams]);
 
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -245,6 +271,7 @@ const HomeDashboard = memo(() => {
       <AddProductsDialog
         open={addDialogOpen}
         products={products}
+        recentProducts={recentProducts}
         ongoingItems={items}
         isPending={addItemsPending}
         onOpenChange={setAddDialogOpen}

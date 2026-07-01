@@ -38,7 +38,11 @@ type TChangePasswordInput = {
 };
 
 type TUpdateSettingsInput = {
-  defaultShoppingMode: 'list' | 'swipe';
+  defaultShoppingMode?: 'list' | 'swipe';
+  compactShoppingList?: boolean;
+  hapticsEnabled?: boolean;
+  soundEnabled?: boolean;
+  wakeLockEnabled?: boolean;
 };
 
 const applyAuthResult = async ({ token, user }: TAuthResult) => {

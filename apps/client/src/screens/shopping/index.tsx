@@ -1,23 +1,37 @@
 import { Inline, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
-import { requestConfirmation } from '@/features/dialogs/actions';
 import { useAuth } from '@/features/auth/hooks';
+import { requestConfirmation } from '@/features/dialogs/actions';
 import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { useWakeLock } from '@/hooks/use-wake-lock';
+import { cn } from '@/lib/utils';
+import { useUpdateSettings } from '@/mutations/auth';
 import {
   clearShoppingListState,
   useCancelShopping,
   useFinishShopping,
   useSetShoppingItemStatus
 } from '@/mutations/shopping';
-import { useShoppingList, useShoppingUpdates } from '@/queries/shopping';
+import {
+  type TShoppingActivity,
+  type TShoppingPresenceUser,
+  useShoppingList,
+  useShoppingUpdates
+} from '@/queries/shopping';
 import type { TOngoingListEntry, TOngoingListItemStatus } from '@myapp/shared';
-import { CheckCircle2, List, RotateCcw, ShoppingCart, Sparkles } from 'lucide-react';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  CheckCircle2,
+  List,
+  RotateCcw,
+  ShoppingCart,
+  Sparkles
+} from 'lucide-react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
-import { vibrate } from './helpers';
+import { playActionTone, vibrate } from './helpers';
 import { ShoppingListView } from './shopping-list-view';
+import { ShoppingLiveStatus } from './shopping-live-status';
 import { ShoppingProgress } from './shopping-progress';
 import { ShoppingSwipeView } from './shopping-swipe-view';
 
@@ -30,6 +44,11 @@ const Shopping = memo(() => {
     auth.settings?.defaultShoppingMode ?? 'list'
   );
   const [reviewSkipped, setReviewSkipped] = useState(false);
+  const [shoppingUsers, setShoppingUsers] = useState<TShoppingPresenceUser[]>([]);
+  const [shoppingActivities, setShoppingActivities] = useState<
+    TShoppingActivity[]
+  >([]);
+  const hapticsUnsupportedToastShown = useRef(false);
   const { data: shoppingList, isLoading, error } = useShoppingList(true);
   const { mutateAsync: setItemStatus, isPending: setItemStatusPending } =
     useSetShoppingItemStatus();
@@ -37,9 +56,28 @@ const Shopping = memo(() => {
     useFinishShopping();
   const { mutateAsync: cancelShopping, isPending: cancelShoppingPending } =
     useCancelShopping();
+  const { mutateAsync: updateSettings, isPending: updateSettingsPending } =
+    useUpdateSettings();
 
-  useShoppingUpdates(true);
-  useWakeLock(true);
+  const onPresence = useCallback((users: TShoppingPresenceUser[]) => {
+    setShoppingUsers(users);
+  }, []);
+  const onActivity = useCallback((activity: TShoppingActivity) => {
+    setShoppingActivities((currentActivities) =>
+      [
+        activity,
+        ...currentActivities.filter(
+          (currentActivity) =>
+            currentActivity.createdAt !== activity.createdAt ||
+            currentActivity.actor.id !== activity.actor.id ||
+            currentActivity.product.id !== activity.product.id
+        )
+      ].slice(0, 4)
+    );
+  }, []);
+
+  useShoppingUpdates(true, { onActivity, onPresence });
+  useWakeLock(auth.settings?.wakeLockEnabled ?? true);
 
   const items = useMemo(() => shoppingList?.items ?? [], [shoppingList]);
   const pendingItems = useMemo(
@@ -67,18 +105,42 @@ const Shopping = memo(() => {
     [items]
   );
   const skippedCount = ignoredItems.length + discardedCount;
-  const isComplete = items.length > 0 && pendingItems.length === 0 && ignoredItems.length === 0;
-  const shouldReviewSkipped = !reviewSkipped && pendingItems.length === 0 && ignoredItems.length > 0;
+  const isComplete =
+    items.length > 0 && pendingItems.length === 0 && ignoredItems.length === 0;
+  const shouldReviewSkipped =
+    !reviewSkipped && pendingItems.length === 0 && ignoredItems.length > 0;
+  const compactShoppingList = auth.settings?.compactShoppingList ?? true;
+  const hapticsEnabled = auth.settings?.hapticsEnabled ?? true;
+  const soundEnabled = auth.settings?.soundEnabled ?? false;
 
   const setStatus = useCallback(
     async (item: TOngoingListEntry, status: TOngoingListItemStatus) => {
+      let vibrated = true;
+
+      if (hapticsEnabled && status === 'checked') {
+        vibrated = vibrate(60);
+      } else if (
+        hapticsEnabled &&
+        (status === 'ignored' || status === 'discarded')
+      ) {
+        vibrated = vibrate([35, 35, 70]);
+      }
+
+      if (hapticsEnabled && !vibrated && !hapticsUnsupportedToastShown.current) {
+        hapticsUnsupportedToastShown.current = true;
+        toast.info('Haptics are not supported or are blocked by this browser.');
+      }
+
       try {
         await setItemStatus({ id: item.id, status });
 
-        if (status === 'checked') {
-          vibrate(12);
-        } else if (status === 'ignored' || status === 'discarded') {
-          vibrate([8, 20, 8]);
+        if (
+          soundEnabled &&
+          (status === 'checked' ||
+            status === 'ignored' ||
+            status === 'discarded')
+        ) {
+          playActionTone(status);
         }
       } catch (mutationError) {
         toast.error(
@@ -86,7 +148,7 @@ const Shopping = memo(() => {
         );
       }
     },
-    [setItemStatus]
+    [hapticsEnabled, setItemStatus, soundEnabled]
   );
   const check = useCallback(
     (item: TOngoingListEntry) => {
@@ -100,6 +162,27 @@ const Shopping = memo(() => {
     },
     [setStatus]
   );
+  const discard = useCallback(
+    (item: TOngoingListEntry) => {
+      void setStatus(item, 'discarded');
+    },
+    [setStatus]
+  );
+  const discardSkipped = useCallback(async () => {
+    const confirmed = await requestConfirmation({
+      title: 'Discard skipped products?',
+      message: `Discard ${ignoredItems.length} skipped products and finish without buying them?`,
+      confirmLabel: 'Discard skipped',
+      cancelLabel: 'Keep reviewing',
+      variant: 'danger'
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    await Promise.all(ignoredItems.map((item) => setStatus(item, 'discarded')));
+  }, [ignoredItems, setStatus]);
   const startSkippedReview = useCallback(() => {
     setReviewSkipped(true);
     setView('swipe');
@@ -110,6 +193,16 @@ const Shopping = memo(() => {
   const showSwipeView = useCallback(() => {
     setView('swipe');
   }, []);
+  const toggleCompactShoppingList = useCallback(async () => {
+    try {
+      await updateSettings({ compactShoppingList: !compactShoppingList });
+    } catch (settingsError) {
+      toast.error(
+        parseTrpcErrors(settingsError)._general ??
+          'Failed to update list layout.'
+      );
+    }
+  }, [compactShoppingList, updateSettings]);
   const showMainList = useCallback(() => {
     setReviewSkipped(false);
   }, []);
@@ -181,9 +274,20 @@ const Shopping = memo(() => {
 
   return (
     <main className="min-h-dvh bg-background text-foreground">
-      <div className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <div
+        className={cn(
+          'mx-auto flex min-h-dvh w-full flex-col',
+          view === 'swipe'
+            ? 'max-w-none gap-0 p-0'
+            : 'max-w-4xl gap-4 px-4 py-4 sm:px-6 lg:px-8'
+        )}
+      >
         {view === 'list' && (
-          <Surface radius="2xl" padding="md" className="bg-card/95 backdrop-blur">
+          <Surface
+            radius="2xl"
+            padding="md"
+            className="bg-card/95 backdrop-blur"
+          >
             <Stack gap="md">
               <ShoppingProgress
                 checkedCount={checkedCount}
@@ -210,6 +314,16 @@ const Shopping = memo(() => {
                   >
                     <Sparkles className="size-4" />
                     Swipe
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={compactShoppingList ? 'default' : 'outline'}
+                    size="sm"
+                    className="rounded-full"
+                    disabled={updateSettingsPending}
+                    onClick={toggleCompactShoppingList}
+                  >
+                    {compactShoppingList ? 'Compact' : 'Comfort'}
                   </Button>
                 </Inline>
                 {reviewSkipped && (
@@ -239,50 +353,83 @@ const Shopping = memo(() => {
           </Surface>
         )}
 
+        {view === 'list' && (
+          <ShoppingLiveStatus
+            users={shoppingUsers}
+            activities={shoppingActivities}
+            currentUserId={auth.userId}
+          />
+        )}
+
         {shouldReviewSkipped && (
           <Surface radius="2xl" padding="lg" className="text-center">
             <Stack gap="md" align="center">
               <RotateCcw className="size-10 text-orange-500" />
               <Text weight="semibold">Review skipped products</Text>
               <Text size="sm" tone="muted">
-                {ignoredItems.length} products were ignored. Review them before finishing.
+                {ignoredItems.length} products were ignored. Review them before
+                finishing.
               </Text>
-              <Button type="button" className="rounded-xl" onClick={startSkippedReview}>
-                Review skipped
-              </Button>
+              <Inline justify="center">
+                <Button
+                  type="button"
+                  className="rounded-xl"
+                  onClick={startSkippedReview}
+                >
+                  Review skipped
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-xl"
+                  onClick={discardSkipped}
+                >
+                  Discard skipped
+                </Button>
+              </Inline>
             </Stack>
           </Surface>
         )}
 
         {isComplete && (
-          <Surface radius="2xl" padding="lg" className="text-center">
-            <Stack gap="md" align="center">
-              <CheckCircle2 className="size-12 text-green-600" />
-              <Stack gap="xs" align="center">
-                <Text weight="semibold" className="text-xl">
-                  Shopping done
-                </Text>
-                <Text size="sm" tone="muted">
-                  {checkedCount} checked, {discardedCount} discarded
-                </Text>
+          <div
+            className={cn(
+              'grid place-items-center',
+              view === 'swipe' ? 'min-h-dvh p-4' : 'min-h-[calc(100dvh-12rem)]'
+            )}
+          >
+            <Surface radius="2xl" padding="lg" className="w-full max-w-md text-center">
+              <Stack gap="md" align="center">
+                <CheckCircle2 className="size-12 text-green-600" />
+                <Stack gap="xs" align="center">
+                  <Text weight="semibold" className="text-xl">
+                    Shopping done
+                  </Text>
+                  <Text size="sm" tone="muted">
+                    {checkedCount} checked, {discardedCount} discarded
+                  </Text>
+                </Stack>
+                <Button
+                  type="button"
+                  className="rounded-xl"
+                  disabled={finishShoppingPending}
+                  onClick={finish}
+                >
+                  Finish shopping
+                </Button>
               </Stack>
-              <Button
-                type="button"
-                className="rounded-xl"
-                disabled={finishShoppingPending}
-                onClick={finish}
-              >
-                Finish shopping
-              </Button>
-            </Stack>
-          </Surface>
+            </Surface>
+          </div>
         )}
 
         {!shouldReviewSkipped && !isComplete && view === 'list' && (
           <ShoppingListView
             items={activeItems}
             isPending={setItemStatusPending}
+            compact={compactShoppingList}
+            reviewSkipped={reviewSkipped}
             onCheck={check}
+            onDiscard={discard}
           />
         )}
 
@@ -295,6 +442,9 @@ const Shopping = memo(() => {
             skippedCount={skippedCount}
             totalCount={items.length}
             categoryOrder={categoryOrder}
+            liveUsers={shoppingUsers}
+            liveActivities={shoppingActivities}
+            currentUserId={auth.userId}
             onListView={showListView}
             onMainList={showMainList}
             onCancelShopping={cancel}

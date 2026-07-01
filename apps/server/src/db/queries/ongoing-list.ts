@@ -6,16 +6,30 @@ import {
   inArray,
   ongoingListItems,
   ongoingLists,
-  products
+  products,
+  sql,
+  users
 } from '@myapp/db';
 import type { TOngoingListDetails, TOngoingListEntry } from '@myapp/shared';
+
+type TShoppingHistoryList = TOngoingListDetails & {
+  shoppingStartedAt: number | null;
+  shoppingStartedByUser: {
+    id: string;
+    name: string;
+    avatarUrl: string | null;
+  } | null;
+};
 
 const getActiveOngoingList = async (householdId: string) => {
   const [ongoingList] = await db
     .select()
     .from(ongoingLists)
     .where(
-      and(eq(ongoingLists.householdId, householdId), eq(ongoingLists.status, 'active'))
+      and(
+        eq(ongoingLists.householdId, householdId),
+        eq(ongoingLists.status, 'active')
+      )
     )
     .limit(1);
 
@@ -124,11 +138,60 @@ const getOngoingListDetails = async (
   };
 };
 
+const getFinishedOngoingListHistory = async (
+  householdId: string,
+  limit: number
+): Promise<TShoppingHistoryList[]> => {
+  const finishedLists = await db
+    .select({
+      id: ongoingLists.id,
+      shoppingStartedAt: ongoingLists.shoppingStartedAt,
+      shoppingStartedByUserId: users.id,
+      shoppingStartedByUserName: users.name,
+      shoppingStartedByUserAvatarUrl: users.avatarUrl
+    })
+    .from(ongoingLists)
+    .leftJoin(users, eq(ongoingLists.shoppingStartedBy, users.id))
+    .where(
+      and(
+        eq(ongoingLists.householdId, householdId),
+        eq(ongoingLists.status, 'finished')
+      )
+    )
+    .orderBy(sql`${ongoingLists.finishedAt} desc nulls last`)
+    .limit(limit);
+
+  const history = await Promise.all(
+    finishedLists.map(async (list) => {
+      const details = await getOngoingListDetails(householdId, list.id);
+
+      if (!details) {
+        return undefined;
+      }
+
+      return {
+        ...details,
+        shoppingStartedAt: list.shoppingStartedAt,
+        shoppingStartedByUser: list.shoppingStartedByUserId
+          ? {
+              id: list.shoppingStartedByUserId,
+              name: list.shoppingStartedByUserName ?? 'Unknown user',
+              avatarUrl: list.shoppingStartedByUserAvatarUrl
+            }
+          : null
+      };
+    })
+  );
+
+  return history.filter((list): list is TShoppingHistoryList => Boolean(list));
+};
+
 export {
   getActiveOngoingList,
-  getOpenOngoingList,
+  getFinishedOngoingListHistory,
   getOngoingListDetails,
   getOngoingListItemById,
   getOngoingListItemForProduct,
-  getOngoingListItems
+  getOngoingListItems,
+  getOpenOngoingList
 };

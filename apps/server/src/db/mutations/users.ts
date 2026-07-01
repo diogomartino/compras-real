@@ -9,7 +9,12 @@ import {
 import type { TIUser, TUser } from '@myapp/shared';
 
 type TUserSettingsInput = {
-  defaultShoppingMode: 'list' | 'swipe';
+  defaultShoppingMode?: 'list' | 'swipe';
+  compactShoppingList?: boolean;
+  hapticsEnabled?: boolean;
+  soundEnabled?: boolean;
+  wakeLockEnabled?: boolean;
+  swipeOnboardingSeen?: boolean;
 };
 
 const createUser = async (data: TIUser): Promise<TUser> => {
@@ -109,10 +114,23 @@ const updateUserSettings = async (
   userId: string,
   settings: TUserSettingsInput
 ) => {
+  const [currentUser] = await db
+    .select({ settings: users.settings })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!currentUser) {
+    throw new Error('Failed to update user settings');
+  }
+
   const [user] = await db
     .update(users)
     .set({
-      settings,
+      settings: {
+        ...currentUser.settings,
+        ...settings
+      },
       updatedAt: Date.now()
     })
     .where(eq(users.id, userId))

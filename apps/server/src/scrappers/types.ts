@@ -3,7 +3,7 @@ import z from 'zod';
 const scrappedProduct = z.object({
   name: z.string(),
   imageUrl: z.url(),
-  category: z.string().optional(),
+  category: z.string().optional()
 });
 
 interface IScrapper {

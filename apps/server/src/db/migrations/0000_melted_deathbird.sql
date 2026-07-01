@@ -93,6 +93,23 @@ CREATE TABLE "product_import_requests" (
 	"updated_at" numeric NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "product_usage_stats" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"household_id" uuid NOT NULL,
+	"product_id" uuid NOT NULL,
+	"total_added_to_ongoing_count" numeric DEFAULT 0 NOT NULL,
+	"total_checked_count" numeric DEFAULT 0 NOT NULL,
+	"total_skipped_count" numeric DEFAULT 0 NOT NULL,
+	"total_discarded_count" numeric DEFAULT 0 NOT NULL,
+	"last_added_to_ongoing_at" numeric,
+	"last_checked_at" numeric,
+	"last_skipped_at" numeric,
+	"last_discarded_at" numeric,
+	"last_used_at" numeric,
+	"created_at" numeric NOT NULL,
+	"updated_at" numeric NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "products" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"household_id" uuid NOT NULL,
@@ -145,7 +162,7 @@ CREATE TABLE "users" (
 	"password_hash" text NOT NULL,
 	"avatar_url" text,
 	"is_admin" boolean DEFAULT false NOT NULL,
-	"settings" jsonb DEFAULT '{"defaultShoppingMode":"list"}'::jsonb NOT NULL,
+	"settings" jsonb DEFAULT '{"defaultShoppingMode":"list","compactShoppingList":true,"hapticsEnabled":true,"soundEnabled":false,"wakeLockEnabled":true}'::jsonb NOT NULL,
 	"created_at" numeric NOT NULL,
 	"updated_at" numeric NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
@@ -172,6 +189,8 @@ ALTER TABLE "ongoing_lists" ADD CONSTRAINT "ongoing_lists_shopping_started_by_us
 ALTER TABLE "ongoing_lists" ADD CONSTRAINT "ongoing_lists_finished_by_users_id_fk" FOREIGN KEY ("finished_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_import_requests" ADD CONSTRAINT "product_import_requests_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_import_requests" ADD CONSTRAINT "product_import_requests_requested_by_users_id_fk" FOREIGN KEY ("requested_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "product_usage_stats" ADD CONSTRAINT "product_usage_stats_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "product_usage_stats" ADD CONSTRAINT "product_usage_stats_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shopping_session_items" ADD CONSTRAINT "shopping_session_items_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -213,6 +232,12 @@ CREATE UNIQUE INDEX "ongoing_lists_one_open_per_household_unique_idx" ON "ongoin
 CREATE INDEX "product_import_requests_household_id_idx" ON "product_import_requests" USING btree ("household_id");--> statement-breakpoint
 CREATE INDEX "product_import_requests_requested_by_idx" ON "product_import_requests" USING btree ("requested_by");--> statement-breakpoint
 CREATE INDEX "product_import_requests_status_idx" ON "product_import_requests" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "product_usage_stats_household_id_idx" ON "product_usage_stats" USING btree ("household_id");--> statement-breakpoint
+CREATE INDEX "product_usage_stats_product_id_idx" ON "product_usage_stats" USING btree ("product_id");--> statement-breakpoint
+CREATE INDEX "product_usage_stats_household_last_used_idx" ON "product_usage_stats" USING btree ("household_id","last_used_at");--> statement-breakpoint
+CREATE INDEX "product_usage_stats_household_total_added_idx" ON "product_usage_stats" USING btree ("household_id","total_added_to_ongoing_count");--> statement-breakpoint
+CREATE INDEX "product_usage_stats_household_total_checked_idx" ON "product_usage_stats" USING btree ("household_id","total_checked_count");--> statement-breakpoint
+CREATE UNIQUE INDEX "product_usage_stats_household_product_unique_idx" ON "product_usage_stats" USING btree ("household_id","product_id");--> statement-breakpoint
 CREATE INDEX "products_household_id_idx" ON "products" USING btree ("household_id");--> statement-breakpoint
 CREATE INDEX "products_category_id_idx" ON "products" USING btree ("category_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "products_household_title_unique_idx" ON "products" USING btree ("household_id","title");--> statement-breakpoint

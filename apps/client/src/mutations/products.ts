@@ -56,8 +56,4 @@ export {
   useExtractProductDetails,
   useUpdateProduct
 };
-export type {
-  TExtractProductDetailsInput,
-  TProductInput,
-  TUpdateProductInput
-};
+export type { TExtractProductDetailsInput, TProductInput, TUpdateProductInput };

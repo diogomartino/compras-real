@@ -19,14 +19,10 @@ type TCatalogProductRowProps = {
 };
 
 const CatalogProductRow = memo(
-  ({
-    product,
-    isMutating,
-    onEdit,
-    onDelete
-  }: TCatalogProductRowProps) => {
+  ({ product, isMutating, onEdit, onDelete }: TCatalogProductRowProps) => {
     const quantity = useMemo(
-      () => `${product.defaultQuantityAmount} ${formatUnit(product.defaultQuantityUnit)}`,
+      () =>
+        `${product.defaultQuantityAmount} ${formatUnit(product.defaultQuantityUnit)}`,
       [product.defaultQuantityAmount, product.defaultQuantityUnit]
     );
     const edit = useCallback(() => {

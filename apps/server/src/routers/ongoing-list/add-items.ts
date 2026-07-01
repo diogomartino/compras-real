@@ -1,6 +1,7 @@
 import type { TUnitKind } from '@myapp/shared';
 import z from 'zod';
 import { createOngoingListItem } from '../../db/mutations/ongoing-list';
+import { trackProductAddedToOngoing } from '../../db/mutations/product-usage-stats';
 import {
   getOngoingListDetails,
   getOngoingListItemForProduct
@@ -57,6 +58,7 @@ const addItemsRoute = protectedProcedure
           quantityUnit: product.defaultQuantityUnit as TUnitKind,
           userId: ctx.userId
         });
+        await trackProductAddedToOngoing({ householdId, productId });
       }
     }
 

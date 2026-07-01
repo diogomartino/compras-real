@@ -18,6 +18,7 @@ import { formatQuantity } from './helpers';
 type TAddProductsDialogProps = {
   open: boolean;
   products: TCatalogProduct[];
+  recentProducts: TCatalogProduct[];
   ongoingItems: TOngoingListEntry[];
   isPending: boolean;
   onOpenChange: (open: boolean) => void;
@@ -28,6 +29,7 @@ const AddProductsDialog = memo(
   ({
     open,
     products,
+    recentProducts,
     ongoingItems,
     isPending,
     onOpenChange,
@@ -52,9 +54,31 @@ const AddProductsDialog = memo(
           .includes(normalizedQuery);
       });
     }, [products, query]);
-    const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-      setQuery(event.target.value);
-    }, []);
+    const normalizedQuery = query.trim().toLowerCase();
+    const availableRecentProducts = useMemo(
+      () =>
+        recentProducts.filter((product) => !ongoingProductIds.has(product.id)),
+      [ongoingProductIds, recentProducts]
+    );
+    const recentProductIds = useMemo(
+      () => new Set(availableRecentProducts.map((product) => product.id)),
+      [availableRecentProducts]
+    );
+    const allSectionProducts = useMemo(() => {
+      if (normalizedQuery) {
+        return visibleProducts;
+      }
+
+      return visibleProducts.filter(
+        (product) => !recentProductIds.has(product.id)
+      );
+    }, [normalizedQuery, recentProductIds, visibleProducts]);
+    const onQueryChange = useCallback(
+      (event: ChangeEvent<HTMLInputElement>) => {
+        setQuery(event.target.value);
+      },
+      []
+    );
     const close = useCallback(() => {
       onOpenChange(false);
       setQuery('');
@@ -90,10 +114,63 @@ const AddProductsDialog = memo(
     const submit = useCallback(() => {
       onSubmit(selectedProductIds);
     }, [onSubmit, selectedProductIds]);
+    const renderProduct = useCallback(
+      (product: TCatalogProduct) => {
+        const isAdded = ongoingProductIds.has(product.id);
+        const isSelected = selectedProductIds.includes(product.id);
+        const quantity = formatQuantity(
+          product.defaultQuantityAmount,
+          product.defaultQuantityUnit
+        );
+
+        return (
+          <button
+            key={product.id}
+            type="button"
+            disabled={isAdded || isPending}
+            onClick={() => toggleProduct(product.id)}
+            className={cn(
+              'grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border p-3 text-left transition-colors',
+              isSelected
+                ? 'border-primary bg-primary/10'
+                : 'border-border bg-card hover:bg-accent/40',
+              isAdded && 'opacity-50'
+            )}
+          >
+            <Media src={product.imageUrl} alt={product.title} size="md" />
+            <Stack gap="xs" className="min-w-0">
+              <span className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-semibold leading-tight">
+                {product.title}
+              </span>
+              <div className="flex min-w-0 flex-wrap gap-1.5">
+                <StatusChip tone="muted">
+                  {product.categoryName ?? 'Uncategorized'}
+                </StatusChip>
+                <StatusChip tone="info">{quantity}</StatusChip>
+              </div>
+            </Stack>
+            <div
+              className={cn(
+                'grid size-7 place-items-center rounded-full border',
+                isSelected
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border bg-background'
+              )}
+            >
+              {isSelected && <Check className="size-4" />}
+            </div>
+          </button>
+        );
+      },
+      [isPending, ongoingProductIds, selectedProductIds, toggleProduct]
+    );
 
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-h-[calc(100dvh-2rem)] gap-5 overflow-hidden rounded-3xl p-4 sm:max-w-3xl sm:p-6" close={close}>
+        <DialogContent
+          className="max-h-[calc(100dvh-2rem)] gap-5 overflow-hidden rounded-3xl p-4 sm:max-w-3xl sm:p-6"
+          close={close}
+        >
           <DialogHeader>
             <DialogTitle>Add products</DialogTitle>
             <DialogDescription>
@@ -111,54 +188,26 @@ const AddProductsDialog = memo(
             />
           </div>
 
-          <div className="grid max-h-[55dvh] gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
-            {visibleProducts.map((product) => {
-              const isAdded = ongoingProductIds.has(product.id);
-              const isSelected = selectedProductIds.includes(product.id);
-              const quantity = formatQuantity(
-                product.defaultQuantityAmount,
-                product.defaultQuantityUnit
-              );
+          <div className="max-h-[55dvh] space-y-4 overflow-y-auto pr-1">
+            {!normalizedQuery && availableRecentProducts.length > 0 && (
+              <Stack gap="sm">
+                <span className="px-1 text-sm font-semibold">
+                  Recent products
+                </span>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {availableRecentProducts.map(renderProduct)}
+                </div>
+              </Stack>
+            )}
 
-              return (
-                <button
-                  key={product.id}
-                  type="button"
-                  disabled={isAdded || isPending}
-                  onClick={() => toggleProduct(product.id)}
-                  className={cn(
-                    'grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border p-3 text-left transition-colors',
-                    isSelected
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border bg-card hover:bg-accent/40',
-                    isAdded && 'opacity-50'
-                  )}
-                >
-                  <Media src={product.imageUrl} alt={product.title} size="md" />
-                  <Stack gap="xs" className="min-w-0">
-                    <span className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-semibold leading-tight">
-                      {product.title}
-                    </span>
-                    <div className="flex min-w-0 flex-wrap gap-1.5">
-                      <StatusChip tone="muted">
-                        {product.categoryName ?? 'Uncategorized'}
-                      </StatusChip>
-                      <StatusChip tone="info">{quantity}</StatusChip>
-                    </div>
-                  </Stack>
-                  <div
-                    className={cn(
-                      'grid size-7 place-items-center rounded-full border',
-                      isSelected
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-border bg-background'
-                    )}
-                  >
-                    {isSelected && <Check className="size-4" />}
-                  </div>
-                </button>
-              );
-            })}
+            <Stack gap="sm">
+              {!normalizedQuery && (
+                <span className="px-1 text-sm font-semibold">All products</span>
+              )}
+              <div className="grid gap-2 sm:grid-cols-2">
+                {allSectionProducts.map(renderProduct)}
+              </div>
+            </Stack>
           </div>
 
           <DialogFooter>

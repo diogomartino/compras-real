@@ -1,8 +1,10 @@
 import type { TOngoingListItemStatus } from '@myapp/shared';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
+import { trackProductShoppingStatus } from '../../db/mutations/product-usage-stats';
 import { setShoppingItemStatus } from '../../db/mutations/shopping';
 import { getOngoingListItemById } from '../../db/queries/ongoing-list';
+import { getProductById } from '../../db/queries/products';
 import { getShoppingListDetails } from '../../db/queries/shopping';
 import { getRequiredHouseholdId } from '../../helpers/get-required-household-id';
 import { notifyShoppingUpdate } from '../../helpers/shopping-events';
@@ -28,16 +30,42 @@ const setItemStatusRoute = protectedProcedure
       throw new TRPCError({ code: 'NOT_FOUND', message: 'Product not found' });
     }
 
+    const product = await getProductById(item.productId);
+
     await setShoppingItemStatus(
       input.id,
       input.status as TOngoingListItemStatus,
       ctx.userId
     );
-    await notifyShoppingUpdate({
+    await trackProductShoppingStatus({
       householdId,
-      ongoingListId: item.ongoingListId,
-      type: 'item-updated'
+      productId: item.productId,
+      status: input.status as TOngoingListItemStatus
     });
+    if (input.status === 'pending') {
+      await notifyShoppingUpdate({
+        householdId,
+        ongoingListId: item.ongoingListId,
+        type: 'item-updated'
+      });
+    } else {
+      await notifyShoppingUpdate({
+        householdId,
+        ongoingListId: item.ongoingListId,
+        type: 'activity',
+        actor: {
+          id: ctx.user.id,
+          name: ctx.user.name,
+          avatarUrl: ctx.user.avatarUrl
+        },
+        product: {
+          id: item.productId,
+          title: product?.title ?? 'Product'
+        },
+        status: input.status as Exclude<TOngoingListItemStatus, 'pending'>,
+        createdAt: Date.now()
+      });
+    }
 
     return getShoppingListDetails(householdId, item.ongoingListId);
   });

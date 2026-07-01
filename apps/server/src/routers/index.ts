@@ -1,6 +1,7 @@
 import { t } from '../trpc';
 import { authRouter } from './auth';
 import { baseListRouter } from './base-list';
+import { categoriesRouter } from './categories';
 import { ongoingListRouter } from './ongoing-list';
 import { productsRouter } from './products';
 import { shoppingRouter } from './shopping';
@@ -10,6 +11,7 @@ const appRouter = t.router({
   utils: utilsRouter,
   auth: authRouter,
   products: productsRouter,
+  categories: categoriesRouter,
   baseList: baseListRouter,
   ongoingList: ongoingListRouter,
   shopping: shoppingRouter

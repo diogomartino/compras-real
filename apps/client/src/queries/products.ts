@@ -10,4 +10,18 @@ const useProducts = (enabled: boolean) =>
     enabled
   });
 
-export { productsQueryKey, useProducts };
+const recentProductsQueryKey = ['products', 'recent'] as const;
+
+const useRecentProducts = (enabled: boolean) =>
+  useQuery({
+    queryKey: recentProductsQueryKey,
+    queryFn: () => trpc.products.recent.query({ limit: 12 }),
+    enabled
+  });
+
+export {
+  productsQueryKey,
+  recentProductsQueryKey,
+  useProducts,
+  useRecentProducts
+};

@@ -1,4 +1,12 @@
-import { and, categories, db, eq, products, sql } from '@myapp/db';
+import {
+  and,
+  categories,
+  db,
+  eq,
+  productUsageStats,
+  products,
+  sql
+} from '@myapp/db';
 import type { TCatalogProduct } from '@myapp/shared';
 
 const getCatalogProducts = async (
@@ -20,6 +28,31 @@ const getCatalogProducts = async (
     .from(products)
     .leftJoin(categories, eq(products.categoryId, categories.id))
     .where(eq(products.householdId, householdId));
+};
+
+const getRecentCatalogProducts = async (
+  householdId: string,
+  limit: number
+): Promise<TCatalogProduct[]> => {
+  return db
+    .select({
+      id: products.id,
+      title: products.title,
+      imageUrl: products.imageUrl,
+      categoryId: products.categoryId,
+      categoryName: categories.name,
+      defaultQuantityAmount: products.defaultQuantityAmount,
+      defaultQuantityUnit: products.defaultQuantityUnit,
+      sourceUrl: products.sourceUrl,
+      createdAt: products.createdAt,
+      updatedAt: products.updatedAt
+    })
+    .from(productUsageStats)
+    .innerJoin(products, eq(productUsageStats.productId, products.id))
+    .leftJoin(categories, eq(products.categoryId, categories.id))
+    .where(eq(productUsageStats.householdId, householdId))
+    .orderBy(sql`${productUsageStats.lastUsedAt} desc nulls last`)
+    .limit(limit);
 };
 
 const getProductById = async (productId: string) => {
@@ -50,5 +83,6 @@ const getProductByTitle = async (householdId: string, title: string) => {
 export {
   getCatalogProducts,
   getProductById,
-  getProductByTitle
+  getProductByTitle,
+  getRecentCatalogProducts
 };
