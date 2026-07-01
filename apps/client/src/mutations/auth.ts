@@ -1,4 +1,5 @@
 import { setAuthToken, setAuthUser } from '@/features/auth/actions';
+import { queryClient } from '@/lib/query-client';
 import { trpc } from '@/lib/trpc';
 import type { TUser } from '@myapp/shared';
 import { useMutation } from '@tanstack/react-query';
@@ -36,13 +37,18 @@ type TChangePasswordInput = {
   confirmPassword: string;
 };
 
+type TUpdateSettingsInput = {
+  defaultShoppingMode: 'list' | 'swipe';
+};
+
 const applyAuthResult = async ({ token, user }: TAuthResult) => {
   await setAuthToken(token);
   setAuthUser({
     userId: user.id,
     email: user.email,
     avatarUrl: user.avatarUrl,
-    isAdmin: user.isAdmin
+    isAdmin: user.isAdmin,
+    settings: user.settings
   });
 };
 
@@ -76,15 +82,33 @@ const useChangePassword = () =>
       trpc.auth.changePassword.mutate(input)
   });
 
+const useUpdateSettings = () =>
+  useMutation({
+    mutationFn: (input: TUpdateSettingsInput) =>
+      trpc.auth.updateSettings.mutate(input),
+    onSuccess: async (user) => {
+      setAuthUser({
+        userId: user.id,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        isAdmin: user.isAdmin,
+        settings: user.settings
+      });
+      await queryClient.invalidateQueries({ queryKey: ['authed-user'] });
+    }
+  });
+
 export {
   useChangePassword,
   useLogin,
   useRegister,
   useRequestPasswordReset,
-  useResetPassword
+  useResetPassword,
+  useUpdateSettings
 };
 export type {
   TChangePasswordInput,
   TRequestPasswordResetInput,
-  TResetPasswordInput
+  TResetPasswordInput,
+  TUpdateSettingsInput
 };

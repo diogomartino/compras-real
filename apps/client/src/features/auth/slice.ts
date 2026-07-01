@@ -8,6 +8,7 @@ export type TAuthState = {
   email: TUser['email'] | undefined;
   avatarUrl: TUser['avatarUrl'] | undefined;
   isAdmin: TUser['isAdmin'];
+  settings: TUser['settings'] | undefined;
 };
 
 const initialState: TAuthState = {
@@ -16,7 +17,8 @@ const initialState: TAuthState = {
   email: undefined,
   avatarUrl: undefined,
   loading: true,
-  isAdmin: false
+  isAdmin: false,
+  settings: undefined
 };
 
 export const authSlice = createSlice({
@@ -29,18 +31,23 @@ export const authSlice = createSlice({
       state.email = undefined;
       state.avatarUrl = undefined;
       state.isAdmin = false;
+      state.settings = undefined;
       state.loading = true;
     },
     setUser: (
       state,
       action: PayloadAction<
-        Pick<TAuthState, 'userId' | 'email' | 'avatarUrl' | 'isAdmin'>
+        Pick<
+          TAuthState,
+          'userId' | 'email' | 'avatarUrl' | 'isAdmin' | 'settings'
+        >
       >
     ) => {
       state.userId = action.payload.userId;
       state.email = action.payload.email;
       state.avatarUrl = action.payload.avatarUrl;
       state.isAdmin = action.payload.isAdmin;
+      state.settings = action.payload.settings;
       state.loading = false;
     },
     resetState: () => ({

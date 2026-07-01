@@ -1,4 +1,6 @@
 CREATE TYPE "public"."household_role" AS ENUM('owner', 'admin', 'member');--> statement-breakpoint
+CREATE TYPE "public"."ongoing_list_item_status" AS ENUM('pending', 'checked', 'ignored', 'discarded');--> statement-breakpoint
+CREATE TYPE "public"."ongoing_list_status" AS ENUM('active', 'shopping', 'finished');--> statement-breakpoint
 CREATE TYPE "public"."product_import_status" AS ENUM('pending', 'completed', 'failed', 'not_implemented');--> statement-breakpoint
 CREATE TYPE "public"."shopping_item_source" AS ENUM('base', 'ongoing');--> statement-breakpoint
 CREATE TYPE "public"."shopping_item_status" AS ENUM('pending', 'done', 'skipped');--> statement-breakpoint
@@ -54,11 +56,27 @@ CREATE TABLE "households" (
 CREATE TABLE "ongoing_list_items" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"household_id" uuid NOT NULL,
+	"ongoing_list_id" uuid NOT NULL,
 	"product_id" uuid NOT NULL,
 	"quantity_amount" numeric(12, 3) NOT NULL,
 	"quantity_unit" "unit_kind" DEFAULT 'unit' NOT NULL,
+	"status" "ongoing_list_item_status" DEFAULT 'pending' NOT NULL,
+	"status_updated_at" numeric,
+	"status_updated_by" uuid,
 	"created_by" uuid,
-	"carried_over_from_session_id" uuid,
+	"created_at" numeric NOT NULL,
+	"updated_at" numeric NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "ongoing_lists" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"household_id" uuid NOT NULL,
+	"status" "ongoing_list_status" DEFAULT 'active' NOT NULL,
+	"created_by" uuid,
+	"shopping_started_by" uuid,
+	"shopping_started_at" numeric,
+	"finished_by" uuid,
+	"finished_at" numeric,
 	"created_at" numeric NOT NULL,
 	"updated_at" numeric NOT NULL
 );
@@ -86,7 +104,6 @@ CREATE TABLE "products" (
 	"default_quantity_amount" numeric(12, 3) NOT NULL,
 	"default_quantity_unit" "unit_kind" DEFAULT 'unit' NOT NULL,
 	"source_url" text,
-	"is_archived" boolean DEFAULT false NOT NULL,
 	"metadata" jsonb,
 	"created_at" numeric NOT NULL,
 	"updated_at" numeric NOT NULL
@@ -128,6 +145,7 @@ CREATE TABLE "users" (
 	"password_hash" text NOT NULL,
 	"avatar_url" text,
 	"is_admin" boolean DEFAULT false NOT NULL,
+	"settings" jsonb DEFAULT '{"defaultShoppingMode":"list"}'::jsonb NOT NULL,
 	"created_at" numeric NOT NULL,
 	"updated_at" numeric NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
@@ -144,8 +162,14 @@ ALTER TABLE "household_members" ADD CONSTRAINT "household_members_household_id_h
 ALTER TABLE "household_members" ADD CONSTRAINT "household_members_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "households" ADD CONSTRAINT "households_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "ongoing_list_items" ADD CONSTRAINT "ongoing_list_items_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ongoing_list_items" ADD CONSTRAINT "ongoing_list_items_ongoing_list_id_ongoing_lists_id_fk" FOREIGN KEY ("ongoing_list_id") REFERENCES "public"."ongoing_lists"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "ongoing_list_items" ADD CONSTRAINT "ongoing_list_items_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ongoing_list_items" ADD CONSTRAINT "ongoing_list_items_status_updated_by_users_id_fk" FOREIGN KEY ("status_updated_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "ongoing_list_items" ADD CONSTRAINT "ongoing_list_items_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ongoing_lists" ADD CONSTRAINT "ongoing_lists_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ongoing_lists" ADD CONSTRAINT "ongoing_lists_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ongoing_lists" ADD CONSTRAINT "ongoing_lists_shopping_started_by_users_id_fk" FOREIGN KEY ("shopping_started_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ongoing_lists" ADD CONSTRAINT "ongoing_lists_finished_by_users_id_fk" FOREIGN KEY ("finished_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_import_requests" ADD CONSTRAINT "product_import_requests_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_import_requests" ADD CONSTRAINT "product_import_requests_requested_by_users_id_fk" FOREIGN KEY ("requested_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_household_id_households_id_fk" FOREIGN KEY ("household_id") REFERENCES "public"."households"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -174,16 +198,23 @@ CREATE INDEX "household_members_user_id_idx" ON "household_members" USING btree 
 CREATE UNIQUE INDEX "household_members_household_user_unique_idx" ON "household_members" USING btree ("household_id","user_id");--> statement-breakpoint
 CREATE INDEX "households_created_by_idx" ON "households" USING btree ("created_by");--> statement-breakpoint
 CREATE INDEX "ongoing_list_items_household_id_idx" ON "ongoing_list_items" USING btree ("household_id");--> statement-breakpoint
+CREATE INDEX "ongoing_list_items_ongoing_list_id_idx" ON "ongoing_list_items" USING btree ("ongoing_list_id");--> statement-breakpoint
 CREATE INDEX "ongoing_list_items_product_id_idx" ON "ongoing_list_items" USING btree ("product_id");--> statement-breakpoint
+CREATE INDEX "ongoing_list_items_status_idx" ON "ongoing_list_items" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "ongoing_list_items_status_updated_by_idx" ON "ongoing_list_items" USING btree ("status_updated_by");--> statement-breakpoint
 CREATE INDEX "ongoing_list_items_created_by_idx" ON "ongoing_list_items" USING btree ("created_by");--> statement-breakpoint
-CREATE INDEX "ongoing_list_items_carried_over_from_session_id_idx" ON "ongoing_list_items" USING btree ("carried_over_from_session_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "ongoing_list_items_household_product_unique_idx" ON "ongoing_list_items" USING btree ("household_id","product_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "ongoing_list_items_ongoing_list_product_unique_idx" ON "ongoing_list_items" USING btree ("ongoing_list_id","product_id");--> statement-breakpoint
+CREATE INDEX "ongoing_lists_household_id_idx" ON "ongoing_lists" USING btree ("household_id");--> statement-breakpoint
+CREATE INDEX "ongoing_lists_status_idx" ON "ongoing_lists" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "ongoing_lists_created_by_idx" ON "ongoing_lists" USING btree ("created_by");--> statement-breakpoint
+CREATE INDEX "ongoing_lists_shopping_started_by_idx" ON "ongoing_lists" USING btree ("shopping_started_by");--> statement-breakpoint
+CREATE INDEX "ongoing_lists_finished_by_idx" ON "ongoing_lists" USING btree ("finished_by");--> statement-breakpoint
+CREATE UNIQUE INDEX "ongoing_lists_one_open_per_household_unique_idx" ON "ongoing_lists" USING btree ("household_id") WHERE "ongoing_lists"."status" in ('active', 'shopping');--> statement-breakpoint
 CREATE INDEX "product_import_requests_household_id_idx" ON "product_import_requests" USING btree ("household_id");--> statement-breakpoint
 CREATE INDEX "product_import_requests_requested_by_idx" ON "product_import_requests" USING btree ("requested_by");--> statement-breakpoint
 CREATE INDEX "product_import_requests_status_idx" ON "product_import_requests" USING btree ("status");--> statement-breakpoint
 CREATE INDEX "products_household_id_idx" ON "products" USING btree ("household_id");--> statement-breakpoint
 CREATE INDEX "products_category_id_idx" ON "products" USING btree ("category_id");--> statement-breakpoint
-CREATE INDEX "products_is_archived_idx" ON "products" USING btree ("is_archived");--> statement-breakpoint
 CREATE UNIQUE INDEX "products_household_title_unique_idx" ON "products" USING btree ("household_id","title");--> statement-breakpoint
 CREATE INDEX "shopping_session_items_household_id_idx" ON "shopping_session_items" USING btree ("household_id");--> statement-breakpoint
 CREATE INDEX "shopping_session_items_session_id_idx" ON "shopping_session_items" USING btree ("session_id");--> statement-breakpoint

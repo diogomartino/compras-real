@@ -30,7 +30,7 @@ const Spinner = memo(({ size = 'md', className, ...props }: TSpinnerProps) => {
       width="24"
       height="24"
       fill="none"
-      stroke="oklch(0.62 0.25 290)"
+      stroke="oklch(0.72 0.12 145)"
       strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"

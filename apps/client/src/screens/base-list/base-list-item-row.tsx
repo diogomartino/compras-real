@@ -1,6 +1,12 @@
-import { Inline, Media, Text } from '@/components/ds';
+import { Media, StatusChip, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
 import { formatQuantity } from './helpers';
 import type { TBaseListEntry } from './types';
@@ -26,46 +32,45 @@ const BaseListItemRow = memo(
     }, [item, onRemove]);
 
     return (
-      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-2xl border border-border bg-card p-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:p-4">
+      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-3 sm:p-4">
         <Media src={item.imageUrl} alt={item.title} size="lg" />
 
-        <div className="min-w-0 space-y-1">
+        <div className="min-w-0 space-y-2">
           <Text as="div" weight="semibold" className="truncate leading-tight">
             {item.title}
           </Text>
-          <Text size="sm" tone="muted" className="truncate">
-            {item.categoryName ?? 'Uncategorized'} · {quantity}
-          </Text>
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            <StatusChip tone="muted">
+              {item.categoryName ?? 'Uncategorized'}
+            </StatusChip>
+            <StatusChip tone="info">{quantity}</StatusChip>
+          </div>
         </div>
 
-        <Inline
-          gap="xs"
-          wrap={false}
-          className="col-span-2 justify-end sm:col-span-1"
-        >
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="min-w-24 rounded-xl"
-            disabled={isMutating}
-            onClick={edit}
-          >
-            <Pencil className="size-4" />
-            Edit
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="min-w-24 rounded-xl"
-            disabled={isMutating}
-            onClick={remove}
-          >
-            <Trash2 className="size-4" />
-            Remove
-          </Button>
-        </Inline>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              disabled={isMutating}
+              aria-label="Base List item actions"
+            >
+              <MoreHorizontal className="size-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44 rounded-xl">
+            <DropdownMenuItem onSelect={edit}>
+              <Pencil className="size-4" />
+              Edit quantity
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onSelect={remove}>
+              <Trash2 className="size-4" />
+              Remove product
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }

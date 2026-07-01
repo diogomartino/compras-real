@@ -35,6 +35,19 @@ const shoppingSessionStatusEnum = pgEnum("shopping_session_status", [
   "cancelled",
 ]);
 
+const ongoingListStatusEnum = pgEnum("ongoing_list_status", [
+  "active",
+  "shopping",
+  "finished",
+]);
+
+const ongoingListItemStatusEnum = pgEnum("ongoing_list_item_status", [
+  "pending",
+  "checked",
+  "ignored",
+  "discarded",
+]);
+
 const shoppingItemSourceEnum = pgEnum("shopping_item_source", [
   "base",
   "ongoing",
@@ -53,6 +66,10 @@ const productImportStatusEnum = pgEnum("product_import_status", [
   "not_implemented",
 ]);
 
+type TUserSettings = {
+  defaultShoppingMode?: "list" | "swipe";
+};
+
 const users = pgTable(
   "users",
   {
@@ -62,6 +79,10 @@ const users = pgTable(
     passwordHash: text("password_hash").notNull(),
     avatarUrl: text("avatar_url"),
     isAdmin: boolean("is_admin").notNull().default(false),
+    settings: jsonb("settings")
+      .$type<TUserSettings>()
+      .notNull()
+      .default({ defaultShoppingMode: "list" }),
     createdAt: numeric("created_at", { mode: "number" }).notNull(),
     updatedAt: numeric("updated_at", { mode: "number" }).notNull(),
   },
@@ -322,6 +343,58 @@ const baseListItems = pgTable(
   }),
 );
 
+const ongoingLists = pgTable(
+  "ongoing_lists",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    householdId: uuid("household_id")
+      .notNull()
+      .references(() => households.id, {
+        onDelete: "cascade",
+      }),
+
+    status: ongoingListStatusEnum("status").notNull().default("active"),
+
+    createdBy: uuid("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+
+    shoppingStartedBy: uuid("shopping_started_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+
+    shoppingStartedAt: numeric("shopping_started_at", { mode: "number" }),
+
+    finishedBy: uuid("finished_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+
+    finishedAt: numeric("finished_at", { mode: "number" }),
+
+    createdAt: numeric("created_at", { mode: "number" }).notNull(),
+    updatedAt: numeric("updated_at", { mode: "number" }).notNull(),
+  },
+  (table) => ({
+    householdIdx: index("ongoing_lists_household_id_idx").on(
+      table.householdId,
+    ),
+    statusIdx: index("ongoing_lists_status_idx").on(table.status),
+    createdByIdx: index("ongoing_lists_created_by_idx").on(table.createdBy),
+    shoppingStartedByIdx: index("ongoing_lists_shopping_started_by_idx").on(
+      table.shoppingStartedBy,
+    ),
+    finishedByIdx: index("ongoing_lists_finished_by_idx").on(
+      table.finishedBy,
+    ),
+    oneOpenPerHouseholdUniqueIdx: uniqueIndex(
+      "ongoing_lists_one_open_per_household_unique_idx",
+    )
+      .on(table.householdId)
+      .where(sql`${table.status} in ('active', 'shopping')`),
+  }),
+);
+
 const ongoingListItems = pgTable(
   "ongoing_list_items",
   {
@@ -330,6 +403,12 @@ const ongoingListItems = pgTable(
     householdId: uuid("household_id")
       .notNull()
       .references(() => households.id, {
+        onDelete: "cascade",
+      }),
+
+    ongoingListId: uuid("ongoing_list_id")
+      .notNull()
+      .references(() => ongoingLists.id, {
         onDelete: "cascade",
       }),
 
@@ -347,11 +426,16 @@ const ongoingListItems = pgTable(
 
     quantityUnit: unitKindEnum("quantity_unit").notNull().default("unit"),
 
-    createdBy: uuid("created_by").references(() => users.id, {
+    status: ongoingListItemStatusEnum("status").notNull().default("pending"),
+
+    statusUpdatedAt: numeric("status_updated_at", { mode: "number" }),
+    statusUpdatedBy: uuid("status_updated_by").references(() => users.id, {
       onDelete: "set null",
     }),
 
-    carriedOverFromSessionId: uuid("carried_over_from_session_id"),
+    createdBy: uuid("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
 
     createdAt: numeric("created_at", { mode: "number" }).notNull(),
     updatedAt: numeric("updated_at", { mode: "number" }).notNull(),
@@ -360,16 +444,20 @@ const ongoingListItems = pgTable(
     householdIdx: index("ongoing_list_items_household_id_idx").on(
       table.householdId,
     ),
+    ongoingListIdx: index("ongoing_list_items_ongoing_list_id_idx").on(
+      table.ongoingListId,
+    ),
     productIdx: index("ongoing_list_items_product_id_idx").on(table.productId),
+    statusIdx: index("ongoing_list_items_status_idx").on(table.status),
+    statusUpdatedByIdx: index("ongoing_list_items_status_updated_by_idx").on(
+      table.statusUpdatedBy,
+    ),
     createdByIdx: index("ongoing_list_items_created_by_idx").on(
       table.createdBy,
     ),
-    carriedOverFromSessionIdx: index(
-      "ongoing_list_items_carried_over_from_session_id_idx",
-    ).on(table.carriedOverFromSessionId),
-    householdProductUniqueIdx: uniqueIndex(
-      "ongoing_list_items_household_product_unique_idx",
-    ).on(table.householdId, table.productId),
+    ongoingListProductUniqueIdx: uniqueIndex(
+      "ongoing_list_items_ongoing_list_product_unique_idx",
+    ).on(table.ongoingListId, table.productId),
   }),
 );
 
@@ -507,6 +595,8 @@ export {
   householdRoleEnum,
   unitKindEnum,
   shoppingSessionStatusEnum,
+  ongoingListStatusEnum,
+  ongoingListItemStatusEnum,
   shoppingItemSourceEnum,
   shoppingItemStatusEnum,
   productImportStatusEnum,
@@ -518,6 +608,7 @@ export {
   productImportRequests,
   baseLists,
   baseListItems,
+  ongoingLists,
   ongoingListItems,
   shoppingSessions,
   shoppingSessionItems,

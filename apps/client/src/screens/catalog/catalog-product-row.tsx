@@ -1,6 +1,12 @@
-import { Inline, Media, Text } from '@/components/ds';
+import { Media, StatusChip, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
 import { formatUnit } from './helpers';
 import type { TCatalogProduct } from './types';
@@ -31,48 +37,45 @@ const CatalogProductRow = memo(
     }, [onDelete, product.id]);
 
     return (
-      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-2xl border border-border bg-card p-3 transition-colors sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:p-4">
+      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-3 transition-colors sm:p-4">
         <Media src={product.imageUrl} alt={product.title} size="lg" />
 
-        <div className="min-w-0 space-y-1">
-          <Inline gap="sm" wrap={false} className="min-w-0">
-            <Text as="div" weight="semibold" className="truncate leading-tight">
-              {product.title}
-            </Text>
-          </Inline>
-          <Text size="sm" tone="muted" className="truncate">
-            {product.categoryName ?? 'Uncategorized'} · {quantity}
+        <div className="min-w-0 space-y-2">
+          <Text as="div" weight="semibold" className="truncate leading-tight">
+            {product.title}
           </Text>
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            <StatusChip tone="muted">
+              {product.categoryName ?? 'Uncategorized'}
+            </StatusChip>
+            <StatusChip tone="info">{quantity}</StatusChip>
+          </div>
         </div>
 
-        <Inline
-          gap="xs"
-          wrap={false}
-          className="col-span-2 justify-end sm:col-span-1"
-        >
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="min-w-24 rounded-xl"
-            disabled={isMutating}
-            onClick={edit}
-          >
-            <Pencil className="size-4" />
-            Edit
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            className="min-w-24 rounded-xl"
-            disabled={isMutating}
-            onClick={remove}
-          >
-            <Trash2 className="size-4" />
-            Delete
-          </Button>
-        </Inline>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              disabled={isMutating}
+              aria-label="Product actions"
+            >
+              <MoreHorizontal className="size-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44 rounded-xl">
+            <DropdownMenuItem onSelect={edit}>
+              <Pencil className="size-4" />
+              Edit product
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onSelect={remove}>
+              <Trash2 className="size-4" />
+              Delete product
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }

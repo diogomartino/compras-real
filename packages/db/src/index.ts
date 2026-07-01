@@ -4,6 +4,7 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 
 let db: PostgresJsDatabase;
+let sqlClient: postgres.Sql;
 
 type TLoadOptions = {
   runMigrations: boolean;
@@ -20,6 +21,7 @@ const loadDb = async (options: TLoadOptions) => {
     `postgres://${options.user}:${options.password}@${options.host}:${options.port}/${options.database}`
   );
 
+  sqlClient = queryClient;
   db = drizzle({ client: queryClient });
 
   if (options.runMigrations && options.migrationsFolder) {
@@ -31,6 +33,6 @@ const loadDb = async (options: TLoadOptions) => {
   logger.info('Database is ready');
 };
 
-export { and, eq, sql } from 'drizzle-orm';
+export { and, eq, inArray, sql } from 'drizzle-orm';
 export * from './schema';
-export { db, loadDb };
+export { db, loadDb, sqlClient };

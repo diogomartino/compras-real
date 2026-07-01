@@ -1,7 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { requestConfirmation } from '@/features/dialogs/actions';
 import { useAuth } from '@/features/auth/hooks';
+import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { cn } from '@/lib/utils';
+import { useStartShopping } from '@/mutations/shopping';
 import {
   CircleUserRound,
   Home,
@@ -10,22 +13,43 @@ import {
   ShoppingCart
 } from 'lucide-react';
 import { memo, useCallback } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
 type TAppBottomNavProps = Record<string, never>;
 
 const AppBottomNav = memo(() => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { avatarUrl } = useAuth();
-
-  const showComingSoon = useCallback((label: string) => {
-    toast.info(`${label} is coming soon.`);
-  }, []);
+  const { mutateAsync: startShopping, isPending: startShoppingPending } =
+    useStartShopping();
 
   const shop = useCallback(() => {
-    showComingSoon('Shopping mode');
-  }, [showComingSoon]);
+    void (async () => {
+      const confirmed = await requestConfirmation({
+        title: 'Start shopping mode?',
+        message:
+          'Everyone in the household will see shopping mode until this shop is finished.',
+        confirmLabel: 'Start shopping',
+        cancelLabel: 'Cancel',
+        variant: 'info'
+      });
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await startShopping();
+        navigate('/shop');
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? 'Failed to start shopping mode.'
+        );
+      }
+    })();
+  }, [navigate, startShopping]);
 
   const isHome = location.pathname === '/';
   const isBaseList = location.pathname.startsWith('/base-list');
@@ -64,10 +88,10 @@ const AppBottomNav = memo(() => {
           </Link>
         </Button>
         <Button
-          variant="ghost"
-          className="h-14 flex-col gap-1 rounded-2xl"
+          variant="default"
+          className="-mt-5 h-16 flex-col gap-1 rounded-3xl bg-primary px-3 text-primary-foreground shadow-lg shadow-primary/30 hover:bg-primary/90"
           onClick={shop}
-          disabled
+          disabled={startShoppingPending}
         >
           <ShoppingCart className="size-5" />
           <span className="text-xs">Shop</span>

@@ -4,11 +4,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Group } from '@/components/ui/group';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { logout } from '@/features/auth/actions';
 import { useAuth, useIsAuthenticated } from '@/features/auth/hooks';
 import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { useForm } from '@/hooks/use-form';
-import { useChangePassword } from '@/mutations/auth';
+import { useChangePassword, useUpdateSettings } from '@/mutations/auth';
 import { HomeAuthScreen } from '@/screens/home/home-auth-screen';
 import { CircleUserRound, LogOut } from 'lucide-react';
 import { memo, useCallback, type FormEvent } from 'react';
@@ -24,6 +31,8 @@ const Profile = memo(() => {
   const isAuthenticated = useIsAuthenticated();
   const auth = useAuth();
   const { mutateAsync: changePassword, isPending } = useChangePassword();
+  const { mutateAsync: updateSettings, isPending: settingsPending } =
+    useUpdateSettings();
   const { values, errors, setErrors, resetErrors, r, setValues } =
     useForm<TChangePasswordForm>({
       currentPassword: '',
@@ -55,6 +64,22 @@ const Profile = memo(() => {
     [submit]
   );
 
+  const onDefaultShoppingModeChange = useCallback(
+    async (value: string) => {
+      try {
+        await updateSettings({
+          defaultShoppingMode: value as 'list' | 'swipe'
+        });
+        toast.success('Settings updated.');
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? 'Failed to update settings.'
+        );
+      }
+    },
+    [updateSettings]
+  );
+
   if (!isAuthenticated) {
     return <HomeAuthScreen />;
   }
@@ -83,6 +108,33 @@ const Profile = memo(() => {
               Log out
             </Button>
           </Inline>
+        </Surface>
+
+        <Surface radius="2xl" padding="lg">
+          <Stack gap="lg">
+            <Stack gap="xs">
+              <Text weight="semibold">Options</Text>
+              <Text size="sm" tone="muted">
+                Configure how shopping mode opens for your account.
+              </Text>
+            </Stack>
+
+            <Group label="Default shopping mode">
+              <Select
+                value={auth.settings?.defaultShoppingMode ?? 'list'}
+                onValueChange={onDefaultShoppingModeChange}
+                disabled={settingsPending}
+              >
+                <SelectTrigger className="h-11 w-full rounded-xl">
+                  <SelectValue placeholder="Select mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="list">List</SelectItem>
+                  <SelectItem value="swipe">Swipe</SelectItem>
+                </SelectContent>
+              </Select>
+            </Group>
+          </Stack>
         </Surface>
 
         <Surface radius="2xl" padding="lg">

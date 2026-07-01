@@ -1,5 +1,16 @@
-import { db, eq, householdMembers, households, users } from '@myapp/db';
+import {
+  db,
+  eq,
+  householdMembers,
+  households,
+  ongoingLists,
+  users
+} from '@myapp/db';
 import type { TIUser, TUser } from '@myapp/shared';
+
+type TUserSettingsInput = {
+  defaultShoppingMode: 'list' | 'swipe';
+};
 
 const createUser = async (data: TIUser): Promise<TUser> => {
   const [user] = await db.insert(users).values(data).returning({
@@ -8,6 +19,7 @@ const createUser = async (data: TIUser): Promise<TUser> => {
     email: users.email,
     avatarUrl: users.avatarUrl,
     isAdmin: users.isAdmin,
+    settings: users.settings,
     createdAt: users.createdAt,
     updatedAt: users.updatedAt
   });
@@ -31,6 +43,7 @@ const createUserWithHousehold = async (
       email: users.email,
       avatarUrl: users.avatarUrl,
       isAdmin: users.isAdmin,
+      settings: users.settings,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt
     });
@@ -61,6 +74,14 @@ const createUserWithHousehold = async (
       updatedAt: now
     });
 
+    await tx.insert(ongoingLists).values({
+      householdId: household.id,
+      status: 'active',
+      createdBy: createdUser.id,
+      createdAt: now,
+      updatedAt: now
+    });
+
     return createdUser;
   });
 
@@ -84,4 +105,38 @@ const updateUserPassword = async (userId: string, passwordHash: string) => {
   return user;
 };
 
-export { createUser, createUserWithHousehold, updateUserPassword };
+const updateUserSettings = async (
+  userId: string,
+  settings: TUserSettingsInput
+) => {
+  const [user] = await db
+    .update(users)
+    .set({
+      settings,
+      updatedAt: Date.now()
+    })
+    .where(eq(users.id, userId))
+    .returning({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      avatarUrl: users.avatarUrl,
+      isAdmin: users.isAdmin,
+      settings: users.settings,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt
+    });
+
+  if (!user) {
+    throw new Error('Failed to update user settings');
+  }
+
+  return user;
+};
+
+export {
+  createUser,
+  createUserWithHousehold,
+  updateUserPassword,
+  updateUserSettings
+};

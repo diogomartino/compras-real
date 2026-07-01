@@ -4,6 +4,7 @@ import {
   categories,
   householdMembers,
   households,
+  ongoingLists,
   ongoingListItems,
   products,
   shoppingSessionItems,
@@ -26,6 +27,8 @@ type TBaseList = typeof baseLists.$inferSelect;
 type TIBaseList = typeof baseLists.$inferInsert;
 type TBaseListItem = typeof baseListItems.$inferSelect;
 type TIBaseListItem = typeof baseListItems.$inferInsert;
+type TOngoingList = typeof ongoingLists.$inferSelect;
+type TIOngoingList = typeof ongoingLists.$inferInsert;
 type TOngoingListItem = typeof ongoingListItems.$inferSelect;
 type TIOngoingListItem = typeof ongoingListItems.$inferInsert;
 type TShoppingSession = typeof shoppingSessions.$inferSelect;
@@ -45,11 +48,13 @@ export type {
   TICategory,
   TIHousehold,
   TIHouseholdMember,
+  TIOngoingList,
   TIOngoingListItem,
   TIProduct,
   TIShoppingSession,
   TIShoppingSessionItem,
   TIUser,
+  TOngoingList,
   TOngoingListItem,
   TProduct,
   TShoppingSession,

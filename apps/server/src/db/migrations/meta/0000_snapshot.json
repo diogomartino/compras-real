@@ -1,5 +1,5 @@
 {
-  "id": "1ddcfb35-deea-4f4e-bf99-a52b8340bb5c",
+  "id": "2cd0e0f1-cd8d-403d-ba00-5a9007167d8d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -662,6 +662,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "ongoing_list_id": {
+          "name": "ongoing_list_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "product_id": {
           "name": "product_id",
           "type": "uuid",
@@ -682,14 +688,28 @@
           "notNull": true,
           "default": "'unit'"
         },
-        "created_by": {
-          "name": "created_by",
+        "status": {
+          "name": "status",
+          "type": "ongoing_list_item_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "status_updated_at": {
+          "name": "status_updated_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status_updated_by": {
+          "name": "status_updated_by",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "carried_over_from_session_id": {
-          "name": "carried_over_from_session_id",
+        "created_by": {
+          "name": "created_by",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
@@ -723,11 +743,56 @@
           "method": "btree",
           "with": {}
         },
+        "ongoing_list_items_ongoing_list_id_idx": {
+          "name": "ongoing_list_items_ongoing_list_id_idx",
+          "columns": [
+            {
+              "expression": "ongoing_list_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "ongoing_list_items_product_id_idx": {
           "name": "ongoing_list_items_product_id_idx",
           "columns": [
             {
               "expression": "product_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ongoing_list_items_status_idx": {
+          "name": "ongoing_list_items_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ongoing_list_items_status_updated_by_idx": {
+          "name": "ongoing_list_items_status_updated_by_idx",
+          "columns": [
+            {
+              "expression": "status_updated_by",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -753,26 +818,11 @@
           "method": "btree",
           "with": {}
         },
-        "ongoing_list_items_carried_over_from_session_id_idx": {
-          "name": "ongoing_list_items_carried_over_from_session_id_idx",
+        "ongoing_list_items_ongoing_list_product_unique_idx": {
+          "name": "ongoing_list_items_ongoing_list_product_unique_idx",
           "columns": [
             {
-              "expression": "carried_over_from_session_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "ongoing_list_items_household_product_unique_idx": {
-          "name": "ongoing_list_items_household_product_unique_idx",
-          "columns": [
-            {
-              "expression": "household_id",
+              "expression": "ongoing_list_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -804,6 +854,19 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
+        "ongoing_list_items_ongoing_list_id_ongoing_lists_id_fk": {
+          "name": "ongoing_list_items_ongoing_list_id_ongoing_lists_id_fk",
+          "tableFrom": "ongoing_list_items",
+          "tableTo": "ongoing_lists",
+          "columnsFrom": [
+            "ongoing_list_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
         "ongoing_list_items_product_id_products_id_fk": {
           "name": "ongoing_list_items_product_id_products_id_fk",
           "tableFrom": "ongoing_list_items",
@@ -817,12 +880,246 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
+        "ongoing_list_items_status_updated_by_users_id_fk": {
+          "name": "ongoing_list_items_status_updated_by_users_id_fk",
+          "tableFrom": "ongoing_list_items",
+          "tableTo": "users",
+          "columnsFrom": [
+            "status_updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
         "ongoing_list_items_created_by_users_id_fk": {
           "name": "ongoing_list_items_created_by_users_id_fk",
           "tableFrom": "ongoing_list_items",
           "tableTo": "users",
           "columnsFrom": [
             "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ongoing_lists": {
+      "name": "ongoing_lists",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "household_id": {
+          "name": "household_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "ongoing_list_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shopping_started_by": {
+          "name": "shopping_started_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shopping_started_at": {
+          "name": "shopping_started_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "finished_by": {
+          "name": "finished_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "ongoing_lists_household_id_idx": {
+          "name": "ongoing_lists_household_id_idx",
+          "columns": [
+            {
+              "expression": "household_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ongoing_lists_status_idx": {
+          "name": "ongoing_lists_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ongoing_lists_created_by_idx": {
+          "name": "ongoing_lists_created_by_idx",
+          "columns": [
+            {
+              "expression": "created_by",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ongoing_lists_shopping_started_by_idx": {
+          "name": "ongoing_lists_shopping_started_by_idx",
+          "columns": [
+            {
+              "expression": "shopping_started_by",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ongoing_lists_finished_by_idx": {
+          "name": "ongoing_lists_finished_by_idx",
+          "columns": [
+            {
+              "expression": "finished_by",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ongoing_lists_one_open_per_household_unique_idx": {
+          "name": "ongoing_lists_one_open_per_household_unique_idx",
+          "columns": [
+            {
+              "expression": "household_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"ongoing_lists\".\"status\" in ('active', 'shopping')",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ongoing_lists_household_id_households_id_fk": {
+          "name": "ongoing_lists_household_id_households_id_fk",
+          "tableFrom": "ongoing_lists",
+          "tableTo": "households",
+          "columnsFrom": [
+            "household_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ongoing_lists_created_by_users_id_fk": {
+          "name": "ongoing_lists_created_by_users_id_fk",
+          "tableFrom": "ongoing_lists",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "ongoing_lists_shopping_started_by_users_id_fk": {
+          "name": "ongoing_lists_shopping_started_by_users_id_fk",
+          "tableFrom": "ongoing_lists",
+          "tableTo": "users",
+          "columnsFrom": [
+            "shopping_started_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "ongoing_lists_finished_by_users_id_fk": {
+          "name": "ongoing_lists_finished_by_users_id_fk",
+          "tableFrom": "ongoing_lists",
+          "tableTo": "users",
+          "columnsFrom": [
+            "finished_by"
           ],
           "columnsTo": [
             "id"
@@ -1049,13 +1346,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_archived": {
-          "name": "is_archived",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
         "metadata": {
           "name": "metadata",
           "type": "jsonb",
@@ -1096,21 +1386,6 @@
           "columns": [
             {
               "expression": "category_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "products_is_archived_idx": {
-          "name": "products_is_archived_idx",
-          "columns": [
-            {
-              "expression": "is_archived",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1730,6 +2005,13 @@
           "notNull": true,
           "default": false
         },
+        "settings": {
+          "name": "settings",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"defaultShoppingMode\":\"list\"}'::jsonb"
+        },
         "created_at": {
           "name": "created_at",
           "type": "numeric",
@@ -1784,6 +2066,25 @@
         "owner",
         "admin",
         "member"
+      ]
+    },
+    "public.ongoing_list_item_status": {
+      "name": "ongoing_list_item_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "checked",
+        "ignored",
+        "discarded"
+      ]
+    },
+    "public.ongoing_list_status": {
+      "name": "ongoing_list_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "shopping",
+        "finished"
       ]
     },
     "public.product_import_status": {

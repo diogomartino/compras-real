@@ -3,6 +3,7 @@ import { useAuthController } from '@/hooks/use-auth-controller';
 import { memo } from 'react';
 import { AppLoading } from '../app-loading';
 import { Routing } from '../routing';
+import { ShoppingGuard } from '../shopping-guard';
 
 const App = memo(() => {
   const authLoading = useAuthLoading();
@@ -13,7 +14,12 @@ const App = memo(() => {
     return <AppLoading />;
   }
 
-  return <Routing />;
+  return (
+    <>
+      <ShoppingGuard />
+      <Routing />
+    </>
+  );
 });
 
 export { App };

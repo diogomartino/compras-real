@@ -1,52 +1,134 @@
 import { AppBottomNav } from '@/components/app-bottom-nav';
-import { ActionTile, Inline, Stack, Surface, Text } from '@/components/ds';
+import { Inline, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ListChecks, Plus, Search, Sparkles } from 'lucide-react';
+import { requestConfirmation } from '@/features/dialogs/actions';
+import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import {
-  memo,
-  useCallback,
-  useState,
-  type ChangeEvent,
-  type FormEvent
-} from 'react';
-import { useNavigate } from 'react-router';
+  useAddOngoingListItems,
+  useRemoveOngoingListItem,
+  useUpdateOngoingListItem
+} from '@/mutations/ongoing-list';
+import { useOngoingList } from '@/queries/ongoing-list';
+import { useProducts } from '@/queries/products';
+import type { TOngoingListEntry, TUnitKind } from '@myapp/shared';
+import { PackagePlus, Plus, Search, ShoppingBasket } from 'lucide-react';
+import { memo, useCallback, useMemo, useState, type ChangeEvent } from 'react';
 import { toast } from 'sonner';
+import { AddProductsDialog } from './add-products-dialog';
+import { EditOngoingItemDialog } from './edit-ongoing-item-dialog';
+import { getGroupedOngoingListItems } from './helpers';
+import { OngoingListItemRow } from './ongoing-list-item-row';
 
 const HomeDashboard = memo(() => {
-  const [quickItem, setQuickItem] = useState('');
-  const navigate = useNavigate();
+  const [query, setQuery] = useState('');
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<TOngoingListEntry>();
+  const {
+    data: ongoingList,
+    error: ongoingListError,
+    isLoading: ongoingListLoading
+  } = useOngoingList(true);
+  const { data: productsData, isLoading: productsLoading } = useProducts(true);
+  const { mutateAsync: addItems, isPending: addItemsPending } =
+    useAddOngoingListItems();
+  const { mutateAsync: updateItem, isPending: updateItemPending } =
+    useUpdateOngoingListItem();
+  const { mutateAsync: removeItem, isPending: removeItemPending } =
+    useRemoveOngoingListItem();
 
-  const reviewList = useCallback(() => {
-    navigate('/base-list');
-  }, [navigate]);
+  const items = useMemo(() => ongoingList?.items ?? [], [ongoingList]);
+  const products = useMemo(() => productsData ?? [], [productsData]);
+  const visibleItems = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
 
-  const addItem = useCallback(() => {
-    navigate('/base-list');
-  }, [navigate]);
-
-  const onQuickItemChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setQuickItem(event.target.value);
-    },
-    []
-  );
-
-  const submitQuickAdd = useCallback(() => {
-    if (!quickItem.trim()) {
-      toast.message('Type an item to add later.');
-      return;
+    if (!normalizedQuery) {
+      return items;
     }
 
-    toast.info('Quick add is visual only for now.');
-  }, [quickItem]);
+    return items.filter((item) =>
+      `${item.title} ${item.categoryName ?? ''}`
+        .toLowerCase()
+        .includes(normalizedQuery)
+    );
+  }, [items, query]);
+  const groups = useMemo(
+    () => getGroupedOngoingListItems(visibleItems),
+    [visibleItems]
+  );
+  const isMutating = useMemo(
+    () => addItemsPending || updateItemPending || removeItemPending,
+    [addItemsPending, removeItemPending, updateItemPending]
+  );
 
-  const onQuickSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      submitQuickAdd();
+  const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  }, []);
+  const openAddDialog = useCallback(() => {
+    setAddDialogOpen(true);
+  }, []);
+  const editItem = useCallback((item: TOngoingListEntry) => {
+    setEditingItem(item);
+  }, []);
+  const closeEditDialog = useCallback(() => {
+    setEditingItem(undefined);
+  }, []);
+  const addSelectedProducts = useCallback(
+    async (productIds: string[]) => {
+      try {
+        await addItems({ productIds });
+        setAddDialogOpen(false);
+        toast.success('Products added.');
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? 'Failed to add products.'
+        );
+      }
     },
-    [submitQuickAdd]
+    [addItems]
+  );
+  const updateQuantity = useCallback(
+    async (input: {
+      id: string;
+      quantityAmount: number;
+      quantityUnit: TUnitKind;
+    }) => {
+      try {
+        await updateItem(input);
+        setEditingItem(undefined);
+        toast.success('Quantity updated.');
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? 'Failed to update quantity.'
+        );
+      }
+    },
+    [updateItem]
+  );
+  const remove = useCallback(
+    async (item: TOngoingListEntry) => {
+      const confirmed = await requestConfirmation({
+        title: 'Remove product?',
+        message: `Remove ${item.title} from the ongoing list?`,
+        confirmLabel: 'Remove',
+        cancelLabel: 'Cancel',
+        variant: 'danger'
+      });
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await removeItem(item.id);
+        toast.success('Product removed.');
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? 'Failed to remove product.'
+        );
+      }
+    },
+    [removeItem]
   );
 
   return (
@@ -54,64 +136,126 @@ const HomeDashboard = memo(() => {
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <Surface variant="default" radius="2xl" padding="md">
           <Stack gap="md">
-            <Inline gap="sm" wrap={false}>
-              <div className="grid size-10 place-items-center rounded-xl bg-muted text-primary">
-                <Sparkles className="size-5" />
-              </div>
-              <Stack gap="none">
-                <Text weight="semibold">Quick add</Text>
-                <Text size="sm" tone="muted">
-                  Capture groceries during the week.
-                </Text>
-              </Stack>
+            <Inline justify="between" className="gap-3" wrap={false}>
+              <Inline gap="sm" wrap={false} className="min-w-0">
+                <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <ShoppingBasket className="size-5" />
+                </div>
+                <Stack gap="none" className="min-w-0">
+                  <Text weight="semibold" className="truncate">
+                    Current list
+                  </Text>
+                  <Text size="sm" tone="muted" className="truncate">
+                    {items.length} products ready for the next shop
+                  </Text>
+                </Stack>
+              </Inline>
+              <Button
+                type="button"
+                className="shrink-0 rounded-xl"
+                onClick={openAddDialog}
+              >
+                <Plus className="size-4" />
+                <span className="sr-only sm:not-sr-only">Add products</span>
+              </Button>
             </Inline>
 
-            <form className="flex gap-2" onSubmit={onQuickSubmit}>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                value={quickItem}
-                onChange={onQuickItemChange}
-                onEnter={submitQuickAdd}
-                className="h-12 rounded-2xl bg-background"
-                placeholder="Milk, bread, bananas..."
+                value={query}
+                onChange={onQueryChange}
+                className="h-11 rounded-xl pl-9"
+                placeholder="Search ongoing products"
               />
-              <Button className="h-12 rounded-2xl px-4" type="submit">
-                <Plus className="size-5" />
-                <span className="sr-only sm:not-sr-only">Add</span>
-              </Button>
-            </form>
+            </div>
           </Stack>
         </Surface>
 
-        <section className="grid gap-3 sm:grid-cols-2">
-          <ActionTile
-            icon={<Plus className="size-5" />}
-            title="Add item"
-            description="Open the fuller add flow for quantities and notes."
-            variant="primary"
-            onClick={addItem}
-          />
-          <ActionTile
-            icon={<ListChecks className="size-5" />}
-            title="Review list"
-            description="Prepare the current list before shopping."
-            onClick={reviewList}
-          />
-        </section>
+        {ongoingListError && (
+          <Surface radius="2xl" padding="md" variant="muted">
+            <Text tone="destructive">{ongoingListError.message}</Text>
+          </Surface>
+        )}
 
-        <Surface variant="muted" radius="2xl" padding="md">
-          <Inline justify="between" wrap={false}>
-            <Stack gap="xs">
-              <Text weight="semibold">Today's focus</Text>
+        {ongoingListLoading && (
+          <Surface radius="2xl" padding="lg">
+            <Text tone="muted">Loading ongoing list...</Text>
+          </Surface>
+        )}
+
+        {!ongoingListLoading && visibleItems.length === 0 && (
+          <Surface radius="2xl" padding="lg" className="text-center">
+            <Stack gap="sm" align="center">
+              <PackagePlus className="size-8 text-muted-foreground" />
+              <Text weight="semibold">No products in the ongoing list</Text>
               <Text size="sm" tone="muted">
-                Shopping, quick adding, and list review are the only home
-                actions for this first pass.
+                Add products from the catalog to prepare the next shop.
               </Text>
+              <Button
+                type="button"
+                className="mt-2 rounded-xl"
+                onClick={openAddDialog}
+              >
+                <Plus className="size-4" />
+                Add products
+              </Button>
             </Stack>
-            <Search className="size-5 shrink-0 text-muted-foreground" />
-          </Inline>
-        </Surface>
+          </Surface>
+        )}
+
+        {!ongoingListLoading && visibleItems.length > 0 && (
+          <Stack gap="lg">
+            {groups.map((group) => (
+              <Stack key={group.categoryName} gap="sm">
+                <Inline justify="between" className="px-1">
+                  <Text weight="semibold">{group.categoryName}</Text>
+                  <Text size="sm" tone="muted">
+                    {group.items.length} items
+                  </Text>
+                </Inline>
+                {group.items.map((item) => (
+                  <OngoingListItemRow
+                    key={item.id}
+                    item={item}
+                    isMutating={isMutating}
+                    onEdit={editItem}
+                    onRemove={remove}
+                  />
+                ))}
+              </Stack>
+            ))}
+          </Stack>
+        )}
+
+        {!productsLoading && products.length === 0 && (
+          <Surface variant="muted" radius="2xl" padding="md">
+            <Inline justify="between" wrap={false}>
+              <Stack gap="xs">
+                <Text weight="semibold">Catalog is empty</Text>
+                <Text size="sm" tone="muted">
+                  Add catalog products before adding them to the ongoing list.
+                </Text>
+              </Stack>
+            </Inline>
+          </Surface>
+        )}
       </div>
 
+      <AddProductsDialog
+        open={addDialogOpen}
+        products={products}
+        ongoingItems={items}
+        isPending={addItemsPending}
+        onOpenChange={setAddDialogOpen}
+        onSubmit={addSelectedProducts}
+      />
+      <EditOngoingItemDialog
+        item={editingItem}
+        isPending={updateItemPending}
+        onClose={closeEditDialog}
+        onSubmit={updateQuantity}
+      />
       <AppBottomNav />
     </main>
   );

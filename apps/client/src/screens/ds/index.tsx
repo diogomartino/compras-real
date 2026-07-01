@@ -140,7 +140,7 @@ const Ds = memo(() => {
               tone="default"
             />
             <Stat
-              label="Ongoing list"
+              label="Current list"
               value="5"
               description="Added this week"
               tone="success"

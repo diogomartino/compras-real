@@ -7,6 +7,7 @@ const publicUserColumns = {
   email: users.email,
   avatarUrl: users.avatarUrl,
   isAdmin: users.isAdmin,
+  settings: users.settings,
   createdAt: users.createdAt,
   updatedAt: users.updatedAt
 };

@@ -25,7 +25,8 @@ const useAuthController = () => {
       userId: user.id,
       email: user.email,
       avatarUrl: user.avatarUrl,
-      isAdmin: user.isAdmin
+      isAdmin: user.isAdmin,
+      settings: user.settings
     });
   }, [user, hasSession, isError, isFetched]);
 };

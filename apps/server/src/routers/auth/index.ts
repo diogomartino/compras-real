@@ -5,6 +5,7 @@ import { loginRoute } from './login';
 import { registerRoute } from './register';
 import { requestPasswordResetRoute } from './request-password-reset';
 import { resetPasswordRoute } from './reset-password';
+import { updateSettingsRoute } from './update-settings';
 
 export const authRouter = t.router({
   getUser: getUserRoute,
@@ -12,5 +13,6 @@ export const authRouter = t.router({
   register: registerRoute,
   requestPasswordReset: requestPasswordResetRoute,
   resetPassword: resetPasswordRoute,
-  changePassword: changePasswordRoute
+  changePassword: changePasswordRoute,
+  updateSettings: updateSettingsRoute
 });

@@ -1,6 +1,12 @@
 import { Inline, Stack, StatusChip, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
-import { ListChecks, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { ListChecks, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import { memo, useCallback } from 'react';
 import type { TBaseListSummary } from './types';
 
@@ -37,49 +43,51 @@ const BaseListCard = memo(
 
     return (
       <Surface radius="2xl" padding="md">
-        <Stack gap="md">
-          <Inline justify="between" className="gap-3">
-            <Stack gap="xs" className="min-w-0">
-              <Inline gap="sm" wrap={false} className="min-w-0">
-                <Text weight="semibold" className="truncate">
-                  {baseList.name}
-                </Text>
-                <StatusChip tone={baseList.isEnabled ? 'success' : 'skipped'}>
-                  {baseList.isEnabled ? 'Enabled' : 'Disabled'}
-                </StatusChip>
-              </Inline>
-              <Text size="sm" tone="muted">
-                {baseList.itemCount} products
+        <Inline justify="between" className="gap-3" wrap={false}>
+          <Stack gap="xs" className="min-w-0">
+            <Inline gap="sm" wrap={false} className="min-w-0">
+              <Text weight="semibold" className="truncate">
+                {baseList.name}
               </Text>
-            </Stack>
+              <StatusChip tone={baseList.isEnabled ? 'success' : 'skipped'}>
+                {baseList.isEnabled ? 'Enabled' : 'Disabled'}
+              </StatusChip>
+            </Inline>
+            <Text size="sm" tone="muted">
+              {baseList.itemCount} products
+            </Text>
+          </Stack>
+
+          <Inline gap="xs" wrap={false}>
             <Button type="button" className="rounded-xl" onClick={open}>
               Open
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full"
+                  disabled={isMutating}
+                  aria-label="Base List actions"
+                >
+                  <MoreHorizontal className="size-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44 rounded-xl">
+                <DropdownMenuItem onSelect={edit}>
+                  <Pencil className="size-4" />
+                  Edit Base List
+                </DropdownMenuItem>
+                <DropdownMenuItem variant="destructive" onSelect={remove}>
+                  <Trash2 className="size-4" />
+                  Delete Base List
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </Inline>
-
-          <Inline gap="xs" justify="end">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isMutating}
-              onClick={edit}
-            >
-              <Pencil className="size-4" />
-              Edit
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isMutating}
-              onClick={remove}
-            >
-              <Trash2 className="size-4" />
-              Delete
-            </Button>
-          </Inline>
-        </Stack>
+        </Inline>
       </Surface>
     );
   }

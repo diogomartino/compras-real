@@ -19,7 +19,7 @@ type TConfirmActionDialogProps = TDialogBaseProps & {
   message?: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  variant?: 'destructive' | 'default';
+  variant?: 'danger' | 'info';
 };
 
 const ConfirmActionDialog = memo(
@@ -30,7 +30,8 @@ const ConfirmActionDialog = memo(
     title,
     message,
     confirmLabel,
-    cancelLabel
+    cancelLabel,
+    variant = 'info'
   }: TConfirmActionDialogProps) => {
     return (
       <AlertDialog open={isOpen}>
@@ -46,7 +47,14 @@ const ConfirmActionDialog = memo(
               {cancelLabel ?? 'Cancel'}
             </AlertDialogCancel>
             <AutoFocus>
-              <AlertDialogAction onClick={onConfirm}>
+              <AlertDialogAction
+                className={
+                  variant === 'danger'
+                    ? 'bg-destructive text-white hover:bg-destructive/90'
+                    : undefined
+                }
+                onClick={onConfirm}
+              >
                 {confirmLabel ?? 'Confirm'}
               </AlertDialogAction>
             </AutoFocus>
