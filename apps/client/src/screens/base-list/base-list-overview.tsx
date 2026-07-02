@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ListChecks, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TBaseListSummary } from './types';
 
 type TBaseListCardProps = {
@@ -31,6 +32,7 @@ type TBaseListOverviewProps = {
 
 const BaseListCard = memo(
   ({ baseList, isMutating, onOpen, onEdit, onRemove }: TBaseListCardProps) => {
+    const { t } = useTranslation();
     const open = useCallback(() => {
       onOpen(baseList);
     }, [baseList, onOpen]);
@@ -50,17 +52,19 @@ const BaseListCard = memo(
                 {baseList.name}
               </Text>
               <StatusChip tone={baseList.isEnabled ? 'success' : 'skipped'}>
-                {baseList.isEnabled ? 'Enabled' : 'Disabled'}
+                {baseList.isEnabled
+                  ? t('baseList.enabled')
+                  : t('baseList.disabled')}
               </StatusChip>
             </Inline>
             <Text size="sm" tone="muted">
-              {baseList.itemCount} products
+              {t('baseList.productCount', { count: baseList.itemCount })}
             </Text>
           </Stack>
 
           <Inline gap="xs" wrap={false}>
             <Button type="button" className="rounded-xl" onClick={open}>
-              Open
+              {t('baseList.open')}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -70,7 +74,7 @@ const BaseListCard = memo(
                   size="icon"
                   className="rounded-full"
                   disabled={isMutating}
-                  aria-label="Base List actions"
+                  aria-label={t('baseList.baseListActions')}
                 >
                   <MoreHorizontal className="size-5" />
                 </Button>
@@ -78,11 +82,11 @@ const BaseListCard = memo(
               <DropdownMenuContent align="end" className="w-44 rounded-xl">
                 <DropdownMenuItem onSelect={edit}>
                   <Pencil className="size-4" />
-                  Edit Base List
+                  {t('baseList.editBaseList')}
                 </DropdownMenuItem>
                 <DropdownMenuItem variant="destructive" onSelect={remove}>
                   <Trash2 className="size-4" />
-                  Delete Base List
+                  {t('baseList.deleteBaseList')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -106,19 +110,21 @@ const BaseListOverview = memo(
     onEdit,
     onRemove
   }: TBaseListOverviewProps) => {
+    const { t } = useTranslation();
+
     return (
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <Surface radius="2xl" padding="md">
           <Inline justify="between" className="gap-3">
             <Stack gap="xs">
-              <Text weight="semibold">Base Lists</Text>
+              <Text weight="semibold">{t('baseList.title')}</Text>
               <Text size="sm" tone="muted">
-                Create reusable lists for different shopping needs.
+                {t('baseList.description')}
               </Text>
             </Stack>
             <Button onClick={onCreate} className="rounded-xl">
               <Plus className="size-4" />
-              Create Base List
+              {t('baseList.createBaseList')}
             </Button>
           </Inline>
         </Surface>
@@ -131,7 +137,7 @@ const BaseListOverview = memo(
 
         {isLoading && (
           <Surface radius="2xl" padding="lg">
-            <Text tone="muted">Loading base lists...</Text>
+            <Text tone="muted">{t('baseList.loadingLists')}</Text>
           </Surface>
         )}
 
@@ -139,9 +145,9 @@ const BaseListOverview = memo(
           <Surface radius="2xl" padding="lg" className="text-center">
             <Stack gap="sm" align="center">
               <ListChecks className="size-8 text-muted-foreground" />
-              <Text weight="semibold">No base lists yet</Text>
+              <Text weight="semibold">{t('baseList.noListsYet')}</Text>
               <Text size="sm" tone="muted">
-                Create a Base List, then add catalog products to it.
+                {t('baseList.noListsDescription')}
               </Text>
             </Stack>
           </Surface>

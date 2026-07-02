@@ -21,6 +21,7 @@ import { HomeAuthScreen } from '@/screens/home/home-auth-screen';
 import { vibrate } from '@/screens/shopping/helpers';
 import { CircleUserRound, History, LogOut } from 'lucide-react';
 import { memo, useCallback, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 
@@ -31,6 +32,7 @@ type TChangePasswordForm = {
 };
 
 const Profile = memo(() => {
+  const { i18n, t } = useTranslation();
   const isAuthenticated = useIsAuthenticated();
   const auth = useAuth();
   const { mutateAsync: changePassword, isPending } = useChangePassword();
@@ -53,11 +55,11 @@ const Profile = memo(() => {
     try {
       await changePassword(values);
       setValues({ currentPassword: '', password: '', confirmPassword: '' });
-      toast.success('Password changed.');
+      toast.success(t('profile.passwordChanged'));
     } catch (error) {
       setErrors(parseTrpcErrors(error));
     }
-  }, [changePassword, resetErrors, setErrors, setValues, values]);
+  }, [changePassword, resetErrors, setErrors, setValues, t, values]);
 
   const onSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
@@ -73,40 +75,47 @@ const Profile = memo(() => {
         await updateSettings({
           defaultShoppingMode: value as 'list' | 'swipe'
         });
-        toast.success('Settings updated.');
+        toast.success(t('profile.settingsUpdated'));
       } catch (error) {
         toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to update settings.'
+          parseTrpcErrors(error)._general ?? t('profile.failedToUpdateSettings')
         );
       }
     },
-    [updateSettings]
+    [t, updateSettings]
+  );
+
+  const onLanguageChange = useCallback(
+    (value: string) => {
+      void i18n.changeLanguage(value);
+    },
+    [i18n]
   );
 
   const updateSetting = useCallback(
     async (settings: Parameters<typeof updateSettings>[0]) => {
       try {
         await updateSettings(settings);
-        toast.success('Settings updated.');
+        toast.success(t('profile.settingsUpdated'));
       } catch (error) {
         toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to update settings.'
+          parseTrpcErrors(error)._general ?? t('profile.failedToUpdateSettings')
         );
       }
     },
-    [updateSettings]
+    [t, updateSettings]
   );
 
   const testHaptics = useCallback(() => {
     const vibrated = vibrate([80, 50, 120]);
 
     if (vibrated) {
-      toast.success('Haptic test sent.');
+      toast.success(t('profile.hapticTestSent'));
       return;
     }
 
-    toast.error('This browser or device is not accepting vibration requests.');
-  }, []);
+    toast.error(t('profile.hapticUnsupported'));
+  }, [t]);
 
   if (!isAuthenticated) {
     return <HomeAuthScreen />;
@@ -119,13 +128,13 @@ const Profile = memo(() => {
           <Inline justify="between" className="gap-4">
             <Inline gap="sm" wrap={false} className="min-w-0">
               <Avatar className="size-14">
-                <AvatarImage src={auth.avatarUrl ?? undefined} alt="Profile" />
+                <AvatarImage src={auth.avatarUrl ?? undefined} alt={t('profile.title')} />
                 <AvatarFallback>
                   <CircleUserRound className="size-7" />
                 </AvatarFallback>
               </Avatar>
               <Stack gap="none" className="min-w-0">
-                <Text weight="semibold">Profile</Text>
+                <Text weight="semibold">{t('profile.title')}</Text>
                 <Text size="sm" tone="muted" className="truncate">
                   {auth.email}
                 </Text>
@@ -133,7 +142,7 @@ const Profile = memo(() => {
             </Inline>
             <Button type="button" variant="outline" onClick={onLogout}>
               <LogOut className="size-4" />
-              Log out
+              {t('profile.logout')}
             </Button>
           </Inline>
         </Surface>
@@ -141,24 +150,41 @@ const Profile = memo(() => {
         <Surface radius="2xl" padding="lg">
           <Stack gap="lg">
             <Stack gap="xs">
-              <Text weight="semibold">Options</Text>
+              <Text weight="semibold">{t('profile.options')}</Text>
               <Text size="sm" tone="muted">
-                Configure how shopping mode opens for your account.
+                {t('profile.optionsDescription')}
               </Text>
             </Stack>
 
-            <Group label="Default shopping mode">
+            <Group label={t('profile.language')}>
+              <Select
+                value={i18n.resolvedLanguage?.startsWith('pt') ? 'pt' : 'en'}
+                onValueChange={onLanguageChange}
+              >
+                <SelectTrigger className="h-11 w-full rounded-xl">
+                  <SelectValue placeholder={t('profile.language')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">{t('profile.languageEnglish')}</SelectItem>
+                  <SelectItem value="pt">
+                    {t('profile.languagePortuguese')}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </Group>
+
+            <Group label={t('profile.defaultShoppingMode')}>
               <Select
                 value={auth.settings?.defaultShoppingMode ?? 'list'}
                 onValueChange={onDefaultShoppingModeChange}
                 disabled={settingsPending}
               >
                 <SelectTrigger className="h-11 w-full rounded-xl">
-                  <SelectValue placeholder="Select mode" />
+                  <SelectValue placeholder={t('profile.defaultShoppingMode')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="list">List</SelectItem>
-                  <SelectItem value="swipe">Swipe</SelectItem>
+                  <SelectItem value="list">{t('profile.list')}</SelectItem>
+                  <SelectItem value="swipe">{t('profile.swipe')}</SelectItem>
                 </SelectContent>
               </Select>
             </Group>
@@ -170,10 +196,10 @@ const Profile = memo(() => {
             >
               <Stack gap="xs" className="min-w-0">
                 <Text size="sm" weight="semibold">
-                  Compact aisle list
+                  {t('profile.compactAisleList')}
                 </Text>
                 <Text size="xs" tone="muted">
-                  Use dense rows with sticky category headers while shopping.
+                  {t('profile.compactAisleDescription')}
                 </Text>
               </Stack>
               <Switch
@@ -192,10 +218,10 @@ const Profile = memo(() => {
             >
               <Stack gap="xs" className="min-w-0">
                 <Text size="sm" weight="semibold">
-                  Haptic feedback
+                  {t('profile.hapticFeedback')}
                 </Text>
                 <Text size="xs" tone="muted">
-                  Vibrate briefly when checking or skipping products.
+                  {t('profile.hapticDescription')}
                 </Text>
                 <Button
                   type="button"
@@ -204,7 +230,7 @@ const Profile = memo(() => {
                   className="mt-1 w-fit rounded-full"
                   onClick={testHaptics}
                 >
-                  Test haptics
+                  {t('profile.testHaptics')}
                 </Button>
               </Stack>
               <Switch
@@ -223,10 +249,10 @@ const Profile = memo(() => {
             >
               <Stack gap="xs" className="min-w-0">
                 <Text size="sm" weight="semibold">
-                  Action sounds
+                  {t('profile.actionSounds')}
                 </Text>
                 <Text size="xs" tone="muted">
-                  Play a soft tone for shopping actions.
+                  {t('profile.actionSoundsDescription')}
                 </Text>
               </Stack>
               <Switch
@@ -245,10 +271,10 @@ const Profile = memo(() => {
             >
               <Stack gap="xs" className="min-w-0">
                 <Text size="sm" weight="semibold">
-                  Keep screen awake
+                  {t('profile.keepScreenAwake')}
                 </Text>
                 <Text size="xs" tone="muted">
-                  Prevent the screen from sleeping during shopping mode.
+                  {t('profile.keepScreenAwakeDescription')}
                 </Text>
               </Stack>
               <Switch
@@ -265,15 +291,15 @@ const Profile = memo(() => {
         <Surface radius="2xl" padding="lg">
           <Inline justify="between" wrap={false} className="gap-4">
             <Stack gap="xs" className="min-w-0">
-              <Text weight="semibold">Shopping history</Text>
+              <Text weight="semibold">{t('profile.shoppingHistory')}</Text>
               <Text size="sm" tone="muted">
-                See finished lists and what was bought or discarded.
+                {t('profile.shoppingHistoryDescription')}
               </Text>
             </Stack>
             <Button asChild variant="outline" className="shrink-0 rounded-xl">
               <Link to="/shopping-history">
                 <History className="size-4" />
-                Open
+                {t('common.open')}
               </Link>
             </Button>
           </Inline>
@@ -282,9 +308,9 @@ const Profile = memo(() => {
         <Surface radius="2xl" padding="lg">
           <form className="space-y-5" onSubmit={onSubmit}>
             <Stack gap="xs">
-              <Text weight="semibold">Change password</Text>
+              <Text weight="semibold">{t('profile.changePassword')}</Text>
               <Text size="sm" tone="muted">
-                Update the password used for email login.
+                {t('profile.changePasswordDescription')}
               </Text>
             </Stack>
 
@@ -294,35 +320,35 @@ const Profile = memo(() => {
               </Text>
             )}
 
-            <Group label="Current password">
+            <Group label={t('profile.currentPassword')}>
               <Input
                 {...r('currentPassword', 'password')}
                 autoComplete="current-password"
                 disabled={isPending}
-                placeholder="Current password"
+                placeholder={t('profile.currentPassword')}
               />
             </Group>
 
-            <Group label="New password">
+            <Group label={t('profile.newPassword')}>
               <Input
                 {...r('password', 'password')}
                 autoComplete="new-password"
                 disabled={isPending}
-                placeholder="New password"
+                placeholder={t('profile.newPassword')}
               />
             </Group>
 
-            <Group label="Confirm new password">
+            <Group label={t('profile.confirmNewPassword')}>
               <Input
                 {...r('confirmPassword', 'password')}
                 autoComplete="new-password"
                 disabled={isPending}
-                placeholder="Repeat new password"
+                placeholder={t('profile.confirmNewPassword')}
               />
             </Group>
 
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? 'Changing...' : 'Change password'}
+              {isPending ? t('profile.changing') : t('profile.changePassword')}
             </Button>
           </form>
         </Surface>

@@ -7,6 +7,7 @@ import {
   Text
 } from '@/components/ds';
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatUnit } from './helpers';
 import type { TCatalogFormValues } from './types';
 
@@ -15,10 +16,14 @@ type TCatalogPreviewProps = {
 };
 
 const CatalogPreview = memo(({ form }: TCatalogPreviewProps) => {
-  const title = useMemo(() => form.title || 'Product preview', [form.title]);
+  const { t } = useTranslation();
+  const title = useMemo(
+    () => form.title || t('catalog.preview.emptyTitle'),
+    [form.title, t]
+  );
   const categoryName = useMemo(
-    () => form.categoryName || 'No category yet',
-    [form.categoryName]
+    () => form.categoryName || t('catalog.preview.emptyCategory'),
+    [form.categoryName, t]
   );
   const quantity = useMemo(
     () =>

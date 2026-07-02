@@ -4,9 +4,11 @@ import { logout } from '@/features/auth/actions';
 import { useAuth, useIsAuthenticated } from '@/features/auth/hooks';
 import { openDialog } from '@/features/dialogs/actions';
 import { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 const Header = memo(() => {
+  const { t } = useTranslation();
   const { email } = useAuth();
   const isAuthenticated = useIsAuthenticated();
   const onLogout = useCallback(() => {
@@ -33,15 +35,15 @@ const Header = memo(() => {
             <>
               <span className="text-sm text-muted-foreground">{email}</span>
               <Button variant="outline" onClick={onLogout}>
-                Log out
+                {t('profile.logout')}
               </Button>
             </>
           ) : (
             <>
               <Button variant="ghost" onClick={openLogin}>
-                Log in
+                {t('home.auth.logIn')}
               </Button>
-              <Button onClick={openRegister}>Register</Button>
+              <Button onClick={openRegister}>{t('home.auth.registerTab')}</Button>
             </>
           )}
         </div>

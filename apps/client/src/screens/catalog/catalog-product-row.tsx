@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatUnit } from './helpers';
 import type { TCatalogProduct } from './types';
 
@@ -20,6 +21,7 @@ type TCatalogProductRowProps = {
 
 const CatalogProductRow = memo(
   ({ product, isMutating, onEdit, onDelete }: TCatalogProductRowProps) => {
+    const { t } = useTranslation();
     const quantity = useMemo(
       () =>
         `${product.defaultQuantityAmount} ${formatUnit(product.defaultQuantityUnit)}`,
@@ -42,7 +44,7 @@ const CatalogProductRow = memo(
           </Text>
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
             <StatusChip tone="muted">
-              {product.categoryName ?? 'Uncategorized'}
+              {product.categoryName ?? t('common.uncategorized')}
             </StatusChip>
             <StatusChip tone="info">{quantity}</StatusChip>
           </div>
@@ -56,7 +58,7 @@ const CatalogProductRow = memo(
               size="icon"
               className="rounded-full"
               disabled={isMutating}
-              aria-label="Product actions"
+              aria-label={t('catalog.productActions')}
             >
               <MoreHorizontal className="size-5" />
             </Button>
@@ -64,11 +66,11 @@ const CatalogProductRow = memo(
           <DropdownMenuContent align="end" className="w-44 rounded-xl">
             <DropdownMenuItem onSelect={edit}>
               <Pencil className="size-4" />
-              Edit product
+              {t('catalog.editProduct')}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onSelect={remove}>
               <Trash2 className="size-4" />
-              Delete product
+              {t('catalog.deleteProduct')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

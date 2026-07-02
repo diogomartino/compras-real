@@ -24,6 +24,7 @@ import {
   type ChangeEvent,
   type FormEvent
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { unitOptions } from './helpers';
 
 type TEditOngoingItemForm = {
@@ -49,6 +50,7 @@ const emptyForm: TEditOngoingItemForm = {
 
 const EditOngoingItemDialog = memo(
   ({ item, isPending, onClose, onSubmit }: TEditOngoingItemDialogProps) => {
+    const { t } = useTranslation();
     const { values, errors, onChange, setValues, setErrors, resetErrors } =
       useForm<TEditOngoingItemForm>(emptyForm);
     const open = !!item;
@@ -90,7 +92,9 @@ const EditOngoingItemDialog = memo(
         const quantityAmount = Number(values.quantityAmount);
 
         if (!quantityAmount || quantityAmount <= 0) {
-          setErrors({ quantityAmount: 'Quantity must be greater than zero' });
+          setErrors({
+            quantityAmount: t('home.editQuantity.quantityGreaterThanZero')
+          });
           return;
         }
 
@@ -100,7 +104,7 @@ const EditOngoingItemDialog = memo(
           quantityUnit: values.quantityUnit
         });
       },
-      [item, onSubmit, setErrors, values]
+      [item, onSubmit, setErrors, t, values]
     );
 
     return (
@@ -108,13 +112,15 @@ const EditOngoingItemDialog = memo(
         <DialogContent className="rounded-3xl" close={close}>
           <form className="grid gap-4" onSubmit={submit}>
             <DialogHeader>
-              <DialogTitle>Edit quantity</DialogTitle>
+              <DialogTitle>{t('home.editQuantity.title')}</DialogTitle>
               <DialogDescription>{item?.title}</DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2">
-                <span className="text-sm font-medium">Quantity</span>
+                <span className="text-sm font-medium">
+                  {t('home.editQuantity.quantity')}
+                </span>
                 <Input
                   type="number"
                   min="0"
@@ -127,13 +133,15 @@ const EditOngoingItemDialog = memo(
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium">Unit</span>
+                <span className="text-sm font-medium">
+                  {t('home.editQuantity.unit')}
+                </span>
                 <Select
                   value={values.quantityUnit}
                   onValueChange={onQuantityUnitChange}
                 >
                   <SelectTrigger className="h-11 w-full rounded-xl">
-                    <SelectValue placeholder="Select unit" />
+                    <SelectValue placeholder={t('home.editQuantity.selectUnit')} />
                   </SelectTrigger>
                   <SelectContent>
                     {unitOptions.map((unit) => (
@@ -148,10 +156,10 @@ const EditOngoingItemDialog = memo(
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={close}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={isPending}>
-                Save quantity
+                {t('home.editQuantity.saveQuantity')}
               </Button>
             </DialogFooter>
           </form>

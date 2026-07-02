@@ -7,16 +7,13 @@ import type {
 } from '@/queries/shopping';
 import { CircleUserRound } from 'lucide-react';
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TShoppingLiveStatusProps = {
   users: TShoppingPresenceUser[];
   activities: TShoppingActivity[];
   currentUserId: string | undefined;
   variant?: 'default' | 'overlay';
-};
-
-const getActivityLabel = (activity: TShoppingActivity) => {
-  return `${activity.actor.name} ${activity.status} ${activity.product.title}`;
 };
 
 const ShoppingLiveStatus = memo(
@@ -26,6 +23,7 @@ const ShoppingLiveStatus = memo(
     currentUserId,
     variant = 'default'
   }: TShoppingLiveStatusProps) => {
+    const { t } = useTranslation();
     const otherActivities = useMemo(
       () => activities.filter((activity) => activity.actor.id !== currentUserId),
       [activities, currentUserId]
@@ -33,15 +31,15 @@ const ShoppingLiveStatus = memo(
     const latestActivity = otherActivities[0];
     const presenceLabel = useMemo(() => {
       if (users.length === 0) {
-        return 'Shopping mode active';
+        return t('shopping.presenceActive');
       }
 
       if (users.length === 1) {
-        return `${users[0]?.name ?? 'Someone'} is shopping`;
+        return t('shopping.presenceOne', { name: users[0]?.name ?? 'Someone' });
       }
 
-      return `${users.length} people shopping`;
-    }, [users]);
+      return t('shopping.presenceMany', { count: users.length });
+    }, [t, users]);
 
     if (users.length === 0 && !latestActivity) {
       return null;
@@ -90,7 +88,11 @@ const ShoppingLiveStatus = memo(
                     variant === 'overlay' && 'text-white/75'
                   )}
                 >
-                  {getActivityLabel(latestActivity)}
+                  {t('shopping.activity', {
+                    name: latestActivity.actor.name,
+                    status: latestActivity.status,
+                    product: latestActivity.product.title
+                  })}
                 </Text>
               )}
             </Stack>

@@ -14,12 +14,14 @@ import {
   ShoppingCart
 } from 'lucide-react';
 import { memo, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
 type TAppBottomNavProps = Record<string, never>;
 
 const AppBottomNav = memo(() => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { avatarUrl } = useAuth();
@@ -47,10 +49,11 @@ const AppBottomNav = memo(() => {
       navigate('/shop');
     } catch (error) {
       toast.error(
-        parseTrpcErrors(error)._general ?? 'Failed to start shopping mode.'
+        parseTrpcErrors(error)._general ??
+          t('components.bottomNav.failedToStartShopping')
       );
     }
-  }, [navigate, startShopping]);
+  }, [navigate, startShopping, t]);
 
   const isHome = location.pathname === '/';
   const isBaseList = location.pathname.startsWith('/base-list');
@@ -74,7 +77,7 @@ const AppBottomNav = memo(() => {
           >
             <Link to="/">
               <Home className="size-5" />
-              <span className="text-xs">Home</span>
+              <span className="text-xs">{t('components.bottomNav.home')}</span>
             </Link>
           </Button>
           <Button
@@ -88,7 +91,9 @@ const AppBottomNav = memo(() => {
           >
             <Link to="/base-list">
               <ListChecks className="size-5" />
-              <span className="text-xs">Base Lists</span>
+              <span className="text-xs">
+                {t('components.bottomNav.baseLists')}
+              </span>
             </Link>
           </Button>
           <Button
@@ -98,7 +103,7 @@ const AppBottomNav = memo(() => {
             disabled={startShoppingPending}
           >
             <ShoppingCart className="size-5" />
-            <span className="text-xs">Shop</span>
+            <span className="text-xs">{t('components.bottomNav.shop')}</span>
           </Button>
           <Button
             asChild
@@ -111,7 +116,9 @@ const AppBottomNav = memo(() => {
           >
             <Link to="/catalog">
               <PackageSearch className="size-5" />
-              <span className="text-xs">Catalog</span>
+              <span className="text-xs">
+                {t('components.bottomNav.catalog')}
+              </span>
             </Link>
           </Button>
           <Button
@@ -126,7 +133,10 @@ const AppBottomNav = memo(() => {
             <Link to="/profile">
               {avatarUrl ? (
                 <Avatar className="size-5">
-                  <AvatarImage src={avatarUrl} alt="Profile" />
+                  <AvatarImage
+                    src={avatarUrl}
+                    alt={t('components.bottomNav.profile')}
+                  />
                   <AvatarFallback>
                     <CircleUserRound className="size-4" />
                   </AvatarFallback>
@@ -134,7 +144,9 @@ const AppBottomNav = memo(() => {
               ) : (
                 <CircleUserRound className="size-5" />
               )}
-              <span className="text-xs">Profile</span>
+              <span className="text-xs">
+                {t('components.bottomNav.profile')}
+              </span>
             </Link>
           </Button>
         </div>

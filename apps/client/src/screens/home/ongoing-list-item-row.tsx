@@ -9,6 +9,7 @@ import {
 import type { TOngoingListEntry } from '@myapp/shared';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatQuantity } from './helpers';
 
 type TOngoingListItemRowProps = {
@@ -20,6 +21,7 @@ type TOngoingListItemRowProps = {
 
 const OngoingListItemRow = memo(
   ({ item, isMutating, onEdit, onRemove }: TOngoingListItemRowProps) => {
+    const { t } = useTranslation();
     const quantity = useMemo(
       () => formatQuantity(item.quantityAmount, item.quantityUnit),
       [item.quantityAmount, item.quantityUnit]
@@ -41,7 +43,7 @@ const OngoingListItemRow = memo(
           </Text>
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
             <StatusChip tone="muted">
-              {item.categoryName ?? 'Uncategorized'}
+              {item.categoryName ?? t('common.uncategorized')}
             </StatusChip>
             <StatusChip tone="info">{quantity}</StatusChip>
           </div>
@@ -55,7 +57,7 @@ const OngoingListItemRow = memo(
               size="icon"
               className="rounded-full"
               disabled={isMutating}
-              aria-label="Ongoing product actions"
+              aria-label={t('home.ongoingProductActions')}
             >
               <MoreHorizontal className="size-5" />
             </Button>
@@ -63,11 +65,11 @@ const OngoingListItemRow = memo(
           <DropdownMenuContent align="end" className="w-44 rounded-xl">
             <DropdownMenuItem onSelect={edit}>
               <Pencil className="size-4" />
-              Edit quantity
+              {t('home.editQuantity.title')}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onSelect={remove}>
               <Trash2 className="size-4" />
-              Remove product
+              {t('home.removeProductTitle')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

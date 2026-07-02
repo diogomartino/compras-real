@@ -24,11 +24,14 @@ const formatQuantity = (amount: number | string, unit: TUnitKind) => {
   return `${formattedAmount} ${unit}`;
 };
 
-const getGroupedOngoingListItems = (items: TOngoingListEntry[]) => {
+const getGroupedOngoingListItems = (
+  items: TOngoingListEntry[],
+  uncategorizedLabel: string
+) => {
   const groups = new Map<string, TOngoingListEntry[]>();
 
   items.forEach((item) => {
-    const categoryName = item.categoryName ?? 'Uncategorized';
+    const categoryName = item.categoryName ?? uncategorizedLabel;
     const groupItems = groups.get(categoryName) ?? [];
 
     groupItems.push(item);
@@ -43,11 +46,11 @@ const getGroupedOngoingListItems = (items: TOngoingListEntry[]) => {
       )
     }))
     .sort((firstGroup, secondGroup) => {
-      if (firstGroup.categoryName === 'Uncategorized') {
+      if (firstGroup.categoryName === uncategorizedLabel) {
         return 1;
       }
 
-      if (secondGroup.categoryName === 'Uncategorized') {
+      if (secondGroup.categoryName === uncategorizedLabel) {
         return -1;
       }
 

@@ -22,6 +22,7 @@ import {
   type ChangeEvent
 } from 'react';
 import { useSearchParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { AddProductsDialog } from './add-products-dialog';
 import { EditOngoingItemDialog } from './edit-ongoing-item-dialog';
@@ -29,6 +30,7 @@ import { getGroupedOngoingListItems } from './helpers';
 import { OngoingListItemRow } from './ongoing-list-item-row';
 
 const HomeDashboard = memo(() => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<TOngoingListEntry>();
@@ -67,8 +69,8 @@ const HomeDashboard = memo(() => {
     );
   }, [items, query]);
   const groups = useMemo(
-    () => getGroupedOngoingListItems(visibleItems),
-    [visibleItems]
+    () => getGroupedOngoingListItems(visibleItems, t('common.uncategorized')),
+    [t, visibleItems]
   );
   const isMutating = useMemo(
     () => addItemsPending || updateItemPending || removeItemPending,
@@ -104,14 +106,14 @@ const HomeDashboard = memo(() => {
       try {
         await addItems({ productIds });
         setAddDialogOpen(false);
-        toast.success('Products added.');
+        toast.success(t('home.productsAdded'));
       } catch (error) {
         toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to add products.'
+          parseTrpcErrors(error)._general ?? t('home.failedToAddProducts')
         );
       }
     },
-    [addItems]
+    [addItems, t]
   );
   const updateQuantity = useCallback(
     async (input: {
@@ -122,22 +124,22 @@ const HomeDashboard = memo(() => {
       try {
         await updateItem(input);
         setEditingItem(undefined);
-        toast.success('Quantity updated.');
+        toast.success(t('home.quantityUpdated'));
       } catch (error) {
         toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to update quantity.'
+          parseTrpcErrors(error)._general ?? t('home.failedToUpdateQuantity')
         );
       }
     },
-    [updateItem]
+    [t, updateItem]
   );
   const remove = useCallback(
     async (item: TOngoingListEntry) => {
       const confirmed = await requestConfirmation({
-        title: 'Remove product?',
-        message: `Remove ${item.title} from the ongoing list?`,
-        confirmLabel: 'Remove',
-        cancelLabel: 'Cancel',
+        title: t('home.removeProductTitle'),
+        message: t('home.removeProductMessage', { title: item.title }),
+        confirmLabel: t('common.remove'),
+        cancelLabel: t('common.cancel'),
         variant: 'danger'
       });
 
@@ -147,14 +149,14 @@ const HomeDashboard = memo(() => {
 
       try {
         await removeItem(item.id);
-        toast.success('Product removed.');
+        toast.success(t('home.productRemoved'));
       } catch (error) {
         toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to remove product.'
+          parseTrpcErrors(error)._general ?? t('home.failedToRemoveProduct')
         );
       }
     },
-    [removeItem]
+    [removeItem, t]
   );
 
   return (
@@ -169,10 +171,10 @@ const HomeDashboard = memo(() => {
                 </div>
                 <Stack gap="none" className="min-w-0">
                   <Text weight="semibold" className="truncate">
-                    Current list
+                    {t('home.currentList')}
                   </Text>
                   <Text size="sm" tone="muted" className="truncate">
-                    {items.length} products ready for the next shop
+                    {t('home.productsReady', { count: items.length })}
                   </Text>
                 </Stack>
               </Inline>
@@ -182,7 +184,9 @@ const HomeDashboard = memo(() => {
                 onClick={openAddDialog}
               >
                 <Plus className="size-4" />
-                <span className="sr-only sm:not-sr-only">Add products</span>
+                <span className="sr-only sm:not-sr-only">
+                  {t('home.addProducts')}
+                </span>
               </Button>
             </Inline>
 
@@ -192,7 +196,7 @@ const HomeDashboard = memo(() => {
                 value={query}
                 onChange={onQueryChange}
                 className="h-11 rounded-xl pl-9"
-                placeholder="Search ongoing products"
+                placeholder={t('home.searchOngoingProducts')}
               />
             </div>
           </Stack>
@@ -206,7 +210,7 @@ const HomeDashboard = memo(() => {
 
         {ongoingListLoading && (
           <Surface radius="2xl" padding="lg">
-            <Text tone="muted">Loading ongoing list...</Text>
+            <Text tone="muted">{t('home.loadingOngoingList')}</Text>
           </Surface>
         )}
 
@@ -214,9 +218,9 @@ const HomeDashboard = memo(() => {
           <Surface radius="2xl" padding="lg" className="text-center">
             <Stack gap="sm" align="center">
               <PackagePlus className="size-8 text-muted-foreground" />
-              <Text weight="semibold">No products in the ongoing list</Text>
+              <Text weight="semibold">{t('home.noProductsInOngoingList')}</Text>
               <Text size="sm" tone="muted">
-                Add products from the catalog to prepare the next shop.
+                {t('home.addProductsFromCatalog')}
               </Text>
               <Button
                 type="button"
@@ -224,7 +228,7 @@ const HomeDashboard = memo(() => {
                 onClick={openAddDialog}
               >
                 <Plus className="size-4" />
-                Add products
+                {t('home.addProducts')}
               </Button>
             </Stack>
           </Surface>
@@ -237,7 +241,7 @@ const HomeDashboard = memo(() => {
                 <Inline justify="between" className="px-1">
                   <Text weight="semibold">{group.categoryName}</Text>
                   <Text size="sm" tone="muted">
-                    {group.items.length} items
+                    {group.items.length} {t('common.items')}
                   </Text>
                 </Inline>
                 {group.items.map((item) => (
@@ -258,9 +262,9 @@ const HomeDashboard = memo(() => {
           <Surface variant="muted" radius="2xl" padding="md">
             <Inline justify="between" wrap={false}>
               <Stack gap="xs">
-                <Text weight="semibold">Catalog is empty</Text>
+                <Text weight="semibold">{t('home.catalogIsEmpty')}</Text>
                 <Text size="sm" tone="muted">
-                  Add catalog products before adding them to the ongoing list.
+                  {t('home.addCatalogProductsBefore')}
                 </Text>
               </Stack>
             </Inline>

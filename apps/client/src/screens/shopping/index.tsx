@@ -27,6 +27,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { playActionTone, vibrate } from './helpers';
@@ -38,6 +39,7 @@ import { ShoppingSwipeView } from './shopping-swipe-view';
 type TShoppingView = 'list' | 'swipe';
 
 const Shopping = memo(() => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const auth = useAuth();
   const [view, setView] = useState<TShoppingView>(
@@ -92,9 +94,11 @@ const Shopping = memo(() => {
   const categoryOrder = useMemo(
     () =>
       Array.from(
-        new Set(items.map((item) => item.categoryName ?? 'Uncategorized'))
+        new Set(
+          items.map((item) => item.categoryName ?? t('common.uncategorized'))
+        )
       ),
-    [items]
+    [items, t]
   );
   const checkedCount = useMemo(
     () => items.filter((item) => item.status === 'checked').length,
@@ -128,7 +132,7 @@ const Shopping = memo(() => {
 
       if (hapticsEnabled && !vibrated && !hapticsUnsupportedToastShown.current) {
         hapticsUnsupportedToastShown.current = true;
-        toast.info('Haptics are not supported or are blocked by this browser.');
+        toast.info(t('shopping.hapticsBlocked'));
       }
 
       try {
@@ -144,11 +148,11 @@ const Shopping = memo(() => {
         }
       } catch (mutationError) {
         toast.error(
-          parseTrpcErrors(mutationError)._general ?? 'Failed to update product.'
+          parseTrpcErrors(mutationError)._general ?? t('shopping.failedToUpdateProduct')
         );
       }
     },
-    [hapticsEnabled, setItemStatus, soundEnabled]
+    [hapticsEnabled, setItemStatus, soundEnabled, t]
   );
   const check = useCallback(
     (item: TOngoingListEntry) => {
@@ -170,10 +174,12 @@ const Shopping = memo(() => {
   );
   const discardSkipped = useCallback(async () => {
     const confirmed = await requestConfirmation({
-      title: 'Discard skipped products?',
-      message: `Discard ${ignoredItems.length} skipped products and finish without buying them?`,
-      confirmLabel: 'Discard skipped',
-      cancelLabel: 'Keep reviewing',
+      title: t('shopping.discardSkippedTitle'),
+      message: t('shopping.discardSkippedMessage', {
+        count: ignoredItems.length
+      }),
+      confirmLabel: t('shopping.discardSkipped'),
+      cancelLabel: t('shopping.keepReviewing'),
       variant: 'danger'
     });
 
@@ -182,7 +188,7 @@ const Shopping = memo(() => {
     }
 
     await Promise.all(ignoredItems.map((item) => setStatus(item, 'discarded')));
-  }, [ignoredItems, setStatus]);
+  }, [ignoredItems, setStatus, t]);
   const startSkippedReview = useCallback(() => {
     setReviewSkipped(true);
     setView('swipe');
@@ -199,10 +205,10 @@ const Shopping = memo(() => {
     } catch (settingsError) {
       toast.error(
         parseTrpcErrors(settingsError)._general ??
-          'Failed to update list layout.'
+          t('shopping.failedToUpdateLayout')
       );
     }
-  }, [compactShoppingList, updateSettings]);
+  }, [compactShoppingList, t, updateSettings]);
   const showMainList = useCallback(() => {
     setReviewSkipped(false);
   }, []);
@@ -210,21 +216,21 @@ const Shopping = memo(() => {
     try {
       await finishShopping();
       await clearShoppingListState();
-      toast.success('Shopping finished.');
+      toast.success(t('shopping.shoppingFinished'));
       navigate('/', { replace: true });
     } catch (finishError) {
       toast.error(
-        parseTrpcErrors(finishError)._general ?? 'Failed to finish shopping.'
+        parseTrpcErrors(finishError)._general ?? t('shopping.failedToFinish')
       );
     }
-  }, [finishShopping, navigate]);
+  }, [finishShopping, navigate, t]);
   const cancel = useCallback(async () => {
     const confirmed = await requestConfirmation({
-      title: 'Cancel shopping mode?',
+      title: t('shopping.cancelTitle'),
       message:
-        'The current list will stay available and product states will be reset.',
-      confirmLabel: 'Cancel shopping',
-      cancelLabel: 'Keep shopping',
+        t('shopping.cancelMessage'),
+      confirmLabel: t('shopping.cancelConfirm'),
+      cancelLabel: t('shopping.keepShopping'),
       variant: 'danger'
     });
 
@@ -235,14 +241,14 @@ const Shopping = memo(() => {
     try {
       await cancelShopping();
       await clearShoppingListState();
-      toast.success('Shopping cancelled.');
+      toast.success(t('shopping.shoppingCancelled'));
       navigate('/', { replace: true });
     } catch (cancelError) {
       toast.error(
-        parseTrpcErrors(cancelError)._general ?? 'Failed to cancel shopping.'
+        parseTrpcErrors(cancelError)._general ?? t('shopping.failedToCancel')
       );
     }
-  }, [cancelShopping, navigate]);
+  }, [cancelShopping, navigate, t]);
 
   useEffect(() => {
     if (!isLoading && !shoppingList) {
@@ -253,7 +259,7 @@ const Shopping = memo(() => {
   if (isLoading) {
     return (
       <main className="grid min-h-dvh place-items-center bg-background p-6 text-foreground">
-        <Text tone="muted">Loading shopping mode...</Text>
+        <Text tone="muted">{t('shopping.loading')}</Text>
       </main>
     );
   }
@@ -263,9 +269,9 @@ const Shopping = memo(() => {
       <main className="grid min-h-dvh place-items-center bg-background p-6 text-center text-foreground">
         <Stack gap="md" align="center">
           <ShoppingCart className="size-10 text-muted-foreground" />
-          <Text weight="semibold">No shopping list is active</Text>
+          <Text weight="semibold">{t('shopping.noActiveList')}</Text>
           <Button type="button" onClick={() => navigate('/')}>
-            Back home
+            {t('shopping.backHome')}
           </Button>
         </Stack>
       </main>
@@ -303,7 +309,7 @@ const Shopping = memo(() => {
                     onClick={showListView}
                   >
                     <List className="size-4" />
-                    List
+                    {t('shopping.list')}
                   </Button>
                   <Button
                     type="button"
@@ -313,7 +319,7 @@ const Shopping = memo(() => {
                     onClick={showSwipeView}
                   >
                     <Sparkles className="size-4" />
-                    Swipe
+                    {t('shopping.swipe')}
                   </Button>
                   <Button
                     type="button"
@@ -323,7 +329,9 @@ const Shopping = memo(() => {
                     disabled={updateSettingsPending}
                     onClick={toggleCompactShoppingList}
                   >
-                    {compactShoppingList ? 'Compact' : 'Comfort'}
+                    {compactShoppingList
+                      ? t('shopping.compact')
+                      : t('shopping.comfort')}
                   </Button>
                 </Inline>
                 {reviewSkipped && (
@@ -335,7 +343,7 @@ const Shopping = memo(() => {
                     onClick={showMainList}
                   >
                     <RotateCcw className="size-4" />
-                    Main list
+                    {t('shopping.mainList')}
                   </Button>
                 )}
                 <Button
@@ -346,7 +354,7 @@ const Shopping = memo(() => {
                   disabled={cancelShoppingPending}
                   onClick={cancel}
                 >
-                  Cancel
+                  {t('shopping.cancel')}
                 </Button>
               </Inline>
             </Stack>
@@ -365,10 +373,11 @@ const Shopping = memo(() => {
           <Surface radius="2xl" padding="lg" className="text-center">
             <Stack gap="md" align="center">
               <RotateCcw className="size-10 text-orange-500" />
-              <Text weight="semibold">Review skipped products</Text>
+              <Text weight="semibold">{t('shopping.reviewSkippedTitle')}</Text>
               <Text size="sm" tone="muted">
-                {ignoredItems.length} products were ignored. Review them before
-                finishing.
+                {t('shopping.reviewSkippedDescription', {
+                  count: ignoredItems.length
+                })}
               </Text>
               <Inline justify="center">
                 <Button
@@ -376,7 +385,7 @@ const Shopping = memo(() => {
                   className="rounded-xl"
                   onClick={startSkippedReview}
                 >
-                  Review skipped
+                  {t('shopping.reviewSkipped')}
                 </Button>
                 <Button
                   type="button"
@@ -384,7 +393,7 @@ const Shopping = memo(() => {
                   className="rounded-xl"
                   onClick={discardSkipped}
                 >
-                  Discard skipped
+                  {t('shopping.discardSkipped')}
                 </Button>
               </Inline>
             </Stack>
@@ -403,10 +412,13 @@ const Shopping = memo(() => {
                 <CheckCircle2 className="size-12 text-green-600" />
                 <Stack gap="xs" align="center">
                   <Text weight="semibold" className="text-xl">
-                    Shopping done
+                    {t('shopping.shoppingDone')}
                   </Text>
                   <Text size="sm" tone="muted">
-                    {checkedCount} checked, {discardedCount} discarded
+                    {t('shopping.doneStats', {
+                      checked: checkedCount,
+                      discarded: discardedCount
+                    })}
                   </Text>
                 </Stack>
                 <Button
@@ -415,7 +427,7 @@ const Shopping = memo(() => {
                   disabled={finishShoppingPending}
                   onClick={finish}
                 >
-                  Finish shopping
+                  {t('shopping.finishShopping')}
                 </Button>
               </Stack>
             </Surface>

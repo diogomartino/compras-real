@@ -18,6 +18,7 @@ import {
   ShoppingCart
 } from 'lucide-react';
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TStartShoppingDialogProps = {
   open: boolean;
@@ -41,13 +42,14 @@ const StartShoppingDialog = memo(
     onAddProducts,
     onStartShopping
   }: TStartShoppingDialogProps) => {
+    const { t } = useTranslation();
     const auth = useAuth();
     const items = useMemo(() => ongoingList?.items ?? [], [ongoingList]);
     const categoryGroups = useMemo(() => {
       const groups = new Map<string, number>();
 
       items.forEach((item) => {
-        const categoryName = item.categoryName ?? 'Uncategorized';
+        const categoryName = item.categoryName ?? t('common.uncategorized');
 
         groups.set(categoryName, (groups.get(categoryName) ?? 0) + 1);
       });
@@ -55,11 +57,11 @@ const StartShoppingDialog = memo(
       return Array.from(groups.entries())
         .map(([categoryName, count]) => ({ categoryName, count }))
         .sort((firstGroup, secondGroup) => {
-          if (firstGroup.categoryName === 'Uncategorized') {
+          if (firstGroup.categoryName === t('common.uncategorized')) {
             return 1;
           }
 
-          if (secondGroup.categoryName === 'Uncategorized') {
+          if (secondGroup.categoryName === t('common.uncategorized')) {
             return -1;
           }
 
@@ -67,7 +69,7 @@ const StartShoppingDialog = memo(
             secondGroup.categoryName
           );
         });
-    }, [items]);
+    }, [items, t]);
     const uncategorizedCount = useMemo(
       () => items.filter((item) => !item.categoryName).length,
       [items]
@@ -86,16 +88,15 @@ const StartShoppingDialog = memo(
           className="gap-5 sm:max-w-xl"
         >
           <DialogHeader>
-            <DialogTitle>Ready to shop?</DialogTitle>
+            <DialogTitle>{t('components.startShopping.title')}</DialogTitle>
             <DialogDescription>
-              Preview the ongoing list before your household enters shopping
-              mode.
+              {t('components.startShopping.description')}
             </DialogDescription>
           </DialogHeader>
 
           {isLoading && (
             <Surface radius="2xl" padding="lg" variant="muted">
-              <Text tone="muted">Loading current list...</Text>
+              <Text tone="muted">{t('components.startShopping.loading')}</Text>
             </Surface>
           )}
 
@@ -104,9 +105,11 @@ const StartShoppingDialog = memo(
               <Stack gap="md" align="center">
                 <ShoppingCart className="size-10 text-muted-foreground" />
                 <Stack gap="xs" align="center">
-                  <Text weight="semibold">Your ongoing list is empty</Text>
+                  <Text weight="semibold">
+                    {t('components.startShopping.emptyTitle')}
+                  </Text>
                   <Text size="sm" tone="muted">
-                    Add products before starting shopping mode.
+                    {t('components.startShopping.emptyDescription')}
                   </Text>
                 </Stack>
                 <Button
@@ -114,7 +117,7 @@ const StartShoppingDialog = memo(
                   className="rounded-xl"
                   onClick={onAddProducts}
                 >
-                  Add products
+                  {t('components.startShopping.addProducts')}
                 </Button>
               </Stack>
             </Surface>
@@ -128,7 +131,7 @@ const StartShoppingDialog = memo(
                     <ShoppingCart className="size-5 text-primary" />
                     <Text weight="semibold">{items.length}</Text>
                     <Text size="xs" tone="muted">
-                      Products
+                      {t('components.startShopping.products')}
                     </Text>
                   </Stack>
                 </Surface>
@@ -137,7 +140,7 @@ const StartShoppingDialog = memo(
                     <Layers3 className="size-5 text-primary" />
                     <Text weight="semibold">{categoryGroups.length}</Text>
                     <Text size="xs" tone="muted">
-                      Categories
+                      {t('components.startShopping.categories')}
                     </Text>
                   </Stack>
                 </Surface>
@@ -148,7 +151,7 @@ const StartShoppingDialog = memo(
                       {defaultMode}
                     </Text>
                     <Text size="xs" tone="muted">
-                      Default mode
+                      {t('components.startShopping.defaultMode')}
                     </Text>
                   </Stack>
                 </Surface>
@@ -164,7 +167,9 @@ const StartShoppingDialog = memo(
                     >
                       <AlertTriangle className="size-4 shrink-0" />
                       <Text size="sm">
-                        {uncategorizedCount} products are uncategorized.
+                        {t('components.startShopping.uncategorizedWarning', {
+                          count: uncategorizedCount
+                        })}
                       </Text>
                     </Inline>
                   )}
@@ -176,8 +181,9 @@ const StartShoppingDialog = memo(
                     >
                       <ImageOff className="size-4 shrink-0 text-muted-foreground" />
                       <Text size="sm">
-                        {missingImageCount} products have no image for swipe
-                        mode.
+                        {t('components.startShopping.missingImageWarning', {
+                          count: missingImageCount
+                        })}
                       </Text>
                     </Inline>
                   )}
@@ -186,7 +192,7 @@ const StartShoppingDialog = memo(
 
               <Stack gap="sm">
                 <Text size="sm" weight="semibold">
-                  Categories
+                  {t('components.startShopping.categories')}
                 </Text>
                 <div className="flex max-h-44 flex-wrap gap-2 overflow-y-auto rounded-2xl border border-border p-3">
                   {categoryGroups.map((group) => (
@@ -207,7 +213,7 @@ const StartShoppingDialog = memo(
               className="rounded-xl"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             {hasItems && (
               <Button
@@ -216,7 +222,7 @@ const StartShoppingDialog = memo(
                 className="rounded-xl"
                 onClick={onReviewList}
               >
-                Review list
+                {t('components.startShopping.reviewList')}
               </Button>
             )}
             {hasItems && (
@@ -226,7 +232,9 @@ const StartShoppingDialog = memo(
                 disabled={isPending}
                 onClick={onStartShopping}
               >
-                {isPending ? 'Starting...' : 'Start shopping'}
+                {isPending
+                  ? t('components.startShopping.starting')
+                  : t('components.startShopping.startShopping')}
               </Button>
             )}
           </DialogFooter>

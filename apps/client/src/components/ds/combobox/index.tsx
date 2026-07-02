@@ -23,6 +23,7 @@ import {
   type ChangeEvent,
   type FocusEvent
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TComboboxOption = {
   value: string;
@@ -52,8 +53,6 @@ type TComboboxCreateItemProps = {
   label: string;
   onSelect: (value: string) => void;
 };
-
-const defaultCreateLabel = (value: string) => `Create "${value}"`;
 
 const ComboboxOptionItem = memo(
   ({ option, selected, onSelect }: TComboboxOptionItemProps) => {
@@ -99,13 +98,14 @@ const Combobox = memo(
     value,
     options,
     placeholder,
-    emptyLabel = 'No options found.',
-    createLabel = defaultCreateLabel,
+    emptyLabel,
+    createLabel,
     allowCustomValue = false,
     error,
     className,
     onChange
   }: TComboboxProps) => {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [searchValue, setSearchValue] = useState(value);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -146,8 +146,11 @@ const Combobox = memo(
       [className]
     );
     const createOptionLabel = useMemo(
-      () => createLabel(trimmedSearchValue),
-      [createLabel, trimmedSearchValue]
+      () =>
+        createLabel
+          ? createLabel(trimmedSearchValue)
+          : t('components.combobox.create', { value: trimmedSearchValue }),
+      [createLabel, t, trimmedSearchValue]
     );
 
     const onInputFocus = useCallback((event: FocusEvent<HTMLInputElement>) => {
@@ -212,7 +215,9 @@ const Combobox = memo(
           <Command shouldFilter={false}>
             <CommandList>
               {filteredOptions.length === 0 && !showCreateOption && (
-                <CommandEmpty>{emptyLabel}</CommandEmpty>
+                <CommandEmpty>
+                  {emptyLabel ?? t('components.combobox.empty')}
+                </CommandEmpty>
               )}
               <CommandGroup>
                 {filteredOptions.map((option) => (

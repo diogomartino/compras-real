@@ -14,6 +14,7 @@ import {
   X
 } from 'lucide-react';
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 const formatDate = (timestamp: number) =>
@@ -24,6 +25,7 @@ const formatDate = (timestamp: number) =>
   });
 
 const ShoppingHistory = memo(() => {
+  const { t } = useTranslation();
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
   const { data, isLoading, error } = useShoppingHistory(isAuthenticated);
@@ -43,9 +45,9 @@ const ShoppingHistory = memo(() => {
             onClick={() => navigate('/profile')}
           >
             <ArrowLeft className="size-4" />
-            Profile
+            {t('shoppingHistory.profile')}
           </Button>
-          <Text weight="semibold">Shopping history</Text>
+          <Text weight="semibold">{t('shoppingHistory.title')}</Text>
         </Inline>
 
         <Surface radius="2xl" padding="lg">
@@ -54,9 +56,9 @@ const ShoppingHistory = memo(() => {
               <History className="size-5" />
             </div>
             <Stack gap="none" className="min-w-0">
-              <Text weight="semibold">Finished shops</Text>
+              <Text weight="semibold">{t('shoppingHistory.finishedShops')}</Text>
               <Text size="sm" tone="muted">
-                Review what your household bought or discarded before.
+                {t('shoppingHistory.description')}
               </Text>
             </Stack>
           </Inline>
@@ -70,7 +72,7 @@ const ShoppingHistory = memo(() => {
 
         {isLoading && (
           <Surface radius="2xl" padding="lg">
-            <Text tone="muted">Loading shopping history...</Text>
+            <Text tone="muted">{t('shoppingHistory.loading')}</Text>
           </Surface>
         )}
 
@@ -78,9 +80,9 @@ const ShoppingHistory = memo(() => {
           <Surface radius="2xl" padding="lg" className="text-center">
             <Stack gap="sm" align="center">
               <ShoppingBag className="size-8 text-muted-foreground" />
-              <Text weight="semibold">No finished shops yet</Text>
+              <Text weight="semibold">{t('shoppingHistory.emptyTitle')}</Text>
               <Text size="sm" tone="muted">
-                Finished shopping lists will appear here.
+                {t('shoppingHistory.emptyDescription')}
               </Text>
             </Stack>
           </Surface>
@@ -118,10 +120,11 @@ const ShoppingHistory = memo(() => {
                           </AvatarFallback>
                         </Avatar>
                         <Text size="sm" tone="muted" className="truncate">
-                          Started by{' '}
-                          {list.shoppingStartedByUser?.name ?? 'Unknown user'}
-                          {' · '}
-                          {list.items.length} products
+                          {t('shoppingHistory.startedBy', {
+                            name:
+                              list.shoppingStartedByUser?.name ?? 'Unknown user',
+                            count: list.items.length
+                          })}
                         </Text>
                       </Inline>
                     </Stack>

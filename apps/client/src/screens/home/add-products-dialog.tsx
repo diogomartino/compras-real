@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import type { TCatalogProduct, TOngoingListEntry } from '@myapp/shared';
 import { Check, Search } from 'lucide-react';
 import { memo, useCallback, useMemo, useState, type ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatQuantity } from './helpers';
 
 type TAddProductsDialogProps = {
@@ -35,6 +36,7 @@ const AddProductsDialog = memo(
     onOpenChange,
     onSubmit
   }: TAddProductsDialogProps) => {
+    const { t } = useTranslation();
     const [query, setQuery] = useState('');
     const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
     const ongoingProductIds = useMemo(
@@ -144,7 +146,7 @@ const AddProductsDialog = memo(
               </span>
               <div className="flex min-w-0 flex-wrap gap-1.5">
                 <StatusChip tone="muted">
-                  {product.categoryName ?? 'Uncategorized'}
+                  {product.categoryName ?? t('common.uncategorized')}
                 </StatusChip>
                 <StatusChip tone="info">{quantity}</StatusChip>
               </div>
@@ -162,7 +164,7 @@ const AddProductsDialog = memo(
           </button>
         );
       },
-      [isPending, ongoingProductIds, selectedProductIds, toggleProduct]
+      [isPending, ongoingProductIds, selectedProductIds, t, toggleProduct]
     );
 
     return (
@@ -172,9 +174,9 @@ const AddProductsDialog = memo(
           close={close}
         >
           <DialogHeader>
-            <DialogTitle>Add products</DialogTitle>
+            <DialogTitle>{t('home.addDialog.title')}</DialogTitle>
             <DialogDescription>
-              Select catalog products to add to the current ongoing list.
+              {t('home.addDialog.description')}
             </DialogDescription>
           </DialogHeader>
 
@@ -184,7 +186,7 @@ const AddProductsDialog = memo(
               value={query}
               onChange={onQueryChange}
               className="h-11 rounded-xl pl-9"
-              placeholder="Search catalog"
+              placeholder={t('home.addDialog.search')}
             />
           </div>
 
@@ -192,7 +194,7 @@ const AddProductsDialog = memo(
             {!normalizedQuery && availableRecentProducts.length > 0 && (
               <Stack gap="sm">
                 <span className="px-1 text-sm font-semibold">
-                  Recent products
+                  {t('home.addDialog.recentProducts')}
                 </span>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {availableRecentProducts.map(renderProduct)}
@@ -202,7 +204,9 @@ const AddProductsDialog = memo(
 
             <Stack gap="sm">
               {!normalizedQuery && (
-                <span className="px-1 text-sm font-semibold">All products</span>
+                <span className="px-1 text-sm font-semibold">
+                  {t('home.addDialog.allProducts')}
+                </span>
               )}
               <div className="grid gap-2 sm:grid-cols-2">
                 {allSectionProducts.map(renderProduct)}
@@ -212,14 +216,16 @@ const AddProductsDialog = memo(
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={close}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
               disabled={isPending || selectedProductIds.length === 0}
               onClick={submit}
             >
-              Add selected ({selectedProductIds.length})
+              {t('home.addDialog.addSelected', {
+                count: selectedProductIds.length
+              })}
             </Button>
           </DialogFooter>
         </DialogContent>

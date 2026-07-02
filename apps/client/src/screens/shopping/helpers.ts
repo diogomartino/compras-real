@@ -17,11 +17,14 @@ const formatQuantity = (amount: number | string, unit: TUnitKind) => {
   return `${formattedAmount} ${unit}`;
 };
 
-const getGroupedItems = (items: TOngoingListEntry[]) => {
+const getGroupedItems = (
+  items: TOngoingListEntry[],
+  uncategorizedLabel: string
+) => {
   const groups = new Map<string, TOngoingListEntry[]>();
 
   items.forEach((item) => {
-    const categoryName = item.categoryName ?? 'Uncategorized';
+    const categoryName = item.categoryName ?? uncategorizedLabel;
     const groupItems = groups.get(categoryName) ?? [];
 
     groupItems.push(item);

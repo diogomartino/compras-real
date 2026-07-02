@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TGoogleAuthButtonProps = {
   children: string;
@@ -27,10 +28,12 @@ const GoogleAuthButton = memo(({ children }: TGoogleAuthButtonProps) => {
 GoogleAuthButton.displayName = 'GoogleAuthButton';
 
 const GoogleAuthSeparator = memo(() => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
       <div className="h-px flex-1 bg-border" />
-      <span>OR</span>
+      <span>{t('components.authDialogs.or')}</span>
       <div className="h-px flex-1 bg-border" />
     </div>
   );

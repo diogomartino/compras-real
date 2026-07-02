@@ -15,6 +15,7 @@ import {
 } from '@/mutations/auth';
 import { CheckCircle2, Home, Sparkles } from 'lucide-react';
 import { memo, useCallback, useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 type TLoginForm = {
@@ -30,6 +31,7 @@ type TRegisterForm = {
 };
 
 const LoginForm = memo(() => {
+  const { t } = useTranslation();
   const { mutateAsync: login, isPending } = useLogin();
   const {
     mutateAsync: requestPasswordReset,
@@ -68,12 +70,12 @@ const LoginForm = memo(() => {
   const submitPasswordReset = useCallback(async () => {
     try {
       await requestPasswordReset({ email: values.email });
-      toast.success('If that email exists, a reset link has been sent.');
+      toast.success(t('home.auth.resetLinkSent'));
       setForgotPassword(false);
     } catch (error) {
       setTrpcErrors(error);
     }
-  }, [requestPasswordReset, setTrpcErrors, values.email]);
+  }, [requestPasswordReset, setTrpcErrors, t, values.email]);
 
   return (
     <form className="space-y-5" onSubmit={onSubmit}>
@@ -85,30 +87,30 @@ const LoginForm = memo(() => {
 
       {forgotPassword && (
         <Text size="sm" tone="muted">
-          Enter your email and we will send a password reset link.
+          {t('home.auth.forgotPasswordHelp')}
         </Text>
       )}
 
-      <Group label="Email">
+      <Group label={t('home.auth.email')}>
         <Input
           {...r('email', 'email')}
           autoComplete="email"
           className="h-12 rounded-xl bg-background/70"
           disabled={isPending || requestPasswordResetPending}
           onEnter={forgotPassword ? submitPasswordReset : submit}
-          placeholder="you@example.com"
+          placeholder={t('home.auth.emailPlaceholder')}
         />
       </Group>
 
       {!forgotPassword && (
-        <Group label="Password">
+        <Group label={t('home.auth.password')}>
           <Input
             {...r('password', 'password')}
             autoComplete="current-password"
             className="h-12 rounded-xl bg-background/70"
             disabled={isPending}
             onEnter={submit}
-            placeholder="Your password"
+            placeholder={t('home.auth.password')}
           />
         </Group>
       )}
@@ -120,7 +122,7 @@ const LoginForm = memo(() => {
           className="h-auto px-0 text-sm"
           onClick={showForgotPassword}
         >
-          Forgot password?
+          {t('home.auth.forgotPassword')}
         </Button>
       )}
 
@@ -132,18 +134,18 @@ const LoginForm = memo(() => {
       >
         {forgotPassword
           ? requestPasswordResetPending
-            ? 'Sending...'
-            : 'Send reset link'
+            ? t('home.auth.sending')
+            : t('home.auth.sendResetLink')
           : isPending
-            ? 'Logging in...'
-            : 'Log in'}
+            ? t('home.auth.loggingIn')
+            : t('home.auth.logIn')}
       </Button>
 
       {!forgotPassword && (
         <>
           <GoogleAuthSeparator />
 
-          <GoogleAuthButton>Login with Google</GoogleAuthButton>
+          <GoogleAuthButton>{t('home.auth.loginWithGoogle')}</GoogleAuthButton>
         </>
       )}
 
@@ -154,7 +156,7 @@ const LoginForm = memo(() => {
           className="w-full"
           onClick={hideForgotPassword}
         >
-          Back to login
+          {t('home.auth.backToLogin')}
         </Button>
       )}
     </form>
@@ -162,6 +164,7 @@ const LoginForm = memo(() => {
 });
 
 const RegisterForm = memo(() => {
+  const { t } = useTranslation();
   const { mutateAsync: register, isPending } = useRegister();
   const { setTrpcErrors, values, errors, r } = useForm<TRegisterForm>({
     name: '',
@@ -194,62 +197,63 @@ const RegisterForm = memo(() => {
         </Text>
       )}
 
-      <Group label="Name">
+      <Group label={t('home.auth.name')}>
         <Input
           {...r('name')}
           autoComplete="name"
           className="h-12 rounded-xl bg-background/70"
           disabled={isPending}
           onEnter={submit}
-          placeholder="Jane Doe"
+          placeholder={t('home.auth.namePlaceholder')}
         />
       </Group>
 
-      <Group label="Email">
+      <Group label={t('home.auth.email')}>
         <Input
           {...r('email', 'email')}
           autoComplete="email"
           className="h-12 rounded-xl bg-background/70"
           disabled={isPending}
           onEnter={submit}
-          placeholder="you@example.com"
+          placeholder={t('home.auth.emailPlaceholder')}
         />
       </Group>
 
-      <Group label="Password">
+      <Group label={t('home.auth.password')}>
         <Input
           {...r('password', 'password')}
           autoComplete="new-password"
           className="h-12 rounded-xl bg-background/70"
           disabled={isPending}
           onEnter={submit}
-          placeholder="Create a password"
+          placeholder={t('home.auth.createPassword')}
         />
       </Group>
 
-      <Group label="Confirm password">
+      <Group label={t('home.auth.confirmPassword')}>
         <Input
           {...r('confirmPassword', 'password')}
           autoComplete="new-password"
           className="h-12 rounded-xl bg-background/70"
           disabled={isPending}
           onEnter={submit}
-          placeholder="Repeat your password"
+          placeholder={t('home.auth.repeatPassword')}
         />
       </Group>
 
       <Button className="h-12 w-full rounded-xl" disabled={isPending}>
-        {isPending ? 'Creating account...' : 'Create account'}
+        {isPending ? t('home.auth.creatingAccount') : t('home.auth.createAccount')}
       </Button>
 
       <GoogleAuthSeparator />
 
-      <GoogleAuthButton>Register with Google</GoogleAuthButton>
+      <GoogleAuthButton>{t('home.auth.registerWithGoogle')}</GoogleAuthButton>
     </form>
   );
 });
 
 const HomeAuthScreen = memo(() => {
+  const { t } = useTranslation();
   return (
     <main className="min-h-dvh overflow-hidden bg-background text-foreground">
       <div className="pointer-events-none fixed -left-20 -top-20 size-80 rounded-full bg-primary/15 blur-3xl" />
@@ -258,34 +262,33 @@ const HomeAuthScreen = memo(() => {
         <Stack gap="lg" className="mx-auto max-w-xl lg:mx-0">
           <Stack gap="md">
             <Heading level={1} size="display">
-              Groceries ready before you reach the shop.
+              {t('home.auth.heroTitle')}
             </Heading>
             <Text size="lg" tone="muted" className="max-w-lg">
-              Keep the weekly list moving at home, then jump into a focused
-              shopping flow when it is time to buy.
+              {t('home.auth.heroSubtitle')}
             </Text>
           </Stack>
 
           <div className="grid gap-3 sm:grid-cols-3">
             <Surface variant="muted" radius="2xl" padding="md">
               <Sparkles className="mb-3 size-5 text-primary" />
-              <Text weight="semibold">Fast adding</Text>
+              <Text weight="semibold">{t('home.auth.featureCatalog')}</Text>
               <Text size="sm" tone="muted">
-                Capture items as they come up.
+                {t('home.auth.featureCatalog')}
               </Text>
             </Surface>
             <Surface variant="muted" radius="2xl" padding="md">
               <Home className="mb-3 size-5 text-primary" />
-              <Text weight="semibold">Shared home</Text>
+              <Text weight="semibold">{t('home.auth.featureBaseLists')}</Text>
               <Text size="sm" tone="muted">
-                Designed around one household list.
+                {t('home.auth.featureBaseLists')}
               </Text>
             </Surface>
             <Surface variant="muted" radius="2xl" padding="md">
               <CheckCircle2 className="mb-3 size-5 text-primary" />
-              <Text weight="semibold">Shop focused</Text>
+              <Text weight="semibold">{t('home.auth.featureRealtime')}</Text>
               <Text size="sm" tone="muted">
-                Open the buying flow with one tap.
+                {t('home.auth.featureRealtime')}
               </Text>
             </Surface>
           </div>
@@ -300,10 +303,10 @@ const HomeAuthScreen = memo(() => {
           <Stack gap="lg">
             <Stack gap="xs">
               <Heading level={2} size="h3">
-                Welcome home
+                {t('home.auth.heroTitle')}
               </Heading>
               <Text tone="muted">
-                Log in or create an account to continue to your grocery space.
+                {t('home.auth.heroSubtitle')}
               </Text>
             </Stack>
 
@@ -313,13 +316,13 @@ const HomeAuthScreen = memo(() => {
                   className="rounded-xl data-[state=active]:from-primary data-[state=active]:to-primary data-[state=active]:text-primary-foreground"
                   value="login"
                 >
-                  Log in
+                  {t('home.auth.loginTab')}
                 </TabsTrigger>
                 <TabsTrigger
                   className="rounded-xl data-[state=active]:from-primary data-[state=active]:to-primary data-[state=active]:text-primary-foreground"
                   value="register"
                 >
-                  Register
+                  {t('home.auth.registerTab')}
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="login">

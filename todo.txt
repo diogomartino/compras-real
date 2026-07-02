@@ -10,3 +10,142 @@ https://www.continente.pt/produto/clementina-mandarina-continente-continente-216
 https://www.continente.pt/produto/spray-desengordurante-classico-mistolin-mistolin-5106348.html
 https://www.continente.pt/produto/detergente-manual-loica-ultra-limao-fairy-fairy-8105780.html
 https://www.continente.pt/produto/sal-maquina-loica-power-continente-continente-8716751.html
+
+
+
+Here are the best next implementation ideas, based on where the app already is.
+
+**High-Impact Functional**
+1. **Smart “Add to Ongoing” suggestions**
+   Use `product_usage_stats` to suggest products likely needed now, based on frequency, recency, and household history. Could show “Usually bought weekly” or “Often added with Eggs”.
+
+2. **Shopping completion summary**
+   After finishing shopping, show a receipt-like summary:
+   Checked, discarded, skipped-reviewed, newly carried over, base-list seeded for next list.
+
+3. **Carry-over controls**
+   When finishing, let users decide what happens to discarded/ignored products:
+   “Carry over”, “discard once”, “remove from base list”, “keep for next trip”.
+
+4. **Base List seeding preview**
+   Before starting/finishing shopping, show which enabled Base Lists will seed the next ongoing list and highlight duplicate products.
+
+5. **Household member management**
+   Invite users by email/link, show members, remove member, change role/admin.
+
+6. **Per-product preferred store/category notes**
+   Add lightweight metadata:
+   “Buy from Continente”, “Aisle”, “Brand preference”, “Avoid if > €X”.
+
+7. **Shopping list reorder / aisle ordering**
+   Let household define category order, instead of alphabetical. This would make list mode much better in-store.
+
+8. **Quantity adjustment during shopping**
+   In shopping mode, allow quick quantity edits before checking an item.
+
+9. **Product substitution**
+   If an item is unavailable, mark as “substituted” and optionally select/write the substitute.
+
+10. **Offline-first shopping mode**
+   Since this is a PWA, allow shopping actions offline and sync when connection returns. High value in supermarkets with bad signal.
+
+**UX Improvements**
+1. **Start shopping from Home with stronger CTA**
+   The bottom `Shop` button works, but Home could show a large contextual card:
+   “23 products ready · Start shopping”.
+
+2. **Better empty states**
+   Empty catalog/base list/ongoing list could suggest the next best action with one primary button and short explanation.
+
+3. **Swipe mode polish**
+   Add subtle product count/category context:
+   “3 left in Dairy” and “Next: Cleaning”.
+   This makes the flow feel more controlled.
+
+4. **Bulk actions in catalog/base lists**
+   Multi-select products to delete, add to Base List, or add to ongoing list.
+
+5. **Recent products grouping**
+   Recent products could be grouped by “Bought recently”, “Frequently bought”, “Forgotten for a while”.
+
+6. **Better image handling**
+   Add image upload or paste image URL preview. Also allow “remove image”.
+
+7. **Language picker polish**
+   Add language names in their native form:
+   `English`, `Português`.
+   Optional: detect browser language but show current override.
+
+8. **Profile organization**
+   Split Profile into sections/cards:
+   Account, Shopping preferences, App preferences, Household, Danger zone.
+
+**Real-Time / Collaboration**
+1. **Live shopping presence details**
+   Show “Diogo is in Swipe mode”, “Maria is checking Dairy”, “Last active 12s ago”.
+
+2. **Conflict feedback**
+   If two users act on the same product, show a subtle event:
+   “Already checked by Maria”.
+
+3. **Collaborative item notes**
+   Quick comment on a product during shopping:
+   “Get ripe ones”, “Promo if 2-pack”.
+
+4. **Household activity feed**
+   “Ana added Milk”, “Diogo finished shopping”, “Base List updated”.
+
+**Data / History**
+1. **Shopping history analytics**
+   Show:
+   Most bought products, most discarded products, average list size, shopping frequency.
+
+2. **Product detail history**
+   On a product page, show:
+   Last bought, times bought, usually bought quantity, added by.
+
+3. **Undo finish shopping**
+   Short grace period after finishing:
+   “Undo finish” restores the finished list.
+
+4. **Export shopping history**
+   CSV or JSON export per household.
+
+**Catalog / Import**
+1. **Import from receipt**
+   User pastes receipt text/photo and app matches/creates products.
+
+2. **Barcode scanning**
+   Mobile camera barcode scan to add/find products.
+
+3. **Duplicate detection**
+   Warn when creating products with similar names:
+   “Milk” vs “Whole Milk”.
+
+4. **Category auto-suggestion**
+   Based on existing products or scraped/imported metadata.
+
+**Technical / Quality**
+1. **Finish translation sweep**
+   You were in the middle of removing remaining hardcoded strings. Remaining likely areas:
+   `formatQuantity` unit labels, helper fallbacks, `/ds` demo examples, ARIA labels.
+
+2. **Shared unit translation helper**
+   Instead of each screen formatting `unit`/`units`, create one i18n-aware formatter.
+
+3. **Chunk splitting**
+   Build now warns about large bundle. Add lazy routes or manual chunks, especially for motion/PWA/auth screens.
+
+4. **Shared category/group sorting helper**
+   Home, Base List, Shopping all group categories similarly. Make one helper that accepts translated “Uncategorized” and category ordering.
+
+5. **Playwright smoke tests**
+   Add basic mobile flows:
+   login/register, add product, add to ongoing, start shopping, check item, finish.
+
+My top 5 recommendations:
+1. Smart suggestions from `product_usage_stats`.
+2. Aisle/category ordering.
+3. Household invites/member management.
+4. Offline-first shopping actions.
+5. Finish i18n properly with shared unit/category formatting.

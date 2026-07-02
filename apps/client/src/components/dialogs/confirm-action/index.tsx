@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { AutoFocus } from '@/components/ui/auto-focus';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TDialogBaseProps } from '../types';
 
 type TConfirmActionDialogProps = TDialogBaseProps & {
@@ -33,18 +34,22 @@ const ConfirmActionDialog = memo(
     cancelLabel,
     variant = 'info'
   }: TConfirmActionDialogProps) => {
+    const { t } = useTranslation();
+
     return (
       <AlertDialog open={isOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{title ?? 'Confirm Action'}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {title ?? t('components.confirmAction.title')}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {message ?? 'Are you sure you want to perform this action?'}
+              {message ?? t('components.confirmAction.message')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
             <AlertDialogCancel onClick={onCancel}>
-              {cancelLabel ?? 'Cancel'}
+              {cancelLabel ?? t('common.cancel')}
             </AlertDialogCancel>
             <AutoFocus>
               <AlertDialogAction
@@ -55,7 +60,7 @@ const ConfirmActionDialog = memo(
                 }
                 onClick={onConfirm}
               >
-                {confirmLabel ?? 'Confirm'}
+                {confirmLabel ?? t('common.confirm')}
               </AlertDialogAction>
             </AutoFocus>
           </AlertDialogFooter>

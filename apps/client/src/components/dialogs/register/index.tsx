@@ -18,6 +18,7 @@ import { openDialog } from '@/features/dialogs/actions';
 import { useForm } from '@/hooks/use-form';
 import { useRegister } from '@/mutations/auth';
 import { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TDialogBaseProps } from '../types';
 
 type TRegisterForm = {
@@ -28,6 +29,7 @@ type TRegisterForm = {
 };
 
 const RegisterDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
+  const { t } = useTranslation();
   const { mutateAsync: register, isPending } = useRegister();
   const { setTrpcErrors, values, errors, r } = useForm<TRegisterForm>({
     name: '',
@@ -62,9 +64,9 @@ const RegisterDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent close={close}>
         <DialogHeader>
-          <DialogTitle>Create account</DialogTitle>
+          <DialogTitle>{t('home.auth.createAccount')}</DialogTitle>
           <DialogDescription>
-            Register with your name, email, and password.
+            {t('components.authDialogs.registerDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -75,57 +77,59 @@ const RegisterDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
             </p>
           )}
 
-          <Group label="Name">
+          <Group label={t('home.auth.name')}>
             <Input
               {...r('name')}
               autoComplete="name"
               disabled={isPending}
               onEnter={submit}
-              placeholder="Jane Doe"
+              placeholder={t('home.auth.namePlaceholder')}
             />
           </Group>
 
-          <Group label="Email">
+          <Group label={t('home.auth.email')}>
             <Input
               {...r('email', 'email')}
               autoComplete="email"
               disabled={isPending}
               onEnter={submit}
-              placeholder="you@example.com"
+              placeholder={t('home.auth.emailPlaceholder')}
             />
           </Group>
 
-          <Group label="Password">
+          <Group label={t('home.auth.password')}>
             <Input
               {...r('password', 'password')}
               autoComplete="new-password"
               disabled={isPending}
               onEnter={submit}
-              placeholder="Create a password"
+              placeholder={t('home.auth.createPassword')}
             />
           </Group>
 
-          <Group label="Confirm password">
+          <Group label={t('home.auth.confirmPassword')}>
             <Input
               {...r('confirmPassword', 'password')}
               autoComplete="new-password"
               disabled={isPending}
               onEnter={submit}
-              placeholder="Repeat your password"
+              placeholder={t('home.auth.repeatPassword')}
             />
           </Group>
 
           <GoogleAuthSeparator />
 
-          <GoogleAuthButton>Register with Google</GoogleAuthButton>
+          <GoogleAuthButton>{t('home.auth.registerWithGoogle')}</GoogleAuthButton>
         </div>
 
         <DialogFooter className="items-center gap-2 sm:justify-between">
           <Button variant="ghost" type="button" onClick={openLogin}>
-            Already have an account?
+            {t('components.authDialogs.alreadyHaveAccount')}
           </Button>
           <Button type="button" disabled={isPending} onClick={submit}>
-            {isPending ? 'Creating...' : 'Create account'}
+            {isPending
+              ? t('components.authDialogs.creating')
+              : t('home.auth.createAccount')}
           </Button>
         </DialogFooter>
       </DialogContent>

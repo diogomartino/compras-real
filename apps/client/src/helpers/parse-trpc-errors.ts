@@ -1,4 +1,5 @@
 import { TRPCClientError } from '@trpc/client';
+import { i18next } from '@/i18n';
 
 export type TTrpcErrors = Record<string, string | undefined>;
 
@@ -8,7 +9,7 @@ const parseTrpcErrors = (err: unknown): TTrpcErrors => {
       return err as TTrpcErrors;
     }
 
-    return { _general: 'Something went wrong, please try again.' };
+    return { _general: i18next.t('common.genericError') };
   }
 
   try {

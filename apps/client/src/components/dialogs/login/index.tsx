@@ -18,6 +18,7 @@ import { openDialog } from '@/features/dialogs/actions';
 import { useForm } from '@/hooks/use-form';
 import { useLogin, useRequestPasswordReset } from '@/mutations/auth';
 import { memo, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import type { TDialogBaseProps } from '../types';
 
@@ -27,6 +28,7 @@ type TLoginForm = {
 };
 
 const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
+  const { t } = useTranslation();
   const { mutateAsync: login, isPending } = useLogin();
   const {
     mutateAsync: requestPasswordReset,
@@ -62,12 +64,12 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
   const submitPasswordReset = useCallback(async () => {
     try {
       await requestPasswordReset({ email: values.email });
-      toast.success('If that email exists, a reset link has been sent.');
+      toast.success(t('home.auth.resetLinkSent'));
       setForgotPassword(false);
     } catch (error) {
       setTrpcErrors(error);
     }
-  }, [requestPasswordReset, setTrpcErrors, values.email]);
+  }, [requestPasswordReset, setTrpcErrors, t, values.email]);
 
   const onOpenChange = useCallback(
     (open: boolean) => {
@@ -83,12 +85,14 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
       <DialogContent close={close}>
         <DialogHeader>
           <DialogTitle>
-            {forgotPassword ? 'Reset password' : 'Log in'}
+              {forgotPassword
+                ? t('resetPassword.title')
+                : t('home.auth.logIn')}
           </DialogTitle>
           <DialogDescription>
             {forgotPassword
-              ? 'Enter your email and we will send a password reset link.'
-              : 'Access your account with your email and password.'}
+              ? t('home.auth.forgotPasswordHelp')
+              : t('components.authDialogs.loginDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -99,24 +103,24 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
             </p>
           )}
 
-          <Group label="Email">
+          <Group label={t('home.auth.email')}>
             <Input
               {...r('email', 'email')}
               autoComplete="email"
               disabled={isPending || requestPasswordResetPending}
               onEnter={forgotPassword ? submitPasswordReset : submit}
-              placeholder="you@example.com"
+              placeholder={t('home.auth.emailPlaceholder')}
             />
           </Group>
 
           {!forgotPassword && (
-            <Group label="Password">
+            <Group label={t('home.auth.password')}>
               <Input
                 {...r('password', 'password')}
                 autoComplete="current-password"
                 disabled={isPending}
                 onEnter={submit}
-                placeholder="Your password"
+                placeholder={t('home.auth.password')}
               />
             </Group>
           )}
@@ -128,7 +132,7 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
               className="h-auto px-0 text-sm"
               onClick={showForgotPassword}
             >
-              Forgot password?
+              {t('home.auth.forgotPassword')}
             </Button>
           )}
 
@@ -136,7 +140,7 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
             <>
               <GoogleAuthSeparator />
 
-              <GoogleAuthButton>Login with Google</GoogleAuthButton>
+              <GoogleAuthButton>{t('home.auth.loginWithGoogle')}</GoogleAuthButton>
             </>
           )}
         </div>
@@ -147,7 +151,9 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
             type="button"
             onClick={forgotPassword ? hideForgotPassword : openRegister}
           >
-            {forgotPassword ? 'Back to login' : 'Create account'}
+            {forgotPassword
+              ? t('home.auth.backToLogin')
+              : t('home.auth.createAccount')}
           </Button>
           <Button
             type="button"
@@ -156,11 +162,11 @@ const LoginDialog = memo(({ isOpen, close }: TDialogBaseProps) => {
           >
             {forgotPassword
               ? requestPasswordResetPending
-                ? 'Sending...'
-                : 'Send reset link'
+                ? t('home.auth.sending')
+                : t('home.auth.sendResetLink')
               : isPending
-                ? 'Logging in...'
-                : 'Log in'}
+                ? t('home.auth.loggingIn')
+                : t('home.auth.logIn')}
           </Button>
         </DialogFooter>
       </DialogContent>

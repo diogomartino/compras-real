@@ -6,6 +6,7 @@ import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { useForm } from '@/hooks/use-form';
 import { useResetPassword } from '@/mutations/auth';
 import { memo, useCallback, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
@@ -15,6 +16,7 @@ type TResetPasswordForm = {
 };
 
 const ResetPassword = memo(() => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token') ?? '';
@@ -30,12 +32,12 @@ const ResetPassword = memo(() => {
 
     try {
       await resetPassword({ token, ...values });
-      toast.success('Password reset. You can now log in.');
+      toast.success(t('resetPassword.success'));
       navigate('/', { replace: true });
     } catch (error) {
       setErrors(parseTrpcErrors(error));
     }
-  }, [navigate, resetErrors, resetPassword, setErrors, token, values]);
+  }, [navigate, resetErrors, resetPassword, setErrors, t, token, values]);
 
   const onSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
@@ -50,15 +52,15 @@ const ResetPassword = memo(() => {
       <Surface radius="2xl" padding="lg" className="w-full max-w-md">
         <form className="space-y-5" onSubmit={onSubmit}>
           <Stack gap="xs">
-            <Text weight="semibold">Reset password</Text>
+            <Text weight="semibold">{t('resetPassword.title')}</Text>
             <Text size="sm" tone="muted">
-              Choose a new password for your account.
+              {t('resetPassword.description')}
             </Text>
           </Stack>
 
           {!token && (
             <Text size="sm" tone="destructive" role="alert">
-              This password reset link is missing a token.
+              {t('resetPassword.missingToken')}
             </Text>
           )}
 
@@ -68,21 +70,21 @@ const ResetPassword = memo(() => {
             </Text>
           )}
 
-          <Group label="New password">
+          <Group label={t('resetPassword.newPassword')}>
             <Input
               {...r('password', 'password')}
               autoComplete="new-password"
               disabled={isPending || !token}
-              placeholder="New password"
+              placeholder={t('resetPassword.newPassword')}
             />
           </Group>
 
-          <Group label="Confirm new password">
+          <Group label={t('resetPassword.confirmNewPassword')}>
             <Input
               {...r('confirmPassword', 'password')}
               autoComplete="new-password"
               disabled={isPending || !token}
-              placeholder="Repeat new password"
+              placeholder={t('resetPassword.repeatNewPassword')}
             />
           </Group>
 
@@ -91,11 +93,11 @@ const ResetPassword = memo(() => {
             className="w-full"
             disabled={isPending || !token}
           >
-            {isPending ? 'Resetting...' : 'Reset password'}
+            {isPending ? t('resetPassword.resetting') : t('resetPassword.submit')}
           </Button>
 
           <Button asChild type="button" variant="ghost" className="w-full">
-            <Link to="/">Back to login</Link>
+            <Link to="/">{t('resetPassword.backToLogin')}</Link>
           </Button>
         </form>
       </Surface>

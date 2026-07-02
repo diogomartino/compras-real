@@ -17,6 +17,7 @@ import {
   type ChangeEvent,
   type FormEvent
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatQuantity, unitOptions } from './helpers';
 import type {
   TBaseListItemFormMode,
@@ -51,6 +52,7 @@ const BaseListForm = memo(
     onProductChange,
     onFieldChange
   }: TBaseListFormProps) => {
+    const { t } = useTranslation();
     const selectedProduct = useMemo(
       () => productOptions.find((product) => product.id === values.productId),
       [productOptions, values.productId]
@@ -60,15 +62,15 @@ const BaseListForm = memo(
         return formMode.productName;
       }
 
-      return selectedProduct?.title ?? 'Choose a product';
-    }, [formMode, selectedProduct]);
+      return selectedProduct?.title ?? t('baseList.chooseProduct');
+    }, [formMode, selectedProduct, t]);
     const previewImageUrl = useMemo(
       () => selectedProduct?.imageUrl ?? null,
       [selectedProduct]
     );
     const previewCategoryName = useMemo(
-      () => selectedProduct?.categoryName ?? 'Uncategorized',
-      [selectedProduct]
+      () => selectedProduct?.categoryName ?? t('common.uncategorized'),
+      [selectedProduct, t]
     );
     const previewQuantity = useMemo(
       () => formatQuantity(values.quantityAmount || '0', values.quantityUnit),
@@ -105,14 +107,16 @@ const BaseListForm = memo(
           <Inline justify="between" wrap={false} className="mb-6 gap-3">
             <Button type="button" variant="ghost" onClick={onCancel}>
               <ArrowLeft className="size-4" />
-              Back
+              {t('baseList.back')}
             </Button>
             <Inline gap="sm" wrap={false}>
               <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={isPending}>
-                {formMode.type === 'create' ? 'Add product' : 'Save quantity'}
+                {formMode.type === 'create'
+                  ? t('baseList.addProduct')
+                  : t('baseList.saveQuantity')}
               </Button>
             </Inline>
           </Inline>
@@ -130,12 +134,11 @@ const BaseListForm = memo(
                   <Stack gap="sm">
                     <Text weight="semibold">
                       {formMode.type === 'create'
-                        ? 'Add catalog product'
-                        : 'Edit base quantity'}
+                        ? t('baseList.addCatalogProduct')
+                        : t('baseList.editBaseQuantity')}
                     </Text>
                     <Text size="sm" tone="muted">
-                      Products in enabled base lists are automatically included
-                      whenever a shopping session starts.
+                      {t('baseList.autoIncludedDescription')}
                     </Text>
                   </Stack>
 
@@ -143,14 +146,14 @@ const BaseListForm = memo(
                     {formMode.type === 'create' ? (
                       <label className="space-y-2 sm:col-span-2">
                         <Text as="span" size="sm" weight="medium">
-                          Product
+                          {t('baseList.product')}
                         </Text>
                         <Select
                           value={values.productId}
                           onValueChange={onSelectedProductChange}
                         >
                           <SelectTrigger className="h-11 w-full rounded-xl">
-                            <SelectValue placeholder="Select a product" />
+                            <SelectValue placeholder={t('baseList.selectProduct')} />
                           </SelectTrigger>
                           <SelectContent>
                             {productOptions.map((product) => (
@@ -158,7 +161,7 @@ const BaseListForm = memo(
                                 {product.title}
                                 {product.categoryName
                                   ? ` · ${product.categoryName}`
-                                  : ' · Uncategorized'}
+                                   : ` · ${t('common.uncategorized')}`}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -172,7 +175,7 @@ const BaseListForm = memo(
                     ) : (
                       <Stack gap="xs" className="sm:col-span-2">
                         <Text size="sm" weight="medium">
-                          Product
+                          {t('baseList.product')}
                         </Text>
                         <Text>{formMode.productName}</Text>
                       </Stack>
@@ -180,7 +183,7 @@ const BaseListForm = memo(
 
                     <label className="space-y-2">
                       <Text as="span" size="sm" weight="medium">
-                        Quantity
+                        {t('baseList.quantity')}
                       </Text>
                       <Input
                         type="number"
@@ -195,14 +198,14 @@ const BaseListForm = memo(
 
                     <label className="space-y-2">
                       <Text as="span" size="sm" weight="medium">
-                        Unit
+                        {t('baseList.unit')}
                       </Text>
                       <Select
                         value={values.quantityUnit}
                         onValueChange={onQuantityUnitChange}
                       >
                         <SelectTrigger className="h-11 w-full rounded-xl">
-                          <SelectValue placeholder="Select unit" />
+                          <SelectValue placeholder={t('baseList.selectUnit')} />
                         </SelectTrigger>
                         <SelectContent>
                           {unitOptions.map((unit) => (

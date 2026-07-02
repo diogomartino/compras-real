@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderTree, PackageSearch, Plus, Search } from 'lucide-react';
 import { memo, type ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { CatalogProductRow } from './catalog-product-row';
 import type { TCatalogProduct } from './types';
@@ -31,6 +32,8 @@ const CatalogList = memo(
     onEdit,
     onDelete
   }: TCatalogListProps) => {
+    const { t } = useTranslation();
+
     return (
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <Surface radius="2xl" padding="md">
@@ -41,19 +44,21 @@ const CatalogList = memo(
                 value={query}
                 onChange={onQueryChange}
                 className="h-11 rounded-xl pl-9"
-                placeholder="Search products or categories"
+                placeholder={t('catalog.search')}
               />
             </div>
             <Inline gap="sm" wrap={false}>
               <Button asChild variant="outline" className="rounded-xl">
                 <Link to="/categories">
                   <FolderTree className="size-4" />
-                  <span className="sr-only sm:not-sr-only">Categories</span>
+                  <span className="sr-only sm:not-sr-only">
+                    {t('catalog.categories')}
+                  </span>
                 </Link>
               </Button>
               <Button onClick={onCreate} className="rounded-xl">
                 <Plus className="size-4" />
-                Add product
+                {t('catalog.addProduct')}
               </Button>
             </Inline>
           </Inline>
@@ -68,7 +73,7 @@ const CatalogList = memo(
         <Stack gap="sm">
           {isLoading && (
             <Surface radius="2xl" padding="lg">
-              <Text tone="muted">Loading products...</Text>
+              <Text tone="muted">{t('catalog.loadingProducts')}</Text>
             </Surface>
           )}
 
@@ -87,9 +92,9 @@ const CatalogList = memo(
             <Surface radius="2xl" padding="lg" className="text-center">
               <Stack gap="sm" align="center">
                 <PackageSearch className="size-8 text-muted-foreground" />
-                <Text weight="semibold">No products found</Text>
+                <Text weight="semibold">{t('catalog.noProductsFound')}</Text>
                 <Text size="sm" tone="muted">
-                  Try a different search or add a product manually.
+                  {t('catalog.tryDifferentSearch')}
                 </Text>
               </Stack>
             </Surface>

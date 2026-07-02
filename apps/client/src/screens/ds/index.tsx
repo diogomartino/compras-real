@@ -51,6 +51,7 @@ import {
   Undo2
 } from 'lucide-react';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const pageShellSizes = ['sm', 'md', 'lg', 'full'] as const;
 const pageShellSpacings = ['sm', 'md', 'lg'] as const;
@@ -111,49 +112,51 @@ const statTones = [
 const kbdSizes = ['sm', 'md', 'lg'] as const;
 
 const Ds = memo(() => {
+  const { t } = useTranslation();
+
   return (
     <Layout className="p-0">
       <PageShell
-        eyebrow="Design System"
-        title="Grocery-ready primitives"
-        description="A calm, light-first set of reusable primitives for quick weekly list management and focused one-handed shopping. Examples use grocery content, but component names and APIs stay generic."
+        eyebrow={t('ds.eyebrow')}
+        title={t('ds.title')}
+        description={t('ds.description')}
         actions={
           <Button size="sm">
             <Plus />
-            Add item
+            {t('ds.addItem')}
           </Button>
         }
         size="lg"
         spacing="lg"
       >
         <Section
-          title="App foundations"
-          description="Dashboard, list management, and shopping mode can be composed from the same small primitives."
+          title={t('ds.appFoundations')}
+          description={t('ds.appFoundationsDescription')}
           variant="bordered"
           spacing="lg"
         >
           <Grid columns="three" gap="lg">
             <Stat
-              label="Base list"
+              label={t('ds.baseList')}
               value="18"
-              description="Always included"
+              description={t('ds.alwaysIncluded')}
               tone="default"
             />
             <Stat
-              label="Current list"
+              label={t('ds.currentList')}
               value="5"
-              description="Added this week"
+              description={t('ds.addedThisWeek')}
               tone="success"
               trend={
                 <span className="text-green-700 dark:text-green-300">
-                  Ready
+                  {t('ds.ready')}
                 </span>
               }
             />
             <Stat
-              label="Shopping"
+              label={t('ds.shopping')}
               value="8 / 23"
-              description="Current progress"
+              description={t('ds.currentProgress')}
               tone="warn"
             />
           </Grid>
@@ -161,29 +164,29 @@ const Ds = memo(() => {
           <Grid columns="three" gap="lg">
             <ActionTile
               icon={<ShoppingBasket className="size-5" />}
-              title="Start shopping"
-              description="Large, calm action for the most important flow."
+              title={t('ds.startShopping')}
+              description={t('ds.startShoppingDescription')}
               variant="primary"
-              meta={<StatusChip tone="pending">23 items</StatusChip>}
+              meta={<StatusChip tone="pending">{t('ds.itemsCount', { count: 23 })}</StatusChip>}
             />
             <ActionTile
               icon={<PackagePlus className="size-5" />}
-              title="Product catalog"
-              description="Manage products, images, quantities, and categories."
+              title={t('ds.productCatalog')}
+              description={t('ds.productCatalogDescription')}
               variant="default"
             />
             <ActionTile
               icon={<History className="size-5" />}
-              title="History"
-              description="Review completed shopping trips."
+              title={t('ds.history')}
+              description={t('ds.historyDescription')}
               variant="muted"
             />
           </Grid>
         </Section>
 
         <Section
-          title="Management toolbar"
-          description="Search, filter, and action areas stay stacked on mobile and inline on desktop."
+          title={t('ds.managementToolbar')}
+          description={t('ds.managementToolbarDescription')}
           variant="default"
           spacing="lg"
         >
@@ -191,33 +194,33 @@ const Ds = memo(() => {
             search={
               <div className="relative">
                 <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input className="pl-9" placeholder="Search products" />
+                <Input className="pl-9" placeholder={t('ds.searchProducts')} />
               </div>
             }
             filters={
               <>
                 <Button variant="outline" size="sm">
                   <Filter />
-                  Dairy
+                  {t('ds.dairy')}
                 </Button>
                 <Button variant="outline" size="sm">
                   <Tags />
-                  Uncategorized
+                  {t('common.uncategorized')}
                 </Button>
               </>
             }
             actions={
               <Button size="sm">
                 <Plus />
-                Add product
+                {t('ds.addProduct')}
               </Button>
             }
           />
         </Section>
 
         <Section
-          title="Media and rows"
-          description="Image and row primitives support catalog cards, grouped lists, and shopping rows without semantic coupling."
+          title={t('ds.mediaRows')}
+          description={t('ds.mediaRowsDescription')}
           variant="muted"
           spacing="lg"
         >
@@ -249,17 +252,17 @@ const Ds = memo(() => {
               <Stack gap="sm">
                 <ListRow
                   leading={<Media fallback="M" />}
-                  title="Milk"
-                  description="Dairy · default quantity"
-                  meta={<StatusChip tone="info">Base</StatusChip>}
-                  trailing={<Text weight="semibold">2 units</Text>}
+                  title={t('ds.milk')}
+                  description={t('ds.milkDescription')}
+                  meta={<StatusChip tone="info">{t('ds.base')}</StatusChip>}
+                  trailing={<Text weight="semibold">{t('ds.twoUnits')}</Text>}
                 />
                 <ListRow
                   leading={<Media fallback="C" />}
-                  title="Coca-Cola Zero"
-                  description="Drinks · added during the week"
-                  meta={<StatusChip tone="pending">Pending</StatusChip>}
-                  trailing={<Text weight="semibold">6 bottles</Text>}
+                  title={t('ds.coke')}
+                  description={t('ds.cokeDescription')}
+                  meta={<StatusChip tone="pending">{t('ds.pending')}</StatusChip>}
+                  trailing={<Text weight="semibold">{t('ds.sixBottles')}</Text>}
                   variant="selected"
                 />
               </Stack>
@@ -276,9 +279,9 @@ const Ds = memo(() => {
                     fallback={variant.slice(0, 1).toUpperCase()}
                   />
                 }
-                title={`Row ${variant}`}
-                description="Variant preview"
-                trailing={<StatusChip tone="muted">2 kg</StatusChip>}
+                title={t('ds.rowVariant', { variant })}
+                description={t('ds.variantPreview')}
+                trailing={<StatusChip tone="muted">{t('ds.twoKg')}</StatusChip>}
                 variant={variant}
               />
             ))}
@@ -289,9 +292,9 @@ const Ds = memo(() => {
               <ListRow
                 key={size}
                 leading={<Media size="sm" fallback={size.toUpperCase()} />}
-                title={`Row ${size}`}
-                description="Size preview"
-                trailing={<StatusChip tone="neutral">1 box</StatusChip>}
+                title={t('ds.rowSize', { size })}
+                description={t('ds.sizePreview')}
+                trailing={<StatusChip tone="neutral">{t('ds.oneBox')}</StatusChip>}
                 size={size}
               />
             ))}
@@ -299,8 +302,8 @@ const Ds = memo(() => {
         </Section>
 
         <Section
-          title="Shopping mode composition"
-          description="Focused, thumb-first primitives for list and swipe-style shopping without creating feature-specific components."
+          title={t('ds.shoppingComposition')}
+          description={t('ds.shoppingCompositionDescription')}
           variant="bordered"
           spacing="lg"
         >
@@ -312,7 +315,7 @@ const Ds = memo(() => {
             >
               <Stack gap="lg">
                 <ProgressSummary
-                  label="Shopping progress"
+                  label={t('ds.shoppingProgress')}
                   value="8 / 23"
                   progress={35}
                   size="lg"
@@ -320,23 +323,23 @@ const Ds = memo(() => {
                 <Stack gap="sm">
                   <ListRow
                     leading={<Media size="lg" fallback="E" />}
-                    title="Eggs"
-                    description="Dairy · check the fragile shelf"
+                    title={t('ds.eggs')}
+                    description={t('ds.eggsDescription')}
                     meta={
                       <StatusChip tone="pending" size="md">
-                        Pending
+                        {t('ds.pending')}
                       </StatusChip>
                     }
-                    trailing={<Text weight="semibold">2 packs</Text>}
+                    trailing={<Text weight="semibold">{t('ds.twoPacks')}</Text>}
                     actions={
                       <Inline gap="sm">
                         <Button size="sm">
                           <Check />
-                          Done
+                          {t('ds.done')}
                         </Button>
                         <Button size="sm" variant="outline">
                           <SkipForward />
-                          Skip
+                          {t('ds.skip')}
                         </Button>
                       </Inline>
                     }
@@ -344,26 +347,26 @@ const Ds = memo(() => {
                   />
                   <ListRow
                     leading={<Media fallback="T" />}
-                    title="Toilet paper"
-                    description="Cleaning"
-                    meta={<StatusChip tone="success">Done</StatusChip>}
+                    title={t('ds.toiletPaper')}
+                    description={t('ds.cleaning')}
+                    meta={<StatusChip tone="success">{t('ds.done')}</StatusChip>}
                     trailing={
                       <Button size="sm" variant="ghost">
                         <Undo2 />
-                        Undo
+                        {t('ds.undo')}
                       </Button>
                     }
                     variant="muted"
                   />
                   <ListRow
                     leading={<Media fallback="B" />}
-                    title="Chicken breast"
-                    description="Meat"
-                    meta={<StatusChip tone="skipped">Skipped</StatusChip>}
+                    title={t('ds.chickenBreast')}
+                    description={t('ds.meat')}
+                    meta={<StatusChip tone="skipped">{t('ds.skipped')}</StatusChip>}
                     trailing={
                       <Button size="sm" variant="ghost">
                         <Undo2 />
-                        Undo
+                        {t('ds.undo')}
                       </Button>
                     }
                     variant="ghost"
@@ -376,7 +379,7 @@ const Ds = memo(() => {
               <Stack gap="lg" align="stretch">
                 <Inline justify="between" wrap={false}>
                   <StatusChip tone="info" size="md">
-                    Swipe view
+                    {t('ds.swipeView')}
                   </StatusChip>
                   <Text size="sm" tone="muted">
                     9 / 23
@@ -390,11 +393,11 @@ const Ds = memo(() => {
                 />
                 <Stack gap="sm" align="center">
                   <Heading level={3} size="h2" className="text-center">
-                    Dishwasher tablets
+                    {t('ds.dishwasherTablets')}
                   </Heading>
                   <Inline gap="sm" justify="center">
-                    <StatusChip tone="muted">Cleaning</StatusChip>
-                    <StatusChip tone="neutral">1 box</StatusChip>
+                    <StatusChip tone="muted">{t('ds.cleaning')}</StatusChip>
+                    <StatusChip tone="neutral">{t('ds.oneBox')}</StatusChip>
                   </Inline>
                 </Stack>
                 <ProgressSummary progress={39} tone="success" />
@@ -405,11 +408,11 @@ const Ds = memo(() => {
                 >
                   <Button size="lg" variant="outline">
                     <SkipForward />
-                    Skip
+                    {t('ds.skip')}
                   </Button>
                   <Button size="lg">
                     <Check />
-                    Done
+                    {t('ds.done')}
                   </Button>
                 </BottomActionBar>
               </Stack>
@@ -418,36 +421,38 @@ const Ds = memo(() => {
         </Section>
 
         <Section
-          title="Forms and future placeholders"
-          description="Generic form fields support catalog setup, quantity editing, disabled future actions, and URL import placeholders."
+          title={t('ds.forms')}
+          description={t('ds.formsDescription')}
           variant="default"
           spacing="lg"
         >
           <Grid columns="two" gap="lg">
             <Stack gap="md">
               <Field
-                label="Name"
-                description="Short names scan best in the shop."
+                label={t('ds.name')}
+                description={t('ds.nameDescription')}
                 required
               >
-                <Input placeholder="Coca-Cola Zero" />
+                <Input placeholder={t('ds.coke')} />
               </Field>
-              <Field label="Category">
+              <Field label={t('ds.category')}>
                 <Select defaultValue="drinks">
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose category" />
+                    <SelectValue placeholder={t('ds.chooseCategory')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="dairy">Dairy</SelectItem>
-                    <SelectItem value="drinks">Drinks</SelectItem>
-                    <SelectItem value="cleaning">Cleaning</SelectItem>
-                    <SelectItem value="uncategorized">Uncategorized</SelectItem>
+                    <SelectItem value="dairy">{t('ds.dairy')}</SelectItem>
+                    <SelectItem value="drinks">{t('ds.drinks')}</SelectItem>
+                    <SelectItem value="cleaning">{t('ds.cleaning')}</SelectItem>
+                    <SelectItem value="uncategorized">
+                      {t('common.uncategorized')}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
               <Field
-                label="Default quantity"
-                description="Adjustable when adding to a list."
+                label={t('ds.defaultQuantity')}
+                description={t('ds.defaultQuantityDescription')}
               >
                 <Inline gap="sm" wrap={false}>
                   <Input defaultValue="6" type="number" />
@@ -456,10 +461,10 @@ const Ds = memo(() => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="units">units</SelectItem>
+                      <SelectItem value="units">{t('ds.units')}</SelectItem>
                       <SelectItem value="kg">kg</SelectItem>
-                      <SelectItem value="packs">packs</SelectItem>
-                      <SelectItem value="bottles">bottles</SelectItem>
+                      <SelectItem value="packs">{t('ds.packs')}</SelectItem>
+                      <SelectItem value="bottles">{t('ds.bottles')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </Inline>
@@ -470,36 +475,36 @@ const Ds = memo(() => {
               {fieldLayouts.map((layout) => (
                 <Field
                   key={layout}
-                  label={`Field ${layout}`}
-                  description="Layout variant preview."
+                  label={t('ds.fieldLayout', { layout })}
+                  description={t('ds.layoutPreview')}
                   layout={layout}
                 >
-                  <Input placeholder="Preview" />
+                  <Input placeholder={t('ds.preview')} />
                 </Field>
               ))}
               <Field
-                label="Product URL"
-                description="Import can exist before it works."
-                error="Import is not implemented yet."
+                label={t('ds.productUrl')}
+                description={t('ds.productUrlDescription')}
+                error={t('ds.importNotImplemented')}
               >
                 <Inline gap="sm" wrap={false}>
                   <Input placeholder="https://example.com/product" />
                   <Button variant="outline" disabled>
                     <Sparkles />
-                    Later
+                    {t('ds.later')}
                   </Button>
                 </Inline>
               </Field>
               <Surface variant="outline">
                 <Stack gap="sm">
                   <Inline justify="between" wrap={false}>
-                    <Text weight="medium">Track product</Text>
+                    <Text weight="medium">{t('ds.trackProduct')}</Text>
                     <Switch />
                   </Inline>
                   <Inline gap="sm">
                     <Checkbox defaultChecked />
                     <Text size="sm" tone="muted">
-                      Keep old history visible
+                      {t('ds.keepHistoryVisible')}
                     </Text>
                   </Inline>
                   <Slider
@@ -513,8 +518,8 @@ const Ds = memo(() => {
         </Section>
 
         <Section
-          title="Feedback"
-          description="Quiet feedback states should guide without distracting from list and shopping flows."
+          title={t('ds.feedback')}
+          description={t('ds.feedbackDescription')}
           variant="muted"
           spacing="lg"
         >
@@ -523,9 +528,9 @@ const Ds = memo(() => {
               <EmptyState
                 key={variant}
                 icon={<Inbox className="size-5" />}
-                title={`Empty ${variant}`}
-                description="Use for empty lists, empty searches, or completed states."
-                actionLabel={variant === 'plain' ? undefined : 'Add item'}
+                title={t('ds.emptyVariant', { variant })}
+                description={t('ds.emptyDescription')}
+                actionLabel={variant === 'plain' ? undefined : t('ds.addItem')}
                 variant={variant}
               />
             ))}
@@ -535,8 +540,8 @@ const Ds = memo(() => {
               <EmptyState
                 key={size}
                 icon={<PackagePlus className="size-5" />}
-                title={`Size ${size}`}
-                description="Size preview."
+                title={t('ds.sizeTitle', { size })}
+                description={t('ds.sizePreview')}
                 size={size}
                 variant="default"
               />
@@ -544,29 +549,29 @@ const Ds = memo(() => {
           </Grid>
           <Grid columns="three">
             <Alert>
-              <AlertTitle>Ready to shop</AlertTitle>
+              <AlertTitle>{t('ds.readyToShop')}</AlertTitle>
               <AlertDescription>
-                Base and ongoing items are combined.
+                {t('ds.readyToShopDescription')}
               </AlertDescription>
             </Alert>
             <Alert variant="info">
-              <AlertTitle>Shared session</AlertTitle>
+              <AlertTitle>{t('ds.sharedSession')}</AlertTitle>
               <AlertDescription>
-                Progress updates for everyone.
+                {t('ds.sharedSessionDescription')}
               </AlertDescription>
             </Alert>
             <Alert variant="destructive">
-              <AlertTitle>Confirm finish</AlertTitle>
+              <AlertTitle>{t('ds.confirmFinish')}</AlertTitle>
               <AlertDescription>
-                Skipped non-base items carry over.
+                {t('ds.confirmFinishDescription')}
               </AlertDescription>
             </Alert>
           </Grid>
         </Section>
 
         <Section
-          title="Variant coverage"
-          description="Every prop value exposed by the local design-system primitives is represented here."
+          title={t('ds.variantCoverage')}
+          description={t('ds.variantCoverageDescription')}
           variant="bordered"
           spacing="lg"
         >
@@ -578,7 +583,7 @@ const Ds = memo(() => {
                   size={size}
                   spacing="sm"
                   className="rounded-xl border bg-card"
-                  title={`Page ${size}`}
+                  title={t('ds.pageSize', { size })}
                 />
               ))}
             </Grid>
@@ -589,7 +594,7 @@ const Ds = memo(() => {
                   size="full"
                   spacing={spacing}
                   className="rounded-xl border bg-card"
-                  title={`Spacing ${spacing}`}
+                  title={t('ds.spacing', { spacing })}
                 />
               ))}
             </Grid>
@@ -598,12 +603,12 @@ const Ds = memo(() => {
               {sectionVariants.map((variant) => (
                 <Section
                   key={variant}
-                  title={`Section ${variant}`}
+                  title={t('ds.sectionVariant', { variant })}
                   variant={variant}
                   spacing="sm"
                 >
                   <Text size="sm" tone="muted">
-                    Variant preview.
+                    {t('ds.variantPreview')}
                   </Text>
                 </Section>
               ))}
@@ -612,12 +617,12 @@ const Ds = memo(() => {
               {sectionSpacings.map((spacing) => (
                 <Section
                   key={spacing}
-                  title={`Section spacing ${spacing}`}
+                  title={t('ds.sectionSpacing', { spacing })}
                   variant="bordered"
                   spacing={spacing}
                 >
                   <Text size="sm" tone="muted">
-                    Spacing preview.
+                    {t('ds.spacingPreview')}
                   </Text>
                 </Section>
               ))}
@@ -626,21 +631,23 @@ const Ds = memo(() => {
             <Grid columns="auto">
               {surfaceVariants.map((variant) => (
                 <Surface key={variant} variant={variant}>
-                  <Text weight="medium">Surface {variant}</Text>
+                  <Text weight="medium">
+                    {t('ds.surfaceVariant', { variant })}
+                  </Text>
                 </Surface>
               ))}
             </Grid>
             <Grid columns="four">
               {surfacePaddings.map((padding) => (
                 <Surface key={padding} padding={padding} variant="outline">
-                  <Text size="sm">Padding {padding}</Text>
+                  <Text size="sm">{t('ds.padding', { padding })}</Text>
                 </Surface>
               ))}
             </Grid>
             <Grid columns="four">
               {surfaceRadii.map((radius) => (
                 <Surface key={radius} radius={radius} variant="muted">
-                  <Text size="sm">Radius {radius}</Text>
+                  <Text size="sm">{t('ds.radius', { radius })}</Text>
                 </Surface>
               ))}
             </Grid>
@@ -649,7 +656,7 @@ const Ds = memo(() => {
               {stackGaps.map((gap) => (
                 <Surface key={gap} variant="outline" padding="sm">
                   <Stack gap={gap}>
-                    <Badge variant="outline">Stack {gap}</Badge>
+                    <Badge variant="outline">{t('ds.stackGap', { gap })}</Badge>
                     <Surface padding="sm">A</Surface>
                     <Surface padding="sm">B</Surface>
                   </Stack>
@@ -660,9 +667,9 @@ const Ds = memo(() => {
               {alignVariants.map((align) => (
                 <Surface key={align} variant="outline" padding="sm">
                   <Stack align={align} gap="xs">
-                    <Badge>Stack align {align}</Badge>
+                    <Badge>{t('ds.stackAlign', { align })}</Badge>
                     <Button size="sm" variant="outline">
-                      Item
+                      {t('ds.item')}
                     </Button>
                   </Stack>
                 </Surface>
@@ -677,9 +684,9 @@ const Ds = memo(() => {
                   className="h-28"
                 >
                   <Stack justify={justify} gap="xs" className="h-full">
-                    <Badge>Stack justify {justify}</Badge>
+                    <Badge>{t('ds.stackJustify', { justify })}</Badge>
                     <Button size="sm" variant="outline">
-                      Item
+                      {t('ds.item')}
                     </Button>
                   </Stack>
                 </Surface>
@@ -690,7 +697,7 @@ const Ds = memo(() => {
               {inlineGaps.map((gap) => (
                 <Surface key={gap} variant="outline" padding="sm">
                   <Inline gap={gap}>
-                    <Badge variant="outline">Inline {gap}</Badge>
+                    <Badge variant="outline">{t('ds.inlineGap', { gap })}</Badge>
                     <Badge>A</Badge>
                     <Badge>B</Badge>
                   </Inline>
@@ -701,9 +708,9 @@ const Ds = memo(() => {
               {alignVariants.map((align) => (
                 <Surface key={align} variant="outline" padding="sm">
                   <Inline align={align} className="h-14">
-                    <Badge>Inline align {align}</Badge>
+                    <Badge>{t('ds.inlineAlign', { align })}</Badge>
                     <Button size="sm" variant="outline">
-                      Item
+                      {t('ds.item')}
                     </Button>
                   </Inline>
                 </Surface>
@@ -713,9 +720,9 @@ const Ds = memo(() => {
               {justifyVariants.map((justify) => (
                 <Surface key={justify} variant="outline" padding="sm">
                   <Inline justify={justify}>
-                    <Badge>Inline justify {justify}</Badge>
+                    <Badge>{t('ds.inlineJustify', { justify })}</Badge>
                     <Button size="sm" variant="outline">
-                      Item
+                      {t('ds.item')}
                     </Button>
                   </Inline>
                 </Surface>
@@ -724,18 +731,18 @@ const Ds = memo(() => {
             <Grid columns="two">
               <Surface variant="outline">
                 <Inline wrap>
-                  <Badge>wrap true</Badge>
-                  <Badge>one</Badge>
-                  <Badge>two</Badge>
-                  <Badge>three</Badge>
+                  <Badge>{t('ds.wrapTrue')}</Badge>
+                  <Badge>{t('ds.one')}</Badge>
+                  <Badge>{t('ds.two')}</Badge>
+                  <Badge>{t('ds.three')}</Badge>
                 </Inline>
               </Surface>
               <Surface variant="outline" className="overflow-hidden">
                 <Inline wrap={false}>
-                  <Badge>wrap false</Badge>
-                  <Badge>one</Badge>
-                  <Badge>two</Badge>
-                  <Badge>three</Badge>
+                  <Badge>{t('ds.wrapFalse')}</Badge>
+                  <Badge>{t('ds.one')}</Badge>
+                  <Badge>{t('ds.two')}</Badge>
+                  <Badge>{t('ds.three')}</Badge>
                 </Inline>
               </Surface>
             </Grid>
@@ -744,7 +751,9 @@ const Ds = memo(() => {
               {gridColumns.map((columns) => (
                 <Surface key={columns} variant="outline">
                   <Stack gap="sm">
-                    <Badge variant="outline">Grid {columns}</Badge>
+                    <Badge variant="outline">
+                      {t('ds.gridColumns', { columns })}
+                    </Badge>
                     <Grid columns={columns} gap="sm">
                       <Surface padding="sm">A</Surface>
                       <Surface padding="sm">B</Surface>
@@ -760,7 +769,7 @@ const Ds = memo(() => {
                 <Surface key={gap} variant="outline">
                   <Grid columns="two" gap={gap}>
                     <Surface padding="sm">{gap}</Surface>
-                    <Surface padding="sm">gap</Surface>
+                    <Surface padding="sm">{t('ds.gap')}</Surface>
                   </Grid>
                 </Surface>
               ))}
@@ -773,33 +782,33 @@ const Ds = memo(() => {
                   level={Math.min(index + 1, 4) as 1 | 2 | 3 | 4}
                   size={size}
                 >
-                  Heading {size}
+                  {t('ds.headingSize', { size })}
                 </Heading>
               ))}
               {headingTones.map((tone) => (
                 <Heading key={tone} tone={tone} size="h4">
-                  Heading tone {tone}
+                  {t('ds.headingTone', { tone })}
                 </Heading>
               ))}
             </Stack>
             <Grid columns="four">
               {textSizes.map((size) => (
                 <Text key={size} size={size}>
-                  Text {size}
+                  {t('ds.textSize', { size })}
                 </Text>
               ))}
               {textTones.map((tone) => (
                 <Text key={tone} tone={tone}>
-                  Text {tone}
+                  {t('ds.textTone', { tone })}
                 </Text>
               ))}
               {textWeights.map((weight) => (
                 <Text key={weight} weight={weight}>
-                  Text {weight}
+                  {t('ds.textWeight', { weight })}
                 </Text>
               ))}
-              <Text as="span">Text as span</Text>
-              <Text as="div">Text as div</Text>
+              <Text as="span">{t('ds.textAsSpan')}</Text>
+              <Text as="div">{t('ds.textAsDiv')}</Text>
             </Grid>
 
             <Inline gap="sm">
@@ -812,7 +821,7 @@ const Ds = memo(() => {
             <Inline gap="sm">
               {statusSizes.map((size) => (
                 <StatusChip key={size} size={size}>
-                  status {size}
+                  {t('ds.statusSize', { size })}
                 </StatusChip>
               ))}
             </Inline>
@@ -843,8 +852,8 @@ const Ds = memo(() => {
             <Grid columns="three">
               {bottomLayouts.map((layout) => (
                 <BottomActionBar key={layout} position="static" layout={layout}>
-                  <Button variant="outline">Skip</Button>
-                  <Button>Done</Button>
+                  <Button variant="outline">{t('ds.skip')}</Button>
+                  <Button>{t('ds.done')}</Button>
                 </BottomActionBar>
               ))}
             </Grid>
@@ -852,7 +861,7 @@ const Ds = memo(() => {
               {bottomPositions.map((position) => (
                 <Surface key={position} variant="outline">
                   <Text size="sm" weight="semibold">
-                    Bottom bar {position}
+                    {t('ds.bottomBar', { position })}
                   </Text>
                   {position !== 'fixed' && (
                     <BottomActionBar
@@ -860,12 +869,12 @@ const Ds = memo(() => {
                       layout="single"
                       className="mt-3 rounded-xl"
                     >
-                      <Button>Preview</Button>
+                      <Button>{t('ds.preview')}</Button>
                     </BottomActionBar>
                   )}
                   {position === 'fixed' && (
                     <StatusChip tone="info">
-                      Fixed preview is active at screen bottom
+                      {t('ds.fixedPreview')}
                     </StatusChip>
                   )}
                 </Surface>
@@ -876,8 +885,8 @@ const Ds = memo(() => {
               {actionTileVariants.map((variant) => (
                 <ActionTile
                   key={variant}
-                  title={`Tile ${variant}`}
-                  description="Variant preview"
+                  title={t('ds.tileVariant', { variant })}
+                  description={t('ds.variantPreview')}
                   variant={variant}
                 />
               ))}
@@ -886,8 +895,8 @@ const Ds = memo(() => {
               {actionTileSizes.map((size) => (
                 <ActionTile
                   key={size}
-                  title={`Tile ${size}`}
-                  description="Size preview"
+                  title={t('ds.tileSize', { size })}
+                  description={t('ds.sizePreview')}
                   size={size}
                 />
               ))}
@@ -898,7 +907,7 @@ const Ds = memo(() => {
                 <Toolbar
                   key={variant}
                   variant={variant}
-                  search={<Input placeholder={`Toolbar ${variant}`} />}
+                  search={<Input placeholder={t('ds.toolbar', { variant })} />}
                 />
               ))}
             </Grid>
@@ -918,7 +927,7 @@ const Ds = memo(() => {
                   key={tone}
                   label={tone}
                   value="12"
-                  description="Tone preview"
+                  description={t('ds.tonePreview')}
                   tone={tone}
                 />
               ))}
@@ -940,11 +949,11 @@ const Ds = memo(() => {
         >
           <Button size="lg" variant="outline">
             <Home />
-            Lists
+            {t('ds.lists')}
           </Button>
           <Button size="lg">
             <ListChecks />
-            Shop
+            {t('ds.shop')}
           </Button>
         </BottomActionBar>
       </PageShell>

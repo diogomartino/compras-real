@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import type { TTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { ArrowLeft } from 'lucide-react';
 import { memo, useCallback, type ChangeEvent, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TBaseListFormMode, TBaseListFormValues } from './types';
 
 type TBaseListManagementFormProps = {
@@ -29,6 +30,7 @@ const BaseListManagementForm = memo(
     onSubmit,
     onFieldChange
   }: TBaseListManagementFormProps) => {
+    const { t } = useTranslation();
     const onNameChange = useCallback(
       (event: ChangeEvent<HTMLInputElement>) => {
         onFieldChange('name', event.target.value);
@@ -51,14 +53,16 @@ const BaseListManagementForm = memo(
           <Inline justify="between" wrap={false} className="mb-6 gap-3">
             <Button type="button" variant="ghost" onClick={onCancel}>
               <ArrowLeft className="size-4" />
-              Back
+              {t('baseList.back')}
             </Button>
             <Inline gap="sm" wrap={false}>
               <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={isPending}>
-                {formMode.type === 'create' ? 'Create list' : 'Save list'}
+                {formMode.type === 'create'
+                  ? t('baseList.createList')
+                  : t('baseList.saveList')}
               </Button>
             </Inline>
           </Inline>
@@ -68,11 +72,11 @@ const BaseListManagementForm = memo(
               <Stack gap="sm">
                 <Text weight="semibold">
                   {formMode.type === 'create'
-                    ? 'Create Base List'
-                    : 'Edit Base List'}
+                    ? t('baseList.createBaseList')
+                    : t('baseList.editBaseList')}
                 </Text>
                 <Text size="sm" tone="muted">
-                  Enabled lists are included when a shopping session starts.
+                  {t('baseList.enabledDescription')}
                 </Text>
               </Stack>
 
@@ -84,14 +88,14 @@ const BaseListManagementForm = memo(
 
               <label className="space-y-2">
                 <Text as="span" size="sm" weight="medium">
-                  Name
+                  {t('baseList.name')}
                 </Text>
                 <Input
                   value={values.name}
                   error={errors.name}
                   onChange={onNameChange}
                   className="h-11 rounded-xl"
-                  placeholder="Weekly basics"
+                  placeholder={t('baseList.namePlaceholder')}
                 />
               </label>
 
@@ -104,10 +108,10 @@ const BaseListManagementForm = memo(
                 />
                 <Stack gap="none">
                   <Text as="span" size="sm" weight="medium">
-                    Enabled
+                    {t('baseList.enabled')}
                   </Text>
                   <Text size="xs" tone="muted">
-                    Include this list in future shopping sessions.
+                    {t('baseList.includeEnabled')}
                   </Text>
                 </Stack>
               </label>

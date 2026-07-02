@@ -26,6 +26,7 @@ import {
   type PanInfo
 } from 'motion/react';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatQuantity } from './helpers';
 import type { TShoppingLiveStatusProps } from './shopping-live-status';
 
@@ -69,6 +70,7 @@ const ShoppingSwipeView = memo(
     onCancelShopping,
     onAction
   }: TShoppingSwipeViewProps) => {
+    const { t } = useTranslation();
     const [categoryName, setCategoryName] = useState<string>();
     const [dismissedItemIds, setDismissedItemIds] = useState<string[]>([]);
     const [activityToasts, setActivityToasts] = useState<TActivityToast[]>([]);
@@ -86,11 +88,12 @@ const ShoppingSwipeView = memo(
           currentCategoryName,
           swipeItems.filter(
             (item) =>
-              (item.categoryName ?? 'Uncategorized') === currentCategoryName
+              (item.categoryName ?? t('common.uncategorized')) ===
+                currentCategoryName
           ).length
         ])
       );
-    }, [categoryOrder, swipeItems]);
+    }, [categoryOrder, swipeItems, t]);
     const availableCategories = useMemo(
       () =>
         categoryOrder.filter(
@@ -125,13 +128,16 @@ const ShoppingSwipeView = memo(
 
       return swipeItems.filter(
         (item) =>
-          (item.categoryName ?? 'Uncategorized') === effectiveCategoryName
+          (item.categoryName ?? t('common.uncategorized')) ===
+          effectiveCategoryName
       );
-    }, [effectiveCategoryName, swipeItems]);
+    }, [effectiveCategoryName, swipeItems, t]);
     const currentItem = visibleItems[0];
     const currentItemId = currentItem?.id;
     const activeCategoryName =
-      currentItem?.categoryName ?? effectiveCategoryName ?? 'Uncategorized';
+      currentItem?.categoryName ??
+      effectiveCategoryName ??
+      t('common.uncategorized');
     const checkedProgress = useMemo(() => {
       if (totalCount === 0) {
         return 0;
@@ -243,9 +249,9 @@ const ShoppingSwipeView = memo(
       return (
         <Stack gap="md" align="center" className="py-12 text-center">
           <RotateCcw className="size-10 text-muted-foreground" />
-          <Text weight="semibold">No products in this category</Text>
+          <Text weight="semibold">{t('shopping.noProductsCategory')}</Text>
           <Text size="sm" tone="muted">
-            Pick another category or switch back to list view.
+            {t('shopping.pickAnotherCategory')}
           </Text>
         </Stack>
       );
@@ -275,7 +281,7 @@ const ShoppingSwipeView = memo(
             <div className="grid place-items-center gap-3 rounded-[2rem] bg-black/25 px-8 py-6 text-center shadow-2xl">
               <X className="size-14" />
               <span className="text-4xl font-black uppercase tracking-widest">
-                {reviewSkipped ? 'Discard' : 'Skip'}
+                {reviewSkipped ? t('shopping.discard') : t('shopping.skip')}
               </span>
             </div>
           </motion.div>
@@ -286,7 +292,7 @@ const ShoppingSwipeView = memo(
             <div className="grid place-items-center gap-3 rounded-[2rem] bg-black/25 px-8 py-6 text-center shadow-2xl">
               <Check className="size-14" />
               <span className="text-4xl font-black uppercase tracking-widest">
-                Got it
+                {t('shopping.gotIt')}
               </span>
             </div>
           </motion.div>
@@ -346,7 +352,7 @@ const ShoppingSwipeView = memo(
                   variant="ghost"
                   size="icon"
                   className="shrink-0 rounded-full border border-white/30 bg-white/15 text-white shadow-sm hover:bg-white/25 hover:text-white"
-                  aria-label="Shopping view options"
+                  aria-label={t('shopping.viewOptions')}
                 >
                   <MoreHorizontal className="size-5" />
                 </Button>
@@ -354,12 +360,12 @@ const ShoppingSwipeView = memo(
               <DropdownMenuContent align="end" className="w-44 rounded-xl">
                 <DropdownMenuItem onSelect={onListView}>
                   <List className="size-4" />
-                  List view
+                  {t('shopping.listView')}
                 </DropdownMenuItem>
                 {reviewSkipped && (
                   <DropdownMenuItem onSelect={onMainList}>
                     <RotateCcw className="size-4" />
-                    Main list
+                    {t('shopping.mainList')}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
@@ -367,7 +373,7 @@ const ShoppingSwipeView = memo(
                   onSelect={onCancelShopping}
                 >
                   <X className="size-4" />
-                  Cancel shopping
+                  {t('shopping.cancelShopping')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
               </DropdownMenu>
@@ -417,7 +423,7 @@ const ShoppingSwipeView = memo(
                 </div>
                 <Inline gap="sm">
                   <StatusChip className="border-white/25 bg-white/20 text-white">
-                    {currentItem.categoryName ?? 'Uncategorized'}
+                    {currentItem.categoryName ?? t('common.uncategorized')}
                   </StatusChip>
                   <StatusChip className="border-white/25 bg-white/20 text-white">
                     {formatQuantity(
@@ -449,7 +455,9 @@ const ShoppingSwipeView = memo(
                   className="size-16 rounded-full bg-green-500 text-white shadow-lg shadow-green-950/30 hover:bg-green-500/90"
                   disabled={isPending}
                   onClick={check}
-                  aria-label="Mark product as checked"
+                  aria-label={t('shopping.markChecked', {
+                    title: currentItem.title
+                  })}
                 >
                   <Check className="size-7" />
                 </Button>
@@ -460,7 +468,9 @@ const ShoppingSwipeView = memo(
                   disabled={isPending}
                   onClick={skip}
                   aria-label={
-                    reviewSkipped ? 'Discard product' : 'Ignore product'
+                    reviewSkipped
+                      ? t('shopping.discardProduct')
+                      : t('shopping.ignoreProduct')
                   }
                 >
                   <X className="size-7" />

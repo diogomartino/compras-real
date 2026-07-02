@@ -19,6 +19,7 @@ import {
   type ChangeEvent,
   type FormEvent
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { CatalogForm } from './catalog-form';
 import { CatalogList } from './catalog-list';
@@ -35,6 +36,7 @@ import type {
 } from './types';
 
 const Catalog = memo(() => {
+  const { t } = useTranslation();
   const isAuthenticated = useIsAuthenticated();
   const {
     data: productsData,
@@ -133,7 +135,7 @@ const Catalog = memo(() => {
         sourceUrl: url
       }));
 
-      toast.success('Product details extracted.');
+      toast.success(t('catalog.detailsExtracted'));
     } catch (error) {
       const extractedErrors = parseTrpcErrors(error);
 
@@ -141,7 +143,7 @@ const Catalog = memo(() => {
         sourceUrl:
           extractedErrors.url ??
           extractedErrors._general ??
-          'Failed to extract details'
+          t('catalog.failedToExtractDetails')
       });
     }
   }, [
@@ -149,7 +151,8 @@ const Catalog = memo(() => {
     values.sourceUrl,
     resetErrors,
     setErrors,
-    setValues
+    setValues,
+    t
   ]);
 
   const submitForm = useCallback(
@@ -163,11 +166,11 @@ const Catalog = memo(() => {
         if (!formMode || formMode.type === 'create') {
           await addProduct(input);
 
-          toast.success('Product created.');
+          toast.success(t('catalog.productCreated'));
         } else {
           await updateProduct({ ...input, id: formMode.id });
 
-          toast.success('Product updated.');
+          toast.success(t('catalog.productUpdated'));
         }
 
         closeForm();
@@ -182,6 +185,7 @@ const Catalog = memo(() => {
       formMode,
       resetErrors,
       setErrors,
+      t,
       updateProduct
     ]
   );
@@ -192,12 +196,12 @@ const Catalog = memo(() => {
         (currentProduct) => currentProduct.id === productId
       );
       const confirmed = await requestConfirmation({
-        title: 'Delete product?',
+        title: t('catalog.deleteProductTitle'),
         message: product
-          ? `Delete ${product.title}? This will remove it from lists that use it.`
-          : 'Delete this product? This will remove it from lists that use it.',
-        confirmLabel: 'Delete',
-        cancelLabel: 'Cancel',
+          ? t('catalog.deleteProductMessage', { title: product.title })
+          : t('catalog.deleteProductFallback'),
+        confirmLabel: t('common.delete'),
+        cancelLabel: t('common.cancel'),
         variant: 'danger'
       });
 
@@ -207,14 +211,14 @@ const Catalog = memo(() => {
 
       try {
         await deleteProduct(productId);
-        toast.success('Product deleted.');
+        toast.success(t('catalog.productDeleted'));
       } catch (error) {
         toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to delete product.'
+          parseTrpcErrors(error)._general ?? t('catalog.failedToDeleteProduct')
         );
       }
     },
-    [deleteProduct, products]
+    [deleteProduct, products, t]
   );
 
   if (!isAuthenticated) {

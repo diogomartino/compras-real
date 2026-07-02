@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WandSparkles } from 'lucide-react';
 import { memo, useMemo, type ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TCatalogImportCardProps = {
   value: string;
@@ -13,6 +14,7 @@ type TCatalogImportCardProps = {
 
 const CatalogImportCard = memo(
   ({ value, isExtracting, onChange, onExtract }: TCatalogImportCardProps) => {
+    const { t } = useTranslation();
     const extractDisabled = useMemo(() => isExtracting, [isExtracting]);
 
     return (
@@ -23,9 +25,9 @@ const CatalogImportCard = memo(
               <WandSparkles className="size-5" />
             </div>
             <Stack gap="none">
-              <Text weight="semibold">Import from link</Text>
+              <Text weight="semibold">{t('catalog.import.title')}</Text>
               <Text size="sm" tone="muted">
-                Extract product details from a supported product page.
+                {t('catalog.import.description')}
               </Text>
             </Stack>
           </Inline>
@@ -34,7 +36,7 @@ const CatalogImportCard = memo(
               value={value}
               onChange={onChange}
               className="h-11 rounded-xl bg-background"
-              placeholder="Paste a product page URL"
+              placeholder={t('catalog.import.url')}
             />
             <Button
               disabled={extractDisabled}
@@ -42,7 +44,9 @@ const CatalogImportCard = memo(
               variant="outline"
               onClick={onExtract}
             >
-              {isExtracting ? 'Extracting...' : 'Extract details'}
+              {isExtracting
+                ? t('catalog.import.extracting')
+                : t('catalog.import.extract')}
             </Button>
           </div>
         </Stack>

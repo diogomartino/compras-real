@@ -83,11 +83,14 @@ const getAvailableProducts = (
     );
 };
 
-const getGroupedBaseListItems = (items: TBaseListEntry[]) => {
+const getGroupedBaseListItems = (
+  items: TBaseListEntry[],
+  uncategorizedLabel: string
+) => {
   const groups = new Map<string, TBaseListEntry[]>();
 
   items.forEach((item) => {
-    const categoryName = item.categoryName ?? 'Uncategorized';
+    const categoryName = item.categoryName ?? uncategorizedLabel;
     const groupItems = groups.get(categoryName) ?? [];
 
     groupItems.push(item);
@@ -102,11 +105,11 @@ const getGroupedBaseListItems = (items: TBaseListEntry[]) => {
       )
     }))
     .sort((firstGroup, secondGroup) => {
-      if (firstGroup.categoryName === 'Uncategorized') {
+      if (firstGroup.categoryName === uncategorizedLabel) {
         return 1;
       }
 
-      if (secondGroup.categoryName === 'Uncategorized') {
+      if (secondGroup.categoryName === uncategorizedLabel) {
         return -1;
       }
 

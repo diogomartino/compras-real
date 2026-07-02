@@ -15,6 +15,7 @@ import { useCategories } from '@/queries/categories';
 import { HomeAuthScreen } from '@/screens/home/home-auth-screen';
 import { ArrowLeft, FolderPlus, Pencil, Trash2 } from 'lucide-react';
 import { memo, useCallback, useMemo, useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
@@ -28,6 +29,7 @@ type TEditingCategory = {
 };
 
 const Categories = memo(() => {
+  const { t } = useTranslation();
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
   const [editingCategory, setEditingCategory] = useState<TEditingCategory>();
@@ -64,10 +66,10 @@ const Categories = memo(() => {
       try {
         if (editingCategory) {
           await updateCategory({ id: editingCategory.id, name: values.name });
-          toast.success('Category updated.');
+          toast.success(t('categories.categoryUpdated'));
         } else {
           await createCategory({ name: values.name });
-          toast.success('Category created.');
+          toast.success(t('categories.categoryCreated'));
         }
 
         resetForm();
@@ -81,6 +83,7 @@ const Categories = memo(() => {
       resetErrors,
       resetForm,
       setErrors,
+      t,
       updateCategory,
       values.name
     ]
@@ -88,10 +91,10 @@ const Categories = memo(() => {
   const remove = useCallback(
     async (category: TEditingCategory) => {
       const confirmed = await requestConfirmation({
-        title: 'Delete category?',
-        message: `Delete ${category.name}? Products in it will become uncategorized.`,
-        confirmLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        title: t('categories.deleteTitle'),
+        message: t('categories.deleteMessage', { name: category.name }),
+        confirmLabel: t('common.delete'),
+        cancelLabel: t('common.cancel'),
         variant: 'danger'
       });
 
@@ -101,18 +104,18 @@ const Categories = memo(() => {
 
       try {
         await deleteCategory(category.id);
-        toast.success('Category deleted.');
+        toast.success(t('categories.categoryDeleted'));
         if (editingCategory?.id === category.id) {
           resetForm();
         }
       } catch (mutationError) {
         toast.error(
           parseTrpcErrors(mutationError)._general ??
-            'Failed to delete category.'
+            t('categories.failedToDeleteCategory')
         );
       }
     },
-    [deleteCategory, editingCategory?.id, resetForm]
+    [deleteCategory, editingCategory?.id, resetForm, t]
   );
 
   if (!isAuthenticated) {
@@ -129,19 +132,21 @@ const Categories = memo(() => {
             onClick={() => navigate('/catalog')}
           >
             <ArrowLeft className="size-4" />
-            Catalog
+            {t('categories.catalog')}
           </Button>
-          <Text weight="semibold">Categories</Text>
+          <Text weight="semibold">{t('categories.title')}</Text>
         </Inline>
 
         <Surface radius="2xl" padding="lg">
           <form className="space-y-4" onSubmit={submit}>
             <Stack gap="xs">
               <Text weight="semibold">
-                {editingCategory ? 'Edit category' : 'Create category'}
+                {editingCategory
+                  ? t('categories.editCategory')
+                  : t('categories.createCategory')}
               </Text>
               <Text size="sm" tone="muted">
-                Categories organize catalog products and shopping mode groups.
+                {t('categories.description')}
               </Text>
             </Stack>
             {errors._general && (
@@ -153,18 +158,20 @@ const Categories = memo(() => {
               {...r('name')}
               error={errors.name}
               className="h-11 rounded-xl"
-              placeholder="Dairy"
+              placeholder={t('categories.placeholder')}
               disabled={isPending}
             />
             <Inline justify="end">
               {editingCategory && (
                 <Button type="button" variant="outline" onClick={resetForm}>
-                  Cancel edit
+                  {t('categories.cancelEdit')}
                 </Button>
               )}
               <Button type="submit" disabled={isPending}>
                 <FolderPlus className="size-4" />
-                {editingCategory ? 'Save category' : 'Create category'}
+                {editingCategory
+                  ? t('categories.saveCategory')
+                  : t('categories.createCategory')}
               </Button>
             </Inline>
           </form>
@@ -179,12 +186,12 @@ const Categories = memo(() => {
         <Stack gap="sm">
           {isLoading && (
             <Surface radius="2xl" padding="lg">
-              <Text tone="muted">Loading categories...</Text>
+              <Text tone="muted">{t('categories.loading')}</Text>
             </Surface>
           )}
           {!isLoading && categories.length === 0 && (
             <Surface radius="2xl" padding="lg" className="text-center">
-              <Text tone="muted">No categories yet.</Text>
+              <Text tone="muted">{t('categories.empty')}</Text>
             </Surface>
           )}
           {categories.map((category) => (
@@ -195,7 +202,9 @@ const Categories = memo(() => {
                     {category.name}
                   </Text>
                   <Text size="sm" tone="muted">
-                    {category.productCount} products
+                    {t('categories.productCount', {
+                      count: category.productCount
+                    })}
                   </Text>
                 </Stack>
                 <Inline gap="xs" wrap={false}>

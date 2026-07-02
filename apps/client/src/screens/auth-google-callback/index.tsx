@@ -1,9 +1,11 @@
 import { Stack, Surface, Text } from '@/components/ds';
 import { setAuthToken } from '@/features/auth/actions';
 import { memo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 const AuthGoogleCallback = memo(() => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,9 +32,9 @@ const AuthGoogleCallback = memo(() => {
         className="w-full max-w-sm text-center"
       >
         <Stack gap="sm" align="center">
-          <Text weight="semibold">Finishing Google login...</Text>
+          <Text weight="semibold">{t('googleAuth.finishing')}</Text>
           <Text size="sm" tone="muted">
-            You will be redirected automatically.
+            {t('googleAuth.redirecting')}
           </Text>
         </Stack>
       </Surface>

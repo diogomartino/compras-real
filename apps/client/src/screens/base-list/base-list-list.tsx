@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, ListChecks, Plus, Search } from 'lucide-react';
 import { memo, type ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BaseListItemRow } from './base-list-item-row';
 import type { TBaseListDetails, TBaseListEntry } from './types';
 
@@ -39,6 +40,7 @@ const BaseListList = memo(
     onEdit,
     onRemove
   }: TBaseListListProps) => {
+    const { t } = useTranslation();
     const itemCount = groups.reduce(
       (total, group) => total + group.items.length,
       0
@@ -52,7 +54,7 @@ const BaseListList = memo(
               <Inline gap="sm" wrap={false} className="min-w-0">
                 <Button type="button" variant="ghost" onClick={onBack}>
                   <ArrowLeft className="size-4" />
-                  Back
+                  {t('baseList.back')}
                 </Button>
                 <Stack gap="xs" className="min-w-0">
                   <Inline gap="sm" wrap={false} className="min-w-0">
@@ -62,17 +64,19 @@ const BaseListList = memo(
                     <StatusChip
                       tone={baseList.isEnabled ? 'success' : 'skipped'}
                     >
-                      {baseList.isEnabled ? 'Enabled' : 'Disabled'}
+                      {baseList.isEnabled
+                        ? t('baseList.enabled')
+                        : t('baseList.disabled')}
                     </StatusChip>
                   </Inline>
                   <Text size="sm" tone="muted">
-                    Products in this base list.
+                    {t('baseList.productsDescription')}
                   </Text>
                 </Stack>
               </Inline>
               <Button onClick={onCreate} className="rounded-xl">
                 <Plus className="size-4" />
-                Add product
+                {t('baseList.addProduct')}
               </Button>
             </Inline>
 
@@ -82,7 +86,7 @@ const BaseListList = memo(
                 value={query}
                 onChange={onQueryChange}
                 className="h-11 rounded-xl pl-9"
-                placeholder="Search products in this base list"
+                placeholder={t('baseList.searchProducts')}
               />
             </div>
           </Stack>
@@ -96,7 +100,7 @@ const BaseListList = memo(
 
         {isLoading && (
           <Surface radius="2xl" padding="lg">
-            <Text tone="muted">Loading base list...</Text>
+            <Text tone="muted">{t('baseList.loading')}</Text>
           </Surface>
         )}
 
@@ -104,9 +108,9 @@ const BaseListList = memo(
           <Surface radius="2xl" padding="lg" className="text-center">
             <Stack gap="sm" align="center">
               <ListChecks className="size-8 text-muted-foreground" />
-              <Text weight="semibold">No products found</Text>
+              <Text weight="semibold">{t('baseList.noProductsFound')}</Text>
               <Text size="sm" tone="muted">
-                Add catalog products to this Base List.
+                {t('baseList.emptyDescription')}
               </Text>
             </Stack>
           </Surface>
@@ -118,7 +122,7 @@ const BaseListList = memo(
               <Inline justify="between" className="px-1">
                 <Text weight="semibold">{group.categoryName}</Text>
                 <Text size="sm" tone="muted">
-                  {group.items.length} items
+                  {t('baseList.itemsCount', { count: group.items.length })}
                 </Text>
               </Inline>
               {group.items.map((item) => (

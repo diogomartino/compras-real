@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import type { TOngoingListEntry } from '@myapp/shared';
 import { Check, X } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatQuantity, getGroupedItems } from './helpers';
 
 type TShoppingListViewProps = {
@@ -32,6 +33,7 @@ const ShoppingListRow = memo(
     onCheck,
     onDiscard
   }: TShoppingListRowProps) => {
+    const { t } = useTranslation();
     const check = useCallback(() => {
       onCheck(item);
     }, [item, onCheck]);
@@ -65,7 +67,7 @@ const ShoppingListRow = memo(
             className={compact ? 'size-11 rounded-2xl' : 'size-12 rounded-2xl'}
             disabled={isPending}
             onClick={check}
-            aria-label={`Mark ${item.title} as checked`}
+            aria-label={t('shopping.markChecked', { title: item.title })}
           >
             <Check className={compact ? 'size-5' : 'size-6'} />
           </Button>
@@ -79,7 +81,7 @@ const ShoppingListRow = memo(
               }
               disabled={isPending}
               onClick={discard}
-              aria-label={`Discard ${item.title}`}
+              aria-label={t('shopping.discardProduct')}
             >
               <X className={compact ? 'size-5' : 'size-6'} />
             </Button>
@@ -101,7 +103,11 @@ const ShoppingListView = memo(
     onCheck,
     onDiscard
   }: TShoppingListViewProps) => {
-    const groups = useMemo(() => getGroupedItems(items), [items]);
+    const { t } = useTranslation();
+    const groups = useMemo(
+      () => getGroupedItems(items, t('common.uncategorized')),
+      [items, t]
+    );
 
     return (
       <Stack gap="lg">

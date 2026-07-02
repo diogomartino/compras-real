@@ -1,6 +1,7 @@
 import { Inline, Stack, Text } from '@/components/ds';
 import { cn } from '@/lib/utils';
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TShoppingProgressProps = {
   checkedCount: number;
@@ -10,6 +11,7 @@ type TShoppingProgressProps = {
 
 const ShoppingProgress = memo(
   ({ checkedCount, totalCount, overlay = false }: TShoppingProgressProps) => {
+    const { t } = useTranslation();
     const progress = useMemo(() => {
       if (totalCount === 0) {
         return 0;
@@ -21,7 +23,7 @@ const ShoppingProgress = memo(
     return (
       <Stack gap="xs">
         <Inline justify="between" wrap={false}>
-          <Text weight="semibold">Shopping mode</Text>
+          <Text weight="semibold">{t('shopping.presenceActive')}</Text>
           <Text size="sm" tone={overlay ? undefined : 'muted'}>
             {checkedCount}/{totalCount}
           </Text>

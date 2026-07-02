@@ -17,6 +17,7 @@ import {
   type ChangeEvent,
   type FormEvent
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CatalogImportCard } from './catalog-import-card';
 import { CatalogPreview } from './catalog-preview';
 import { formatUnit, unitOptions } from './helpers';
@@ -50,6 +51,7 @@ const CatalogForm = memo(
     onExtractDetails,
     onFieldChange
   }: TCatalogFormProps) => {
+    const { t } = useTranslation();
     const categoryOptions = useMemo(
       () =>
         categories.map((category) => ({
@@ -59,8 +61,8 @@ const CatalogForm = memo(
       [categories]
     );
     const getCreateCategoryLabel = useCallback(
-      (category: string) => `Create "${category}"`,
-      []
+      (category: string) => t('catalog.form.createCategory', { category }),
+      [t]
     );
     const onTitleChange = useCallback(
       (event: ChangeEvent<HTMLInputElement>) => {
@@ -107,14 +109,16 @@ const CatalogForm = memo(
           <Inline justify="between" wrap={false} className="mb-6 gap-3">
             <Button type="button" variant="ghost" onClick={onCancel}>
               <ArrowLeft className="size-4" />
-              Back
+              {t('catalog.form.back')}
             </Button>
             <Inline gap="sm" wrap={false}>
               <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={isPending}>
-                {formMode.type === 'create' ? 'Create product' : 'Save changes'}
+                {formMode.type === 'create'
+                  ? t('catalog.form.createProduct')
+                  : t('catalog.form.saveChanges')}
               </Button>
             </Inline>
           </Inline>
@@ -139,20 +143,20 @@ const CatalogForm = memo(
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="space-y-2 sm:col-span-2">
                       <Text as="span" size="sm" weight="medium">
-                        Product name
+                        {t('catalog.form.productName')}
                       </Text>
                       <Input
                         value={values.title}
                         error={errors.title}
                         onChange={onTitleChange}
                         className="h-11 rounded-xl"
-                        placeholder="Whole milk"
+                        placeholder={t('catalog.form.productNamePlaceholder')}
                       />
                     </label>
 
                     <label className="space-y-2 sm:col-span-2">
                       <Text as="span" size="sm" weight="medium">
-                        Image URL
+                        {t('catalog.form.imageUrl')}
                       </Text>
                       <Input
                         value={values.imageUrl}
@@ -165,36 +169,36 @@ const CatalogForm = memo(
 
                     <label className="space-y-2">
                       <Text as="span" size="sm" weight="medium">
-                        Category
+                        {t('catalog.form.category')}
                       </Text>
                       <Combobox
                         value={values.categoryName}
                         options={categoryOptions}
                         error={errors.categoryName}
                         allowCustomValue
-                        emptyLabel="No categories yet."
+                        emptyLabel={t('catalog.form.noCategoriesYet')}
                         createLabel={getCreateCategoryLabel}
                         onChange={onCategoryChange}
-                        placeholder="Dairy or leave empty"
+                        placeholder={t('catalog.form.categoryPlaceholder')}
                       />
                     </label>
 
                     <label className="space-y-2">
                       <Text as="span" size="sm" weight="medium">
-                        Source URL
+                        {t('catalog.form.sourceUrl')}
                       </Text>
                       <Input
                         value={values.sourceUrl}
                         error={errors.sourceUrl}
                         onChange={onSourceUrlChange}
                         className="h-11 rounded-xl"
-                        placeholder="Optional"
+                        placeholder={t('catalog.form.optional')}
                       />
                     </label>
 
                     <label className="space-y-2">
                       <Text as="span" size="sm" weight="medium">
-                        Default quantity
+                        {t('catalog.form.defaultQuantity')}
                       </Text>
                       <Input
                         type="number"
@@ -209,14 +213,14 @@ const CatalogForm = memo(
 
                     <label className="space-y-2">
                       <Text as="span" size="sm" weight="medium">
-                        Quantity unit
+                        {t('catalog.form.quantityUnit')}
                       </Text>
                       <Select
                         value={values.defaultQuantityUnit}
                         onValueChange={onDefaultQuantityUnitChange}
                       >
                         <SelectTrigger className="h-11 w-full rounded-xl">
-                          <SelectValue placeholder="Select unit" />
+                          <SelectValue placeholder={t('catalog.form.selectUnit')} />
                         </SelectTrigger>
                         <SelectContent>
                           {unitOptions.map((unit) => (

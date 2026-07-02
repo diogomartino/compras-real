@@ -22,6 +22,7 @@ import {
   type ChangeEvent,
   type FormEvent
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { BaseListForm } from './base-list-form';
 import { BaseListList } from './base-list-list';
@@ -48,6 +49,7 @@ import type {
 } from './types';
 
 const BaseList = memo(() => {
+  const { t } = useTranslation();
   const isAuthenticated = useIsAuthenticated();
   const {
     data: baseListsData,
@@ -143,8 +145,8 @@ const BaseList = memo(() => {
     );
   }, [baseListItems, query]);
   const groups = useMemo(
-    () => getGroupedBaseListItems(visibleItems),
-    [visibleItems]
+    () => getGroupedBaseListItems(visibleItems, t('common.uncategorized')),
+    [t, visibleItems]
   );
   const isMutating = useMemo(
     () =>
@@ -261,10 +263,10 @@ const BaseList = memo(() => {
       try {
         if (!listFormMode || listFormMode.type === 'create') {
           await createBaseList(input);
-          toast.success('Base List created.');
+          toast.success(t('baseList.created'));
         } else {
           await updateBaseList({ ...input, id: listFormMode.id });
-          toast.success('Base List updated.');
+          toast.success(t('baseList.updated'));
         }
 
         closeListForm();
@@ -279,7 +281,8 @@ const BaseList = memo(() => {
       listValues,
       resetListErrors,
       setListErrors,
-      updateBaseList
+      updateBaseList,
+      t
     ]
   );
 
@@ -300,7 +303,7 @@ const BaseList = memo(() => {
             ...input,
             baseListId: itemFormMode.baseListId
           });
-          toast.success('Product added to the Base List.');
+          toast.success(t('baseList.productAdded'));
         } else {
           await updateBaseListItem({
             id: itemFormMode.id,
@@ -308,7 +311,7 @@ const BaseList = memo(() => {
             quantityAmount: input.quantityAmount,
             quantityUnit: input.quantityUnit
           });
-          toast.success('Base List quantity updated.');
+          toast.success(t('baseList.quantityUpdated'));
         }
 
         closeItemForm();
@@ -323,17 +326,18 @@ const BaseList = memo(() => {
       itemValues,
       resetItemErrors,
       setItemErrors,
-      updateBaseListItem
+      updateBaseListItem,
+      t
     ]
   );
 
   const removeList = useCallback(
     async (baseList: TBaseListSummary) => {
       const confirmed = await requestConfirmation({
-        title: 'Delete Base List?',
-        message: `Delete ${baseList.name}? Products in the catalog will stay available.`,
-        confirmLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        title: t('baseList.deleteTitle'),
+        message: t('baseList.deleteMessage', { name: baseList.name }),
+        confirmLabel: t('common.delete'),
+        cancelLabel: t('common.cancel'),
         variant: 'danger'
       });
 
@@ -348,23 +352,23 @@ const BaseList = memo(() => {
           closeBaseList();
         }
 
-        toast.success('Base List deleted.');
+        toast.success(t('baseList.deleted'));
       } catch (error) {
         toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to delete Base List.'
+          parseTrpcErrors(error)._general ?? t('baseList.failedToDelete')
         );
       }
     },
-    [closeBaseList, removeBaseList, selectedBaseListId]
+    [closeBaseList, removeBaseList, selectedBaseListId, t]
   );
 
   const removeItem = useCallback(
     async (item: TBaseListEntry) => {
       const confirmed = await requestConfirmation({
-        title: 'Remove product?',
-        message: `Remove ${item.title} from this Base List?`,
-        confirmLabel: 'Remove',
-        cancelLabel: 'Cancel',
+        title: t('baseList.removeProductTitle'),
+        message: t('baseList.removeProductMessage', { title: item.title }),
+        confirmLabel: t('common.remove'),
+        cancelLabel: t('common.cancel'),
         variant: 'danger'
       });
 
@@ -374,14 +378,14 @@ const BaseList = memo(() => {
 
       try {
         await removeBaseListItem({ id: item.id, baseListId: item.baseListId });
-        toast.success('Product removed from the Base List.');
+        toast.success(t('baseList.productRemoved'));
       } catch (error) {
         toast.error(
-          parseTrpcErrors(error)._general ?? 'Failed to remove product.'
+          parseTrpcErrors(error)._general ?? t('baseList.failedToRemoveProduct')
         );
       }
     },
-    [removeBaseListItem]
+    [removeBaseListItem, t]
   );
 
   if (!isAuthenticated) {
