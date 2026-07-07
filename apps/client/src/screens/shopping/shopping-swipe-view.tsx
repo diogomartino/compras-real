@@ -278,7 +278,7 @@ const ShoppingSwipeView = memo(
             className="pointer-events-none absolute inset-0 z-0 grid place-items-center bg-linear-to-l from-transparent via-zinc-700/65 to-zinc-500/85 text-white"
             style={{ opacity: checkOpacity }}
           >
-            <div className="grid place-items-center gap-3 rounded-[2rem] bg-black/25 px-8 py-6 text-center shadow-2xl">
+            <div className="grid place-items-center gap-3 rounded-2xl bg-black/25 px-8 py-6 text-center">
               <X className="size-14" />
               <span className="text-4xl font-black uppercase tracking-widest">
                 {reviewSkipped ? t('shopping.discard') : t('shopping.skip')}
@@ -289,7 +289,7 @@ const ShoppingSwipeView = memo(
             className="pointer-events-none absolute inset-0 z-0 grid place-items-center bg-linear-to-r from-transparent via-green-500/60 to-green-400/80 text-white"
             style={{ opacity: skipOpacity }}
           >
-            <div className="grid place-items-center gap-3 rounded-[2rem] bg-black/25 px-8 py-6 text-center shadow-2xl">
+            <div className="grid place-items-center gap-3 rounded-2xl bg-black/25 px-8 py-6 text-center">
               <Check className="size-14" />
               <span className="text-4xl font-black uppercase tracking-widest">
                 {t('shopping.gotIt')}
@@ -330,7 +330,7 @@ const ShoppingSwipeView = memo(
                   {liveUsers.slice(0, 3).map((user) => (
                     <Avatar
                       key={user.id}
-                      className="size-8 border-2 border-white/50 shadow-lg"
+                      className="size-8 border-2 border-white/50"
                     >
                       <AvatarImage src={user.avatarUrl ?? undefined} alt={user.name} />
                       <AvatarFallback>
@@ -339,7 +339,7 @@ const ShoppingSwipeView = memo(
                     </Avatar>
                   ))}
                   {liveUsers.length > 3 && (
-                    <div className="grid size-8 place-items-center rounded-full border-2 border-white/50 bg-black/50 text-xs font-bold shadow-lg">
+                    <div className="grid size-8 place-items-center rounded-full border-2 border-white/50 bg-black/50 text-xs font-bold">
                       +{liveUsers.length - 3}
                     </div>
                   )}
@@ -389,7 +389,7 @@ const ShoppingSwipeView = memo(
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
                   transition={{ duration: 0.18 }}
-                  className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/20 bg-black/65 px-3 py-2 text-sm font-semibold text-white shadow-xl shadow-black/20"
+                  className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/20 bg-black/65 px-3 py-2 text-sm font-semibold text-white"
                 >
                   <Avatar className="size-6 border border-white/30">
                     <AvatarImage
@@ -417,7 +417,7 @@ const ShoppingSwipeView = memo(
             <Stack gap="md">
               <Stack gap="sm">
                 <div>
-                  <span className="inline-block max-w-full rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-base font-semibold leading-tight text-white shadow-lg">
+                    <span className="inline-block max-w-full rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-base font-semibold leading-tight text-white">
                     {currentItem.title}
                   </span>
                 </div>
@@ -452,7 +452,7 @@ const ShoppingSwipeView = memo(
               <Inline justify="center" gap="lg" wrap={false}>
                 <Button
                   type="button"
-                  className="size-16 rounded-full bg-green-500 text-white shadow-lg shadow-green-950/30 hover:bg-green-500/90"
+                  className="size-16 rounded-full bg-green-600 text-white hover:bg-green-600/90"
                   disabled={isPending}
                   onClick={check}
                   aria-label={t('shopping.markChecked', {
@@ -464,7 +464,7 @@ const ShoppingSwipeView = memo(
                 <Button
                   type="button"
                   variant="outline"
-                  className="size-16 rounded-full border-white/30 bg-white/15 text-white shadow-lg hover:bg-white/25 hover:text-white"
+                  className="size-16 rounded-full border-white/30 bg-white/15 text-white hover:bg-white/25 hover:text-white"
                   disabled={isPending}
                   onClick={skip}
                   aria-label={

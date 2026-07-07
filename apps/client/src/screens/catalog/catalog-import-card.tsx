@@ -1,7 +1,7 @@
 import { Inline, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { WandSparkles } from 'lucide-react';
+import { Link2 } from 'lucide-react';
 import { memo, useMemo, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -18,11 +18,11 @@ const CatalogImportCard = memo(
     const extractDisabled = useMemo(() => isExtracting, [isExtracting]);
 
     return (
-      <Surface variant="muted" radius="2xl" padding="md">
+      <Surface variant="muted" radius="xl" padding="md">
         <Stack gap="md">
           <Inline gap="sm" wrap={false}>
-            <div className="grid size-10 place-items-center rounded-xl bg-background text-primary">
-              <WandSparkles className="size-5" />
+            <div className="grid size-10 place-items-center rounded-lg bg-background text-primary">
+              <Link2 className="size-5" />
             </div>
             <Stack gap="none">
               <Text weight="semibold">{t('catalog.import.title')}</Text>
@@ -35,7 +35,7 @@ const CatalogImportCard = memo(
             <Input
               value={value}
               onChange={onChange}
-              className="h-11 rounded-xl bg-background"
+              className="bg-background"
               placeholder={t('catalog.import.url')}
             />
             <Button

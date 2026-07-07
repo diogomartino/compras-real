@@ -27,7 +27,7 @@ const AuthGoogleCallback = memo(() => {
   return (
     <main className="grid min-h-dvh place-items-center bg-background px-4 text-foreground">
       <Surface
-        radius="2xl"
+        radius="xl"
         padding="lg"
         className="w-full max-w-sm text-center"
       >

@@ -132,10 +132,10 @@ const AddProductsDialog = memo(
             disabled={isAdded || isPending}
             onClick={() => toggleProduct(product.id)}
             className={cn(
-              'grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border p-3 text-left transition-colors',
+              'grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left transition-colors',
               isSelected
                 ? 'border-primary bg-primary/10'
-                : 'border-border bg-card hover:bg-accent/40',
+                : 'border-border/70 bg-card/75 hover:bg-accent/40',
               isAdded && 'opacity-50'
             )}
           >
@@ -170,7 +170,7 @@ const AddProductsDialog = memo(
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="max-h-[calc(100dvh-2rem)] gap-5 overflow-hidden rounded-3xl p-4 sm:max-w-3xl sm:p-6"
+          className="max-h-[calc(100dvh-1rem)] gap-5 overflow-hidden p-4 sm:max-w-3xl sm:p-6"
           close={close}
         >
           <DialogHeader>
@@ -185,7 +185,7 @@ const AddProductsDialog = memo(
             <Input
               value={query}
               onChange={onQueryChange}
-              className="h-11 rounded-xl pl-9"
+              className="pl-9"
               placeholder={t('home.addDialog.search')}
             />
           </div>

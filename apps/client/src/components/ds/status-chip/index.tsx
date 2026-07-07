@@ -7,15 +7,15 @@ const statusChipVariants = cva(
   {
     variants: {
       tone: {
-        neutral: 'border-border bg-card text-foreground',
-        muted: 'border-transparent bg-muted text-muted-foreground',
+        neutral: 'border-border/70 bg-card/70 text-foreground',
+        muted: 'border-transparent bg-muted/70 text-muted-foreground',
         pending:
           'border-yellow-500/25 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300',
         success:
           'border-green-500/25 bg-green-500/10 text-green-700 dark:text-green-300',
         skipped:
           'border-orange-500/25 bg-orange-500/10 text-orange-700 dark:text-orange-300',
-        info: 'border-blue-500/25 bg-blue-500/10 text-blue-700 dark:text-blue-300',
+        info: 'border-primary/20 bg-primary/10 text-primary',
         destructive: 'border-destructive/25 bg-destructive/10 text-destructive'
       },
       size: {

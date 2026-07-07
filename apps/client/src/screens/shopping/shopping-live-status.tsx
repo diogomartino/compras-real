@@ -48,7 +48,7 @@ const ShoppingLiveStatus = memo(
     return (
       <div
         className={cn(
-          'rounded-2xl border px-3 py-2 shadow-sm',
+          'rounded-xl border px-3 py-2',
           variant === 'overlay'
             ? 'pointer-events-none border-white/15 bg-black/45 text-white shadow-black/20'
             : 'border-border bg-muted/55 text-foreground'

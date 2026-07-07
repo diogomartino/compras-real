@@ -123,8 +123,8 @@ const Profile = memo(() => {
 
   return (
     <main className="min-h-dvh bg-background pb-28 text-foreground">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-        <Surface radius="2xl" padding="lg">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
+        <Surface radius="xl" padding="lg">
           <Inline justify="between" className="gap-4">
             <Inline gap="sm" wrap={false} className="min-w-0">
               <Avatar className="size-14">
@@ -147,7 +147,7 @@ const Profile = memo(() => {
           </Inline>
         </Surface>
 
-        <Surface radius="2xl" padding="lg">
+        <Surface radius="xl" padding="lg">
           <Stack gap="lg">
             <Stack gap="xs">
               <Text weight="semibold">{t('profile.options')}</Text>
@@ -192,7 +192,7 @@ const Profile = memo(() => {
             <Inline
               justify="between"
               wrap={false}
-              className="gap-4 rounded-2xl border border-border p-3"
+              className="gap-4 rounded-xl border border-border/70 bg-background/45 p-3"
             >
               <Stack gap="xs" className="min-w-0">
                 <Text size="sm" weight="semibold">
@@ -214,7 +214,7 @@ const Profile = memo(() => {
             <Inline
               justify="between"
               wrap={false}
-              className="gap-4 rounded-2xl border border-border p-3"
+              className="gap-4 rounded-xl border border-border/70 bg-background/45 p-3"
             >
               <Stack gap="xs" className="min-w-0">
                 <Text size="sm" weight="semibold">
@@ -245,7 +245,7 @@ const Profile = memo(() => {
             <Inline
               justify="between"
               wrap={false}
-              className="gap-4 rounded-2xl border border-border p-3"
+              className="gap-4 rounded-xl border border-border/70 bg-background/45 p-3"
             >
               <Stack gap="xs" className="min-w-0">
                 <Text size="sm" weight="semibold">
@@ -267,7 +267,7 @@ const Profile = memo(() => {
             <Inline
               justify="between"
               wrap={false}
-              className="gap-4 rounded-2xl border border-border p-3"
+              className="gap-4 rounded-xl border border-border/70 bg-background/45 p-3"
             >
               <Stack gap="xs" className="min-w-0">
                 <Text size="sm" weight="semibold">
@@ -288,7 +288,7 @@ const Profile = memo(() => {
           </Stack>
         </Surface>
 
-        <Surface radius="2xl" padding="lg">
+        <Surface radius="xl" padding="lg">
           <Inline justify="between" wrap={false} className="gap-4">
             <Stack gap="xs" className="min-w-0">
               <Text weight="semibold">{t('profile.shoppingHistory')}</Text>
@@ -296,7 +296,7 @@ const Profile = memo(() => {
                 {t('profile.shoppingHistoryDescription')}
               </Text>
             </Stack>
-            <Button asChild variant="outline" className="shrink-0 rounded-xl">
+            <Button asChild variant="outline" className="shrink-0">
               <Link to="/shopping-history">
                 <History className="size-4" />
                 {t('common.open')}
@@ -305,7 +305,7 @@ const Profile = memo(() => {
           </Inline>
         </Surface>
 
-        <Surface radius="2xl" padding="lg">
+        <Surface radius="xl" padding="lg">
           <form className="space-y-5" onSubmit={onSubmit}>
             <Stack gap="xs">
               <Text weight="semibold">{t('profile.changePassword')}</Text>

@@ -49,7 +49,7 @@ const ResetPassword = memo(() => {
 
   return (
     <main className="grid min-h-dvh place-items-center bg-background px-4 text-foreground">
-      <Surface radius="2xl" padding="lg" className="w-full max-w-md">
+      <Surface radius="xl" padding="lg" className="w-full max-w-md">
         <form className="space-y-5" onSubmit={onSubmit}>
           <Stack gap="xs">
             <Text weight="semibold">{t('resetPassword.title')}</Text>

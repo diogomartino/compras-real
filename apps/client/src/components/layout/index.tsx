@@ -1,7 +1,5 @@
 import { cn } from '@/lib/utils';
 import { memo } from 'react';
-import { Footer } from '../footer';
-import { Header } from '../header';
 
 type TLayoutProps = {
   children: React.ReactNode;
@@ -23,14 +21,12 @@ const Layout = memo(
     }
 
     return (
-      <div className="h-screen flex flex-col overflow-hidden">
-        <Header />
-        <div className="flex flex-1 overflow-hidden">
+      <div className="min-h-dvh bg-background text-foreground">
+        <div className="flex min-h-dvh">
           {sidebar}
-          <div className="flex-1 flex flex-col overflow-y-auto">
-            <main className={cn('flex-1 p-4', className)}>{content}</main>
-            <Footer />
-          </div>
+          <main className={cn('min-w-0 flex-1 p-4', className)}>
+            {content}
+          </main>
         </div>
       </div>
     );

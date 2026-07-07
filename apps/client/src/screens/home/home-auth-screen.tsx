@@ -13,7 +13,6 @@ import {
   useRegister,
   useRequestPasswordReset
 } from '@/mutations/auth';
-import { CheckCircle2, Home, Sparkles } from 'lucide-react';
 import { memo, useCallback, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -255,73 +254,44 @@ const RegisterForm = memo(() => {
 const HomeAuthScreen = memo(() => {
   const { t } = useTranslation();
   return (
-    <main className="min-h-dvh overflow-hidden bg-background text-foreground">
-      <div className="pointer-events-none fixed -left-20 -top-20 size-80 rounded-full bg-primary/15 blur-3xl" />
-      <div className="pointer-events-none fixed -bottom-24 -right-20 size-96 rounded-full bg-accent/60 blur-3xl" />
-      <div className="relative mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
-        <Stack gap="lg" className="mx-auto max-w-xl lg:mx-0">
-          <Stack gap="md">
+    <main className="min-h-dvh bg-background text-foreground">
+      <div className="mx-auto grid min-h-dvh w-full max-w-5xl content-center gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[0.9fr_1fr] lg:px-8">
+        <Stack gap="lg" className="mx-auto max-w-xl self-center lg:mx-0">
+          <Stack gap="sm">
+            <span className="w-fit rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+              Compras Real
+            </span>
             <Heading level={1} size="display">
               {t('home.auth.heroTitle')}
             </Heading>
-            <Text size="lg" tone="muted" className="max-w-lg">
+            <Text size="lg" tone="muted" className="max-w-md">
               {t('home.auth.heroSubtitle')}
             </Text>
           </Stack>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Surface variant="muted" radius="2xl" padding="md">
-              <Sparkles className="mb-3 size-5 text-primary" />
-              <Text weight="semibold">{t('home.auth.featureCatalog')}</Text>
-              <Text size="sm" tone="muted">
-                {t('home.auth.featureCatalog')}
-              </Text>
-            </Surface>
-            <Surface variant="muted" radius="2xl" padding="md">
-              <Home className="mb-3 size-5 text-primary" />
-              <Text weight="semibold">{t('home.auth.featureBaseLists')}</Text>
-              <Text size="sm" tone="muted">
-                {t('home.auth.featureBaseLists')}
-              </Text>
-            </Surface>
-            <Surface variant="muted" radius="2xl" padding="md">
-              <CheckCircle2 className="mb-3 size-5 text-primary" />
-              <Text weight="semibold">{t('home.auth.featureRealtime')}</Text>
-              <Text size="sm" tone="muted">
-                {t('home.auth.featureRealtime')}
-              </Text>
-            </Surface>
-          </div>
         </Stack>
 
         <Surface
           variant="elevated"
-          radius="2xl"
+          radius="xl"
           padding="lg"
-          className="mx-auto w-full max-w-md bg-card/88 backdrop-blur"
+          className="mx-auto w-full max-w-md self-center bg-card/90"
         >
-          <Stack gap="lg">
-            <Stack gap="xs">
+          <Stack gap="md">
+            <Stack gap="xs" className="text-left">
               <Heading level={2} size="h3">
-                {t('home.auth.heroTitle')}
+                {t('home.auth.logIn')}
               </Heading>
               <Text tone="muted">
-                {t('home.auth.heroSubtitle')}
+                {t('components.authDialogs.loginDescription')}
               </Text>
             </Stack>
 
             <Tabs defaultValue="login" className="gap-5">
-              <TabsList className="grid h-11 w-full grid-cols-2 rounded-2xl">
-                <TabsTrigger
-                  className="rounded-xl data-[state=active]:from-primary data-[state=active]:to-primary data-[state=active]:text-primary-foreground"
-                  value="login"
-                >
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">
                   {t('home.auth.loginTab')}
                 </TabsTrigger>
-                <TabsTrigger
-                  className="rounded-xl data-[state=active]:from-primary data-[state=active]:to-primary data-[state=active]:text-primary-foreground"
-                  value="register"
-                >
+                <TabsTrigger value="register">
                   {t('home.auth.registerTab')}
                 </TabsTrigger>
               </TabsList>

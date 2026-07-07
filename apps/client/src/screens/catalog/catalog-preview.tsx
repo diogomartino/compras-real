@@ -33,7 +33,7 @@ const CatalogPreview = memo(({ form }: TCatalogPreviewProps) => {
 
   return (
     <aside>
-      <Surface radius="2xl" padding="lg" className="sticky top-6">
+      <Surface radius="xl" padding="lg" className="sticky top-6">
         <Stack gap="md">
           <Media src={form.imageUrl} alt={form.title} size="xl" />
           <Stack gap="xs">

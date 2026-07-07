@@ -44,7 +44,7 @@ const BaseListCard = memo(
     }, [baseList, onRemove]);
 
     return (
-      <Surface radius="2xl" padding="md">
+      <Surface radius="xl" padding="md">
         <Inline justify="between" className="gap-3" wrap={false}>
           <Stack gap="xs" className="min-w-0">
             <Inline gap="sm" wrap={false} className="min-w-0">
@@ -63,7 +63,7 @@ const BaseListCard = memo(
           </Stack>
 
           <Inline gap="xs" wrap={false}>
-            <Button type="button" className="rounded-xl" onClick={open}>
+            <Button type="button" onClick={open}>
               {t('baseList.open')}
             </Button>
             <DropdownMenu>
@@ -113,8 +113,8 @@ const BaseListOverview = memo(
     const { t } = useTranslation();
 
     return (
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-        <Surface radius="2xl" padding="md">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
+        <Surface radius="xl" padding="md" className="bg-card/85">
           <Inline justify="between" className="gap-3">
             <Stack gap="xs">
               <Text weight="semibold">{t('baseList.title')}</Text>
@@ -122,7 +122,7 @@ const BaseListOverview = memo(
                 {t('baseList.description')}
               </Text>
             </Stack>
-            <Button onClick={onCreate} className="rounded-xl">
+            <Button onClick={onCreate}>
               <Plus className="size-4" />
               {t('baseList.createBaseList')}
             </Button>
@@ -130,19 +130,19 @@ const BaseListOverview = memo(
         </Surface>
 
         {errorMessage && (
-          <Surface radius="2xl" padding="md" variant="muted">
+          <Surface radius="xl" padding="md" variant="muted">
             <Text tone="destructive">{errorMessage}</Text>
           </Surface>
         )}
 
         {isLoading && (
-          <Surface radius="2xl" padding="lg">
+          <Surface radius="xl" padding="lg">
             <Text tone="muted">{t('baseList.loadingLists')}</Text>
           </Surface>
         )}
 
         {!isLoading && baseLists.length === 0 && (
-          <Surface radius="2xl" padding="lg" className="text-center">
+          <Surface radius="xl" padding="lg" className="text-center">
             <Stack gap="sm" align="center">
               <ListChecks className="size-8 text-muted-foreground" />
               <Text weight="semibold">{t('baseList.noListsYet')}</Text>

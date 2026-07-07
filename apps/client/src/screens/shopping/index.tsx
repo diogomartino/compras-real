@@ -21,10 +21,10 @@ import {
 import type { TOngoingListEntry, TOngoingListItemStatus } from '@myapp/shared';
 import {
   CheckCircle2,
+  Hand,
   List,
   RotateCcw,
-  ShoppingCart,
-  Sparkles
+  ShoppingCart
 } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -285,12 +285,12 @@ const Shopping = memo(() => {
           'mx-auto flex min-h-dvh w-full flex-col',
           view === 'swipe'
             ? 'max-w-none gap-0 p-0'
-            : 'max-w-4xl gap-4 px-4 py-4 sm:px-6 lg:px-8'
+            : 'max-w-3xl gap-4 px-4 py-4 sm:px-6'
         )}
       >
         {view === 'list' && (
           <Surface
-            radius="2xl"
+            radius="xl"
             padding="md"
             className="bg-card/95 backdrop-blur"
           >
@@ -318,7 +318,7 @@ const Shopping = memo(() => {
                     className="rounded-full"
                     onClick={showSwipeView}
                   >
-                    <Sparkles className="size-4" />
+                    <Hand className="size-4" />
                     {t('shopping.swipe')}
                   </Button>
                   <Button
@@ -370,7 +370,7 @@ const Shopping = memo(() => {
         )}
 
         {shouldReviewSkipped && (
-          <Surface radius="2xl" padding="lg" className="text-center">
+          <Surface radius="xl" padding="lg" className="text-center">
             <Stack gap="md" align="center">
               <RotateCcw className="size-10 text-orange-500" />
               <Text weight="semibold">{t('shopping.reviewSkippedTitle')}</Text>
@@ -382,7 +382,6 @@ const Shopping = memo(() => {
               <Inline justify="center">
                 <Button
                   type="button"
-                  className="rounded-xl"
                   onClick={startSkippedReview}
                 >
                   {t('shopping.reviewSkipped')}
@@ -390,7 +389,6 @@ const Shopping = memo(() => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="rounded-xl"
                   onClick={discardSkipped}
                 >
                   {t('shopping.discardSkipped')}
@@ -407,7 +405,7 @@ const Shopping = memo(() => {
               view === 'swipe' ? 'min-h-dvh p-4' : 'min-h-[calc(100dvh-12rem)]'
             )}
           >
-            <Surface radius="2xl" padding="lg" className="w-full max-w-md text-center">
+            <Surface radius="xl" padding="lg" className="w-full max-w-md text-center">
               <Stack gap="md" align="center">
                 <CheckCircle2 className="size-12 text-green-600" />
                 <Stack gap="xs" align="center">
@@ -423,7 +421,6 @@ const Shopping = memo(() => {
                 </Stack>
                 <Button
                   type="button"
-                  className="rounded-xl"
                   disabled={finishShoppingPending}
                   onClick={finish}
                 >

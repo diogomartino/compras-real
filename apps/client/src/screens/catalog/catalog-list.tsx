@@ -35,20 +35,20 @@ const CatalogList = memo(
     const { t } = useTranslation();
 
     return (
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-        <Surface radius="2xl" padding="md">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
+        <Surface radius="xl" padding="md" className="bg-card/85">
           <Inline justify="between" className="gap-3">
             <div className="relative min-w-64 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={query}
                 onChange={onQueryChange}
-                className="h-11 rounded-xl pl-9"
+                className="pl-9"
                 placeholder={t('catalog.search')}
               />
             </div>
             <Inline gap="sm" wrap={false}>
-              <Button asChild variant="outline" className="rounded-xl">
+              <Button asChild variant="outline">
                 <Link to="/categories">
                   <FolderTree className="size-4" />
                   <span className="sr-only sm:not-sr-only">
@@ -56,7 +56,7 @@ const CatalogList = memo(
                   </span>
                 </Link>
               </Button>
-              <Button onClick={onCreate} className="rounded-xl">
+              <Button onClick={onCreate}>
                 <Plus className="size-4" />
                 {t('catalog.addProduct')}
               </Button>
@@ -65,14 +65,14 @@ const CatalogList = memo(
         </Surface>
 
         {errorMessage && (
-          <Surface radius="2xl" padding="md" variant="muted">
+          <Surface radius="xl" padding="md" variant="muted">
             <Text tone="destructive">{errorMessage}</Text>
           </Surface>
         )}
 
         <Stack gap="sm">
           {isLoading && (
-            <Surface radius="2xl" padding="lg">
+            <Surface radius="xl" padding="lg">
               <Text tone="muted">{t('catalog.loadingProducts')}</Text>
             </Surface>
           )}
@@ -89,7 +89,7 @@ const CatalogList = memo(
             ))}
 
           {!isLoading && products.length === 0 && (
-            <Surface radius="2xl" padding="lg" className="text-center">
+            <Surface radius="xl" padding="lg" className="text-center">
               <Stack gap="sm" align="center">
                 <PackageSearch className="size-8 text-muted-foreground" />
                 <Text weight="semibold">{t('catalog.noProductsFound')}</Text>

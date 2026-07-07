@@ -11,7 +11,7 @@ import {
 } from 'react';
 
 const mediaVariants = cva(
-  'relative shrink-0 overflow-hidden border border-border bg-muted text-muted-foreground',
+  'relative shrink-0 overflow-hidden border border-border/70 bg-muted text-muted-foreground',
   {
     variants: {
       size: {
@@ -24,7 +24,7 @@ const mediaVariants = cva(
       shape: {
         square: 'rounded-xl',
         circle: 'rounded-full',
-        soft: 'rounded-2xl'
+        soft: 'rounded-xl'
       }
     },
     defaultVariants: {
@@ -79,10 +79,10 @@ const Media = memo(
             onError={() => setImageFailed(true)}
           />
         ) : (
-          <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary)/0.22),transparent_32%),linear-gradient(135deg,hsl(var(--muted)),hsl(var(--accent)/0.5))]">
+          <div className="grid size-full place-items-center bg-muted">
             {fallback ??
               (initials ? (
-                <span className="text-sm font-black tracking-tight text-primary/80">
+                <span className="text-sm font-semibold tracking-tight text-primary/80">
                   {initials}
                 </span>
               ) : (

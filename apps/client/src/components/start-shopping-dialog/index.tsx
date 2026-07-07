@@ -10,13 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/features/auth/hooks';
 import type { TOngoingListDetails } from '@myapp/shared';
-import {
-  AlertTriangle,
-  ImageOff,
-  Layers3,
-  ListChecks,
-  ShoppingCart
-} from 'lucide-react';
+import { AlertTriangle, ImageOff, ShoppingCart } from 'lucide-react';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -95,13 +89,13 @@ const StartShoppingDialog = memo(
           </DialogHeader>
 
           {isLoading && (
-            <Surface radius="2xl" padding="lg" variant="muted">
+            <Surface radius="xl" padding="lg" variant="muted">
               <Text tone="muted">{t('components.startShopping.loading')}</Text>
             </Surface>
           )}
 
           {!isLoading && !hasItems && (
-            <Surface radius="2xl" padding="lg" className="text-center">
+            <Surface radius="xl" padding="lg" className="text-center">
               <Stack gap="md" align="center">
                 <ShoppingCart className="size-10 text-muted-foreground" />
                 <Stack gap="xs" align="center">
@@ -112,11 +106,7 @@ const StartShoppingDialog = memo(
                     {t('components.startShopping.emptyDescription')}
                   </Text>
                 </Stack>
-                <Button
-                  type="button"
-                  className="rounded-xl"
-                  onClick={onAddProducts}
-                >
+                <Button type="button" onClick={onAddProducts}>
                   {t('components.startShopping.addProducts')}
                 </Button>
               </Stack>
@@ -125,36 +115,27 @@ const StartShoppingDialog = memo(
 
           {!isLoading && hasItems && (
             <Stack gap="md">
-              <div className="grid grid-cols-3 gap-2">
-                <Surface radius="2xl" padding="md" variant="muted">
-                  <Stack gap="xs">
-                    <ShoppingCart className="size-5 text-primary" />
-                    <Text weight="semibold">{items.length}</Text>
-                    <Text size="xs" tone="muted">
-                      {t('components.startShopping.products')}
-                    </Text>
-                  </Stack>
-                </Surface>
-                <Surface radius="2xl" padding="md" variant="muted">
-                  <Stack gap="xs">
-                    <Layers3 className="size-5 text-primary" />
-                    <Text weight="semibold">{categoryGroups.length}</Text>
-                    <Text size="xs" tone="muted">
-                      {t('components.startShopping.categories')}
-                    </Text>
-                  </Stack>
-                </Surface>
-                <Surface radius="2xl" padding="md" variant="muted">
-                  <Stack gap="xs">
-                    <ListChecks className="size-5 text-primary" />
-                    <Text weight="semibold" className="capitalize">
-                      {defaultMode}
-                    </Text>
-                    <Text size="xs" tone="muted">
-                      {t('components.startShopping.defaultMode')}
-                    </Text>
-                  </Stack>
-                </Surface>
+              <div className="grid grid-cols-3 overflow-hidden rounded-xl border border-border/70 bg-card/70 text-center">
+                <div className="border-r border-border/70 p-3">
+                  <Text weight="semibold">{items.length}</Text>
+                  <Text size="xs" tone="muted">
+                    {t('components.startShopping.products')}
+                  </Text>
+                </div>
+                <div className="border-r border-border/70 p-3">
+                  <Text weight="semibold">{categoryGroups.length}</Text>
+                  <Text size="xs" tone="muted">
+                    {t('components.startShopping.categories')}
+                  </Text>
+                </div>
+                <div className="p-3">
+                  <Text weight="semibold" className="capitalize">
+                    {defaultMode}
+                  </Text>
+                  <Text size="xs" tone="muted">
+                    {t('components.startShopping.defaultMode')}
+                  </Text>
+                </div>
               </div>
 
               {(uncategorizedCount > 0 || missingImageCount > 0) && (
@@ -163,7 +144,7 @@ const StartShoppingDialog = memo(
                     <Inline
                       gap="sm"
                       wrap={false}
-                      className="rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-orange-900"
+                      className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-orange-900"
                     >
                       <AlertTriangle className="size-4 shrink-0" />
                       <Text size="sm">
@@ -177,7 +158,7 @@ const StartShoppingDialog = memo(
                     <Inline
                       gap="sm"
                       wrap={false}
-                      className="rounded-2xl border border-muted bg-muted/60 px-3 py-2"
+                      className="rounded-xl border border-muted bg-muted/60 px-3 py-2"
                     >
                       <ImageOff className="size-4 shrink-0 text-muted-foreground" />
                       <Text size="sm">
@@ -194,7 +175,7 @@ const StartShoppingDialog = memo(
                 <Text size="sm" weight="semibold">
                   {t('components.startShopping.categories')}
                 </Text>
-                <div className="flex max-h-44 flex-wrap gap-2 overflow-y-auto rounded-2xl border border-border p-3">
+                <div className="flex max-h-44 flex-wrap gap-2 overflow-y-auto rounded-xl border border-border/70 p-3">
                   {categoryGroups.map((group) => (
                     <StatusChip key={group.categoryName}>
                       {group.categoryName}
@@ -207,31 +188,16 @@ const StartShoppingDialog = memo(
           )}
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-xl"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t('common.cancel')}
             </Button>
             {hasItems && (
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-xl"
-                onClick={onReviewList}
-              >
+              <Button type="button" variant="outline" onClick={onReviewList}>
                 {t('components.startShopping.reviewList')}
               </Button>
             )}
             {hasItems && (
-              <Button
-                type="button"
-                className="rounded-xl"
-                disabled={isPending}
-                onClick={onStartShopping}
-              >
+              <Button type="button" disabled={isPending} onClick={onStartShopping}>
                 {isPending
                   ? t('components.startShopping.starting')
                   : t('components.startShopping.startShopping')}

@@ -103,7 +103,7 @@ const CatalogForm = memo(
     return (
       <main className="min-h-dvh bg-background text-foreground">
         <form
-          className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col px-4 py-4 sm:px-6 lg:px-8"
+          className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col px-4 py-4 sm:px-6"
           onSubmit={onSubmit}
         >
           <Inline justify="between" wrap={false} className="mb-6 gap-3">
@@ -125,7 +125,7 @@ const CatalogForm = memo(
 
           <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
             <Stack gap="lg">
-              <Surface radius="2xl" padding="lg">
+              <Surface radius="xl" padding="lg">
                 <Stack gap="lg">
                   {errors._general && (
                     <Text tone="destructive" role="alert">
@@ -149,7 +149,6 @@ const CatalogForm = memo(
                         value={values.title}
                         error={errors.title}
                         onChange={onTitleChange}
-                        className="h-11 rounded-xl"
                         placeholder={t('catalog.form.productNamePlaceholder')}
                       />
                     </label>
@@ -162,7 +161,6 @@ const CatalogForm = memo(
                         value={values.imageUrl}
                         error={errors.imageUrl}
                         onChange={onImageUrlChange}
-                        className="h-11 rounded-xl"
                         placeholder="https://example.com/image.jpg"
                       />
                     </label>
@@ -191,7 +189,6 @@ const CatalogForm = memo(
                         value={values.sourceUrl}
                         error={errors.sourceUrl}
                         onChange={onSourceUrlChange}
-                        className="h-11 rounded-xl"
                         placeholder={t('catalog.form.optional')}
                       />
                     </label>
@@ -207,7 +204,6 @@ const CatalogForm = memo(
                         value={values.defaultQuantityAmount}
                         error={errors.defaultQuantityAmount}
                         onChange={onDefaultQuantityAmountChange}
-                        className="h-11 rounded-xl"
                       />
                     </label>
 
@@ -219,7 +215,7 @@ const CatalogForm = memo(
                         value={values.defaultQuantityUnit}
                         onValueChange={onDefaultQuantityUnitChange}
                       >
-                        <SelectTrigger className="h-11 w-full rounded-xl">
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder={t('catalog.form.selectUnit')} />
                         </SelectTrigger>
                         <SelectContent>

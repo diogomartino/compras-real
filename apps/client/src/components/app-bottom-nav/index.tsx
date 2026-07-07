@@ -64,13 +64,13 @@ const AppBottomNav = memo(() => {
 
   return (
     <>
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/92 px-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur sm:left-1/2 sm:max-w-lg sm:-translate-x-1/2 sm:rounded-t-3xl sm:border-x">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/94 px-2 pb-[calc(0.6rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur sm:left-1/2 sm:max-w-lg sm:-translate-x-1/2 sm:border-x">
         <div className="grid grid-cols-5 gap-1">
           <Button
             asChild
             variant="ghost"
             className={cn(
-              'h-14 flex-col gap-1 rounded-2xl',
+              'h-14 flex-col gap-1 rounded-xl',
               isHome && 'text-primary'
             )}
             aria-current={isHome ? 'page' : undefined}
@@ -84,7 +84,7 @@ const AppBottomNav = memo(() => {
             asChild
             variant="ghost"
             className={cn(
-              'h-14 flex-col gap-1 rounded-2xl',
+              'h-14 flex-col gap-1 rounded-xl',
               isBaseList && 'text-primary'
             )}
             aria-current={isBaseList ? 'page' : undefined}
@@ -98,7 +98,7 @@ const AppBottomNav = memo(() => {
           </Button>
           <Button
             variant="default"
-            className="-mt-5 h-16 flex-col gap-1 rounded-3xl bg-primary px-3 text-primary-foreground shadow-lg shadow-primary/30 hover:bg-primary/90"
+            className="h-14 flex-col gap-1 rounded-xl bg-primary px-3 text-primary-foreground hover:bg-primary/90"
             onClick={openStartShoppingDialog}
             disabled={startShoppingPending}
           >
@@ -109,7 +109,7 @@ const AppBottomNav = memo(() => {
             asChild
             variant="ghost"
             className={cn(
-              'h-14 flex-col gap-1 rounded-2xl',
+              'h-14 flex-col gap-1 rounded-xl',
               isCatalog && 'text-primary'
             )}
             aria-current={isCatalog ? 'page' : undefined}
@@ -125,7 +125,7 @@ const AppBottomNav = memo(() => {
             asChild
             variant="ghost"
             className={cn(
-              'h-14 flex-col gap-1 rounded-2xl',
+              'h-14 flex-col gap-1 rounded-xl',
               isProfile && 'text-primary'
             )}
             aria-current={isProfile ? 'page' : undefined}

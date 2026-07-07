@@ -47,7 +47,7 @@ const BaseListManagementForm = memo(
     return (
       <main className="min-h-dvh bg-background text-foreground">
         <form
-          className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 py-4 sm:px-6 lg:px-8"
+          className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-4 py-4 sm:px-6"
           onSubmit={onSubmit}
         >
           <Inline justify="between" wrap={false} className="mb-6 gap-3">
@@ -67,7 +67,7 @@ const BaseListManagementForm = memo(
             </Inline>
           </Inline>
 
-          <Surface radius="2xl" padding="lg">
+          <Surface radius="xl" padding="lg">
             <Stack gap="lg">
               <Stack gap="sm">
                 <Text weight="semibold">
@@ -94,7 +94,6 @@ const BaseListManagementForm = memo(
                   value={values.name}
                   error={errors.name}
                   onChange={onNameChange}
-                  className="h-11 rounded-xl"
                   placeholder={t('baseList.namePlaceholder')}
                 />
               </label>

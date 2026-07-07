@@ -109,7 +109,7 @@ const EditOngoingItemDialog = memo(
 
     return (
       <Dialog open={open} onOpenChange={close}>
-        <DialogContent className="rounded-3xl" close={close}>
+        <DialogContent close={close}>
           <form className="grid gap-4" onSubmit={submit}>
             <DialogHeader>
               <DialogTitle>{t('home.editQuantity.title')}</DialogTitle>
@@ -128,7 +128,6 @@ const EditOngoingItemDialog = memo(
                   value={values.quantityAmount}
                   error={errors.quantityAmount}
                   onChange={onQuantityAmountChange}
-                  className="h-11 rounded-xl"
                 />
               </label>
 
@@ -140,7 +139,7 @@ const EditOngoingItemDialog = memo(
                   value={values.quantityUnit}
                   onValueChange={onQuantityUnitChange}
                 >
-                  <SelectTrigger className="h-11 w-full rounded-xl">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={t('home.editQuantity.selectUnit')} />
                   </SelectTrigger>
                   <SelectContent>

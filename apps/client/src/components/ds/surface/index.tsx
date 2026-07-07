@@ -5,11 +5,11 @@ import { memo, type HTMLAttributes } from 'react';
 const surfaceVariants = cva('min-w-0', {
   variants: {
     variant: {
-      default: 'border border-border bg-card text-card-foreground shadow-sm',
-      muted: 'border border-border bg-muted/40 text-foreground',
-      outline: 'border border-border bg-transparent text-foreground',
+      default: 'border border-border/70 bg-card/75 text-card-foreground',
+      muted: 'border border-transparent bg-muted/45 text-foreground',
+      outline: 'border border-border/70 bg-transparent text-foreground',
       elevated:
-        'border border-border bg-card text-card-foreground shadow-lg shadow-black/5',
+        'border border-border/70 bg-card text-card-foreground shadow-sm shadow-black/5',
       ghost: 'bg-transparent text-foreground'
     },
     padding: {
@@ -22,7 +22,7 @@ const surfaceVariants = cva('min-w-0', {
       md: 'rounded-md',
       lg: 'rounded-lg',
       xl: 'rounded-xl',
-      '2xl': 'rounded-2xl'
+      '2xl': 'rounded-xl'
     }
   },
   defaultVariants: {

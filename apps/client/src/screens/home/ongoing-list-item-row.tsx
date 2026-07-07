@@ -34,7 +34,7 @@ const OngoingListItemRow = memo(
     }, [item, onRemove]);
 
     return (
-      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-3 sm:p-4">
+      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border/70 bg-card/75 p-3 transition-colors active:bg-accent/35 sm:p-4">
         <Media src={item.imageUrl} alt={item.title} size="lg" />
 
         <div className="min-w-0 space-y-2">

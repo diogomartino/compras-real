@@ -160,13 +160,13 @@ const HomeDashboard = memo(() => {
   );
 
   return (
-    <main className="min-h-dvh bg-background pb-28 text-foreground">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-        <Surface variant="default" radius="2xl" padding="md">
+    <main className="min-h-dvh bg-background pb-24 text-foreground">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
+        <Surface variant="default" radius="xl" padding="md" className="bg-card/85">
           <Stack gap="md">
             <Inline justify="between" className="gap-3" wrap={false}>
               <Inline gap="sm" wrap={false} className="min-w-0">
-                <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                   <ShoppingBasket className="size-5" />
                 </div>
                 <Stack gap="none" className="min-w-0">
@@ -180,7 +180,7 @@ const HomeDashboard = memo(() => {
               </Inline>
               <Button
                 type="button"
-                className="shrink-0 rounded-xl"
+                className="shrink-0"
                 onClick={openAddDialog}
               >
                 <Plus className="size-4" />
@@ -195,7 +195,7 @@ const HomeDashboard = memo(() => {
               <Input
                 value={query}
                 onChange={onQueryChange}
-                className="h-11 rounded-xl pl-9"
+                className="pl-9"
                 placeholder={t('home.searchOngoingProducts')}
               />
             </div>
@@ -203,19 +203,19 @@ const HomeDashboard = memo(() => {
         </Surface>
 
         {ongoingListError && (
-          <Surface radius="2xl" padding="md" variant="muted">
+          <Surface radius="xl" padding="md" variant="muted">
             <Text tone="destructive">{ongoingListError.message}</Text>
           </Surface>
         )}
 
         {ongoingListLoading && (
-          <Surface radius="2xl" padding="lg">
+          <Surface radius="xl" padding="lg">
             <Text tone="muted">{t('home.loadingOngoingList')}</Text>
           </Surface>
         )}
 
         {!ongoingListLoading && visibleItems.length === 0 && (
-          <Surface radius="2xl" padding="lg" className="text-center">
+          <Surface radius="xl" padding="lg" className="text-center">
             <Stack gap="sm" align="center">
               <PackagePlus className="size-8 text-muted-foreground" />
               <Text weight="semibold">{t('home.noProductsInOngoingList')}</Text>
@@ -224,7 +224,7 @@ const HomeDashboard = memo(() => {
               </Text>
               <Button
                 type="button"
-                className="mt-2 rounded-xl"
+                className="mt-2"
                 onClick={openAddDialog}
               >
                 <Plus className="size-4" />
@@ -259,7 +259,7 @@ const HomeDashboard = memo(() => {
         )}
 
         {!productsLoading && products.length === 0 && (
-          <Surface variant="muted" radius="2xl" padding="md">
+          <Surface variant="muted" radius="xl" padding="md">
             <Inline justify="between" wrap={false}>
               <Stack gap="xs">
                 <Text weight="semibold">{t('home.catalogIsEmpty')}</Text>

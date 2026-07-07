@@ -47,8 +47,8 @@ const BaseListList = memo(
     );
 
     return (
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-        <Surface radius="2xl" padding="md">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
+        <Surface radius="xl" padding="md" className="bg-card/85">
           <Stack gap="md">
             <Inline justify="between" className="gap-3">
               <Inline gap="sm" wrap={false} className="min-w-0">
@@ -74,7 +74,7 @@ const BaseListList = memo(
                   </Text>
                 </Stack>
               </Inline>
-              <Button onClick={onCreate} className="rounded-xl">
+              <Button onClick={onCreate}>
                 <Plus className="size-4" />
                 {t('baseList.addProduct')}
               </Button>
@@ -85,7 +85,7 @@ const BaseListList = memo(
               <Input
                 value={query}
                 onChange={onQueryChange}
-                className="h-11 rounded-xl pl-9"
+                className="pl-9"
                 placeholder={t('baseList.searchProducts')}
               />
             </div>
@@ -93,19 +93,19 @@ const BaseListList = memo(
         </Surface>
 
         {errorMessage && (
-          <Surface radius="2xl" padding="md" variant="muted">
+          <Surface radius="xl" padding="md" variant="muted">
             <Text tone="destructive">{errorMessage}</Text>
           </Surface>
         )}
 
         {isLoading && (
-          <Surface radius="2xl" padding="lg">
+          <Surface radius="xl" padding="lg">
             <Text tone="muted">{t('baseList.loading')}</Text>
           </Surface>
         )}
 
         {!isLoading && itemCount === 0 && (
-          <Surface radius="2xl" padding="lg" className="text-center">
+          <Surface radius="xl" padding="lg" className="text-center">
             <Stack gap="sm" align="center">
               <ListChecks className="size-8 text-muted-foreground" />
               <Text weight="semibold">{t('baseList.noProductsFound')}</Text>

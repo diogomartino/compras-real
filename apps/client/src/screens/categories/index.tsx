@@ -124,7 +124,7 @@ const Categories = memo(() => {
 
   return (
     <main className="min-h-dvh bg-background pb-28 text-foreground">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
         <Inline justify="between" wrap={false} className="gap-3">
           <Button
             type="button"
@@ -137,7 +137,7 @@ const Categories = memo(() => {
           <Text weight="semibold">{t('categories.title')}</Text>
         </Inline>
 
-        <Surface radius="2xl" padding="lg">
+        <Surface radius="xl" padding="lg">
           <form className="space-y-4" onSubmit={submit}>
             <Stack gap="xs">
               <Text weight="semibold">
@@ -157,7 +157,6 @@ const Categories = memo(() => {
             <Input
               {...r('name')}
               error={errors.name}
-              className="h-11 rounded-xl"
               placeholder={t('categories.placeholder')}
               disabled={isPending}
             />
@@ -178,24 +177,24 @@ const Categories = memo(() => {
         </Surface>
 
         {error && (
-          <Surface radius="2xl" padding="md" variant="muted">
+          <Surface radius="xl" padding="md" variant="muted">
             <Text tone="destructive">{error.message}</Text>
           </Surface>
         )}
 
         <Stack gap="sm">
           {isLoading && (
-            <Surface radius="2xl" padding="lg">
+            <Surface radius="xl" padding="lg">
               <Text tone="muted">{t('categories.loading')}</Text>
             </Surface>
           )}
           {!isLoading && categories.length === 0 && (
-            <Surface radius="2xl" padding="lg" className="text-center">
+            <Surface radius="xl" padding="lg" className="text-center">
               <Text tone="muted">{t('categories.empty')}</Text>
             </Surface>
           )}
           {categories.map((category) => (
-            <Surface key={category.id} radius="2xl" padding="md">
+            <Surface key={category.id} radius="xl" padding="md">
               <Inline justify="between" wrap={false} className="gap-3">
                 <Stack gap="none" className="min-w-0">
                   <Text weight="semibold" className="truncate">
@@ -212,7 +211,6 @@ const Categories = memo(() => {
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="rounded-xl"
                     disabled={isPending}
                     onClick={() => edit(category)}
                   >
@@ -222,7 +220,6 @@ const Categories = memo(() => {
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="rounded-xl"
                     disabled={isPending}
                     onClick={() => {
                       void remove(category);

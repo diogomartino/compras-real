@@ -101,7 +101,7 @@ const BaseListForm = memo(
     return (
       <main className="min-h-dvh bg-background text-foreground">
         <form
-          className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col px-4 py-4 sm:px-6 lg:px-8"
+          className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col px-4 py-4 sm:px-6"
           onSubmit={onSubmit}
         >
           <Inline justify="between" wrap={false} className="mb-6 gap-3">
@@ -123,7 +123,7 @@ const BaseListForm = memo(
 
           <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
             <Stack gap="lg">
-              <Surface radius="2xl" padding="lg">
+              <Surface radius="xl" padding="lg">
                 <Stack gap="lg">
                   {errors._general && (
                     <Text tone="destructive" role="alert">
@@ -152,7 +152,7 @@ const BaseListForm = memo(
                           value={values.productId}
                           onValueChange={onSelectedProductChange}
                         >
-                          <SelectTrigger className="h-11 w-full rounded-xl">
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder={t('baseList.selectProduct')} />
                           </SelectTrigger>
                           <SelectContent>
@@ -192,7 +192,6 @@ const BaseListForm = memo(
                         value={values.quantityAmount}
                         error={errors.quantityAmount}
                         onChange={onQuantityAmountChange}
-                        className="h-11 rounded-xl"
                       />
                     </label>
 
@@ -204,7 +203,7 @@ const BaseListForm = memo(
                         value={values.quantityUnit}
                         onValueChange={onQuantityUnitChange}
                       >
-                        <SelectTrigger className="h-11 w-full rounded-xl">
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder={t('baseList.selectUnit')} />
                         </SelectTrigger>
                         <SelectContent>
@@ -222,7 +221,7 @@ const BaseListForm = memo(
             </Stack>
 
             <aside>
-              <Surface radius="2xl" padding="lg" className="sticky top-6">
+              <Surface radius="xl" padding="lg" className="sticky top-6">
                 <Stack gap="md">
                   <Media src={previewImageUrl} alt={previewTitle} size="xl" />
                   <Stack gap="xs">

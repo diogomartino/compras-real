@@ -42,7 +42,7 @@ const ShoppingListRow = memo(
     }, [item, onDiscard]);
 
     return (
-      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-3">
+      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border/70 bg-card/75 p-3 transition-colors active:bg-accent/35">
         {!compact && <Media src={item.imageUrl} alt={item.title} size="md" />}
         {compact && (
           <div className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -64,7 +64,7 @@ const ShoppingListRow = memo(
           <Button
             type="button"
             size="icon"
-            className={compact ? 'size-11 rounded-2xl' : 'size-12 rounded-2xl'}
+            className={compact ? 'size-11 rounded-xl' : 'size-12 rounded-xl'}
             disabled={isPending}
             onClick={check}
             aria-label={t('shopping.markChecked', { title: item.title })}
@@ -77,7 +77,7 @@ const ShoppingListRow = memo(
               size="icon"
               variant="outline"
               className={
-                compact ? 'size-11 rounded-2xl' : 'size-12 rounded-2xl'
+                compact ? 'size-11 rounded-xl' : 'size-12 rounded-xl'
               }
               disabled={isPending}
               onClick={discard}
@@ -115,7 +115,7 @@ const ShoppingListView = memo(
           <Stack key={group.categoryName} gap="sm">
             <Inline
               justify="between"
-              className="sticky top-2 z-10 rounded-full bg-background/95 px-3 py-1.5 shadow-sm"
+              className="sticky top-2 z-10 rounded-full border border-border/70 bg-background/95 px-3 py-1.5 backdrop-blur"
               wrap={false}
             >
               <Text weight="semibold">{group.categoryName}</Text>

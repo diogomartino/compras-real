@@ -37,7 +37,7 @@ const ShoppingHistory = memo(() => {
 
   return (
     <main className="min-h-dvh bg-background pb-28 text-foreground">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
         <Inline justify="between" wrap={false} className="gap-3">
           <Button
             type="button"
@@ -50,9 +50,9 @@ const ShoppingHistory = memo(() => {
           <Text weight="semibold">{t('shoppingHistory.title')}</Text>
         </Inline>
 
-        <Surface radius="2xl" padding="lg">
+        <Surface radius="xl" padding="lg">
           <Inline gap="sm" wrap={false}>
-            <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+            <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
               <History className="size-5" />
             </div>
             <Stack gap="none" className="min-w-0">
@@ -65,19 +65,19 @@ const ShoppingHistory = memo(() => {
         </Surface>
 
         {error && (
-          <Surface radius="2xl" padding="md" variant="muted">
+          <Surface radius="xl" padding="md" variant="muted">
             <Text tone="destructive">{error.message}</Text>
           </Surface>
         )}
 
         {isLoading && (
-          <Surface radius="2xl" padding="lg">
+          <Surface radius="xl" padding="lg">
             <Text tone="muted">{t('shoppingHistory.loading')}</Text>
           </Surface>
         )}
 
         {!isLoading && history.length === 0 && (
-          <Surface radius="2xl" padding="lg" className="text-center">
+          <Surface radius="xl" padding="lg" className="text-center">
             <Stack gap="sm" align="center">
               <ShoppingBag className="size-8 text-muted-foreground" />
               <Text weight="semibold">{t('shoppingHistory.emptyTitle')}</Text>
@@ -98,7 +98,7 @@ const ShoppingHistory = memo(() => {
             ).length;
 
             return (
-              <Surface key={list.id} radius="2xl" padding="md">
+              <Surface key={list.id} radius="xl" padding="md">
                 <Stack gap="md">
                   <Inline justify="between" wrap={false} className="gap-3">
                     <Stack gap="none" className="min-w-0">
