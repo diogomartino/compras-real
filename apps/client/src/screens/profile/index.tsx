@@ -128,7 +128,10 @@ const Profile = memo(() => {
           <Inline justify="between" className="gap-4">
             <Inline gap="sm" wrap={false} className="min-w-0">
               <Avatar className="size-14">
-                <AvatarImage src={auth.avatarUrl ?? undefined} alt={t('profile.title')} />
+                <AvatarImage
+                  src={auth.avatarUrl ?? undefined}
+                  alt={t('profile.title')}
+                />
                 <AvatarFallback>
                   <CircleUserRound className="size-7" />
                 </AvatarFallback>
@@ -143,6 +146,23 @@ const Profile = memo(() => {
             <Button type="button" variant="outline" onClick={onLogout}>
               <LogOut className="size-4" />
               {t('profile.logout')}
+            </Button>
+          </Inline>
+        </Surface>
+
+        <Surface radius="xl" padding="lg">
+          <Inline justify="between" wrap={false} className="gap-4">
+            <Stack gap="xs" className="min-w-0">
+              <Text weight="semibold">{t('profile.shoppingHistory')}</Text>
+              <Text size="sm" tone="muted">
+                {t('profile.shoppingHistoryDescription')}
+              </Text>
+            </Stack>
+            <Button asChild variant="outline" className="shrink-0">
+              <Link to="/shopping-history">
+                <History className="size-4" />
+                {t('common.open')}
+              </Link>
             </Button>
           </Inline>
         </Surface>
@@ -165,7 +185,9 @@ const Profile = memo(() => {
                   <SelectValue placeholder={t('profile.language')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en">{t('profile.languageEnglish')}</SelectItem>
+                  <SelectItem value="en">
+                    {t('profile.languageEnglish')}
+                  </SelectItem>
                   <SelectItem value="pt">
                     {t('profile.languagePortuguese')}
                   </SelectItem>
@@ -286,23 +308,6 @@ const Profile = memo(() => {
               />
             </Inline>
           </Stack>
-        </Surface>
-
-        <Surface radius="xl" padding="lg">
-          <Inline justify="between" wrap={false} className="gap-4">
-            <Stack gap="xs" className="min-w-0">
-              <Text weight="semibold">{t('profile.shoppingHistory')}</Text>
-              <Text size="sm" tone="muted">
-                {t('profile.shoppingHistoryDescription')}
-              </Text>
-            </Stack>
-            <Button asChild variant="outline" className="shrink-0">
-              <Link to="/shopping-history">
-                <History className="size-4" />
-                {t('common.open')}
-              </Link>
-            </Button>
-          </Inline>
         </Surface>
 
         <Surface radius="xl" padding="lg">

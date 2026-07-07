@@ -431,13 +431,31 @@
   },
   "shoppingHistory": {
     "title": "Shopping history",
+    "detailsTitle": "Shopping details",
     "profile": "Profile",
     "finishedShops": "Finished shops",
     "description": "Review what your household bought or discarded before.",
     "loading": "Loading shopping history...",
+    "loadingMore": "Loading more shops...",
+    "end": "No more finished shops",
     "emptyTitle": "No finished shops yet",
     "emptyDescription": "Finished shopping lists will appear here.",
-    "startedBy": "Started by {{name}} · {{count}} products"
+    "startedBy": "Started by {{name}} · {{count}} products",
+    "unknownUser": "Unknown user",
+    "notFoundTitle": "Shopping session not found",
+    "notFoundDescription": "This session is not in the loaded history.",
+    "backToHistory": "Back to history",
+    "total": "Total",
+    "checked": "Bought",
+    "discarded": "Discarded",
+    "left": "Left",
+    "updatedAt": "Updated {{date}}",
+    "status": {
+      "pending": "Pending",
+      "checked": "Bought",
+      "ignored": "Ignored",
+      "discarded": "Discarded"
+    }
   },
   "baseList": {
     "enabled": "Enabled",

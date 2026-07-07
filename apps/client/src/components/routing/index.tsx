@@ -23,6 +23,7 @@ const Routing = memo(() => {
       <Route path="categories" element={<Categories />} />
       <Route path="shop" element={<Shopping />} />
       <Route path="shopping-history" element={<ShoppingHistory />} />
+      <Route path="shopping-history/:historyId" element={<ShoppingHistory />} />
       <Route path="profile" element={<Profile />} />
       <Route path="reset-password" element={<ResetPassword />} />
       <Route path="ds" element={<Ds />} />

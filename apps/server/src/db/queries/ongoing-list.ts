@@ -10,9 +10,15 @@ import {
   sql,
   users
 } from '@myapp/db';
-import type { TOngoingListDetails, TOngoingListEntry } from '@myapp/shared';
+import type {
+  TOngoingListDetails,
+  TOngoingListEntry,
+  TPaginationCursor
+} from '@myapp/shared';
+import { getPaginatedResult } from '../../helpers/pagination';
 
 type TShoppingHistoryList = TOngoingListDetails & {
+  finishedAt: number | null;
   shoppingStartedAt: number | null;
   shoppingStartedByUser: {
     id: string;
@@ -140,11 +146,15 @@ const getOngoingListDetails = async (
 
 const getFinishedOngoingListHistory = async (
   householdId: string,
-  limit: number
-): Promise<TShoppingHistoryList[]> => {
+  limit: number,
+  cursor?: TPaginationCursor
+) => {
+  const sortValue = sql<number>`coalesce(${ongoingLists.finishedAt}, ${ongoingLists.updatedAt})`;
   const finishedLists = await db
     .select({
       id: ongoingLists.id,
+      finishedAt: ongoingLists.finishedAt,
+      updatedAt: ongoingLists.updatedAt,
       shoppingStartedAt: ongoingLists.shoppingStartedAt,
       shoppingStartedByUserId: users.id,
       shoppingStartedByUserName: users.name,
@@ -155,11 +165,14 @@ const getFinishedOngoingListHistory = async (
     .where(
       and(
         eq(ongoingLists.householdId, householdId),
-        eq(ongoingLists.status, 'finished')
+        eq(ongoingLists.status, 'finished'),
+        cursor
+          ? sql`(${sortValue} < ${cursor.value} or (${sortValue} = ${cursor.value} and ${ongoingLists.id} < ${cursor.id}))`
+          : undefined
       )
     )
-    .orderBy(sql`${ongoingLists.finishedAt} desc nulls last`)
-    .limit(limit);
+    .orderBy(sql`${sortValue} desc`, sql`${ongoingLists.id} desc`)
+    .limit(limit + 1);
 
   const history = await Promise.all(
     finishedLists.map(async (list) => {
@@ -171,6 +184,7 @@ const getFinishedOngoingListHistory = async (
 
       return {
         ...details,
+        finishedAt: list.finishedAt,
         shoppingStartedAt: list.shoppingStartedAt,
         shoppingStartedByUser: list.shoppingStartedByUserId
           ? {
@@ -183,7 +197,14 @@ const getFinishedOngoingListHistory = async (
     })
   );
 
-  return history.filter((list): list is TShoppingHistoryList => Boolean(list));
+  return getPaginatedResult(
+    history.filter((list): list is TShoppingHistoryList => Boolean(list)),
+    limit,
+    (list) => ({
+      id: list.id,
+      value: list.finishedAt ?? list.updatedAt
+    })
+  );
 };
 
 export {

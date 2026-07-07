@@ -13,7 +13,7 @@ const getRoute = protectedProcedure.query(async ({ ctx }) => {
   const shoppingList = await getShoppingOngoingList(householdId);
 
   if (!shoppingList) {
-    return undefined;
+    return null;
   }
 
   return getShoppingListDetails(householdId, shoppingList.id);

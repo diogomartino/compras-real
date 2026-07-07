@@ -1,23 +1,21 @@
-import z from 'zod';
 import { getFinishedOngoingListHistory } from '../../db/queries/ongoing-list';
 import { getRequiredHouseholdId } from '../../helpers/get-required-household-id';
+import { getPaginationLimit, paginationInputSchema } from '../../helpers/pagination';
 import { protectedProcedure } from '../../trpc';
 
 const historyRoute = protectedProcedure
-  .input(
-    z
-      .object({
-        limit: z.number().int().min(1).max(50).optional()
-      })
-      .optional()
-  )
+  .input(paginationInputSchema)
   .query(async ({ ctx, input }) => {
     const householdId = await getRequiredHouseholdId(
       ctx,
       'viewing shopping history'
     );
 
-    return getFinishedOngoingListHistory(householdId, input?.limit ?? 20);
+    return getFinishedOngoingListHistory(
+      householdId,
+      getPaginationLimit(input?.limit),
+      input?.cursor
+    );
   });
 
 export { historyRoute };

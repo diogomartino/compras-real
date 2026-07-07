@@ -1,6 +1,7 @@
 import { queryClient } from '@/lib/query-client';
 import { trpc } from '@/lib/trpc';
-import { useQuery } from '@tanstack/react-query';
+import type { TPaginationCursor } from '@myapp/shared';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { ongoingListQueryKey } from './ongoing-list';
 
@@ -69,7 +70,7 @@ const useShoppingUpdates = (
 
         if (event.type === 'finished') {
           void queryClient.cancelQueries({ queryKey: shoppingListQueryKey });
-          queryClient.setQueryData(shoppingListQueryKey, undefined);
+          queryClient.setQueryData(shoppingListQueryKey, null);
           queryClient.removeQueries({ queryKey: shoppingListQueryKey });
         } else {
           void queryClient.invalidateQueries({
@@ -89,15 +90,23 @@ const useShoppingUpdates = (
 };
 
 const shoppingHistoryQueryKey = ['shopping-history'] as const;
+const SHOPPING_HISTORY_PAGE_SIZE = 10;
 
 const useShoppingHistory = (enabled: boolean) =>
-  useQuery({
+  useInfiniteQuery({
     queryKey: shoppingHistoryQueryKey,
-    queryFn: () => trpc.shopping.history.query({ limit: 20 }),
+    queryFn: ({ pageParam }) =>
+      trpc.shopping.history.query({
+        limit: SHOPPING_HISTORY_PAGE_SIZE,
+        cursor: pageParam
+      }),
+    initialPageParam: undefined as TPaginationCursor | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled
   });
 
 export {
+  SHOPPING_HISTORY_PAGE_SIZE,
   shoppingHistoryQueryKey,
   shoppingListQueryKey,
   useShoppingHistory,
