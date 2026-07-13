@@ -19,23 +19,25 @@ class ContinenteScrapper implements IScrapper {
   public scrap = async (url: string): Promise<TScrappedProduct> => {
     const browser = await getBrowser();
 
-    const page = await browser.newPage();
+    try {
+      const page = await browser.newPage();
 
-    await page.goto(url);
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
 
-    await waitForCookieConsent(page);
+      await waitForCookieConsent(page);
 
-    const name = await getName(page);
-    const imageUrl = await getImageUrl(page);
-    const category = await getCategory(page);
+      const name = await getName(page);
+      const imageUrl = await getImageUrl(page);
+      const category = await getCategory(page);
 
-    await browser.close();
-
-    return scrappedProduct.parse({
-      name,
-      imageUrl,
-      category
-    });
+      return scrappedProduct.parse({
+        name,
+        imageUrl,
+        category
+      });
+    } finally {
+      await browser.close();
+    }
   };
 }
 

@@ -25,18 +25,18 @@ const resetPasswordRoute = publicProcedure
       ctx.throwValidationError('confirmPassword', 'Passwords do not match');
     }
 
-    const userId = verifyPasswordResetToken(input.token);
+    const resetToken = verifyPasswordResetToken(input.token);
 
-    if (!userId) {
+    if (!resetToken) {
       throw new TRPCError({
         code: 'BAD_REQUEST',
         message: 'Password reset link is invalid or expired'
       });
     }
 
-    const user = await getUserById(userId);
+    const user = await getUserById(resetToken.userId);
 
-    if (!user) {
+    if (!user || resetToken.issuedAt < Math.floor(user.updatedAt / 1000)) {
       throw new TRPCError({
         code: 'BAD_REQUEST',
         message: 'Password reset link is invalid or expired'

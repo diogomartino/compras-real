@@ -69,16 +69,16 @@ const useShoppingUpdates = (
         }
 
         if (event.type === 'finished') {
-          void queryClient.cancelQueries({ queryKey: shoppingListQueryKey });
+          queryClient.cancelQueries({ queryKey: shoppingListQueryKey });
           queryClient.setQueryData(shoppingListQueryKey, null);
           queryClient.removeQueries({ queryKey: shoppingListQueryKey });
         } else {
-          void queryClient.invalidateQueries({
+          queryClient.invalidateQueries({
             queryKey: shoppingListQueryKey
           });
         }
 
-        void queryClient.invalidateQueries({ queryKey: ongoingListQueryKey });
+        queryClient.invalidateQueries({ queryKey: ongoingListQueryKey });
       },
       onError: () => undefined
     });

@@ -1,6 +1,6 @@
 import type { TScrappedProduct } from './types';
 
-const CACHE_FOR_HOURS = 1;
+const CACHE_FOR_HOURS = 24;
 
 class ScrapperCache {
   private cache: Map<string, { data: TScrappedProduct; timestamp: number }>;

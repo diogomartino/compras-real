@@ -68,7 +68,7 @@ const playActionTone = (status: 'checked' | 'ignored' | 'discarded') => {
   oscillator.start();
   oscillator.stop(context.currentTime + 0.14);
   oscillator.addEventListener('ended', () => {
-    void context.close().catch(() => undefined);
+    context.close().catch(() => undefined);
   });
 };
 

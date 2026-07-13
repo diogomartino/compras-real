@@ -156,19 +156,19 @@ const Shopping = memo(() => {
   );
   const check = useCallback(
     (item: TOngoingListEntry) => {
-      void setStatus(item, 'checked');
+      setStatus(item, 'checked');
     },
     [setStatus]
   );
   const onSwipeAction = useCallback(
     (item: TOngoingListEntry, action: 'checked' | 'ignored' | 'discarded') => {
-      void setStatus(item, action);
+      setStatus(item, action);
     },
     [setStatus]
   );
   const discard = useCallback(
     (item: TOngoingListEntry) => {
-      void setStatus(item, 'discarded');
+      setStatus(item, 'discarded');
     },
     [setStatus]
   );

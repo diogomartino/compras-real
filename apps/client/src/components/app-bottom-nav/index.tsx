@@ -160,7 +160,7 @@ const AppBottomNav = memo(() => {
         onReviewList={reviewList}
         onAddProducts={addProducts}
         onStartShopping={() => {
-          void shop();
+          shop();
         }}
       />
     </>

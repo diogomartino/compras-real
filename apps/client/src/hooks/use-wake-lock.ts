@@ -40,17 +40,17 @@ const useWakeLock = (enabled: boolean) => {
 
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible' && !sentinel) {
-        void requestWakeLock();
+        requestWakeLock();
       }
     };
 
-    void requestWakeLock();
+    requestWakeLock();
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       cancelled = true;
       document.removeEventListener('visibilitychange', onVisibilityChange);
-      void sentinel?.release().catch(() => undefined);
+      sentinel?.release().catch(() => undefined);
       sentinel = undefined;
     };
   }, [enabled]);

@@ -222,7 +222,7 @@ const Categories = memo(() => {
                     size="icon"
                     disabled={isPending}
                     onClick={() => {
-                      void remove(category);
+                      remove(category);
                     }}
                   >
                     <Trash2 className="size-4" />

@@ -89,7 +89,7 @@ const ShoppingSwipeView = memo(
           swipeItems.filter(
             (item) =>
               (item.categoryName ?? t('common.uncategorized')) ===
-                currentCategoryName
+              currentCategoryName
           ).length
         ])
       );
@@ -164,7 +164,7 @@ const ShoppingSwipeView = memo(
         const swipedItem = currentItem;
 
         onAction(swipedItem, action);
-        void animate(
+        animate(
           x,
           direction === 'right' ? window.innerWidth : -window.innerWidth,
           {
@@ -199,7 +199,7 @@ const ShoppingSwipeView = memo(
           return;
         }
 
-        void animate(x, 0, {
+        animate(x, 0, {
           type: 'spring',
           stiffness: 420,
           damping: 32
@@ -229,7 +229,9 @@ const ShoppingSwipeView = memo(
       const toast = { ...latestActivity, toastId };
 
       setActivityToasts((currentToasts) => {
-        if (currentToasts.some((currentToast) => currentToast.toastId === toastId)) {
+        if (
+          currentToasts.some((currentToast) => currentToast.toastId === toastId)
+        ) {
           return currentToasts;
         }
 
@@ -238,7 +240,9 @@ const ShoppingSwipeView = memo(
 
       const timeout = setTimeout(() => {
         setActivityToasts((currentToasts) =>
-          currentToasts.filter((currentToast) => currentToast.toastId !== toastId)
+          currentToasts.filter(
+            (currentToast) => currentToast.toastId !== toastId
+          )
         );
       }, 5000);
 
@@ -332,7 +336,10 @@ const ShoppingSwipeView = memo(
                       key={user.id}
                       className="size-8 border-2 border-white/50"
                     >
-                      <AvatarImage src={user.avatarUrl ?? undefined} alt={user.name} />
+                      <AvatarImage
+                        src={user.avatarUrl ?? undefined}
+                        alt={user.name}
+                      />
                       <AvatarFallback>
                         <CircleUserRound className="size-4" />
                       </AvatarFallback>
@@ -346,36 +353,36 @@ const ShoppingSwipeView = memo(
                 </div>
               )}
               <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="shrink-0 rounded-full border border-white/30 bg-white/15 text-white shadow-sm hover:bg-white/25 hover:text-white"
-                  aria-label={t('shopping.viewOptions')}
-                >
-                  <MoreHorizontal className="size-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44 rounded-xl">
-                <DropdownMenuItem onSelect={onListView}>
-                  <List className="size-4" />
-                  {t('shopping.listView')}
-                </DropdownMenuItem>
-                {reviewSkipped && (
-                  <DropdownMenuItem onSelect={onMainList}>
-                    <RotateCcw className="size-4" />
-                    {t('shopping.mainList')}
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 rounded-full border border-white/30 bg-white/15 text-white shadow-sm hover:bg-white/25 hover:text-white"
+                    aria-label={t('shopping.viewOptions')}
+                  >
+                    <MoreHorizontal className="size-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44 rounded-xl">
+                  <DropdownMenuItem onSelect={onListView}>
+                    <List className="size-4" />
+                    {t('shopping.listView')}
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={onCancelShopping}
-                >
-                  <X className="size-4" />
-                  {t('shopping.cancelShopping')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+                  {reviewSkipped && (
+                    <DropdownMenuItem onSelect={onMainList}>
+                      <RotateCcw className="size-4" />
+                      {t('shopping.mainList')}
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={onCancelShopping}
+                  >
+                    <X className="size-4" />
+                    {t('shopping.cancelShopping')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
@@ -401,7 +408,8 @@ const ShoppingSwipeView = memo(
                     </AvatarFallback>
                   </Avatar>
                   <span className="min-w-0 truncate">
-                    {activity.actor.name} {activity.status} {activity.product.title}
+                    {activity.actor.name} {activity.status}{' '}
+                    {activity.product.title}
                   </span>
                 </motion.div>
               ))}
@@ -417,7 +425,7 @@ const ShoppingSwipeView = memo(
             <Stack gap="md">
               <Stack gap="sm">
                 <div>
-                    <span className="inline-block max-w-full rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-base font-semibold leading-tight text-white">
+                  <span className="inline-block max-w-full rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-base font-semibold leading-tight text-white">
                     {currentItem.title}
                   </span>
                 </div>

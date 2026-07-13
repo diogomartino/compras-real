@@ -29,11 +29,21 @@ const startShoppingList = async (ongoingListId: string, userId: string) => {
   return ongoingList;
 };
 
-const setShoppingItemStatus = async (
-  itemId: string,
-  status: TOngoingListItemStatus,
-  userId: string
-) => {
+type TSetShoppingItemStatusInput = {
+  itemId: string;
+  householdId: string;
+  ongoingListId: string;
+  status: TOngoingListItemStatus;
+  userId: string;
+};
+
+const setShoppingItemStatus = async ({
+  itemId,
+  householdId,
+  ongoingListId,
+  status,
+  userId
+}: TSetShoppingItemStatusInput) => {
   const now = Date.now();
   const [item] = await db
     .update(ongoingListItems)
@@ -43,7 +53,13 @@ const setShoppingItemStatus = async (
       statusUpdatedBy: userId,
       updatedAt: now
     })
-    .where(eq(ongoingListItems.id, itemId))
+    .where(
+      and(
+        eq(ongoingListItems.id, itemId),
+        eq(ongoingListItems.householdId, householdId),
+        eq(ongoingListItems.ongoingListId, ongoingListId)
+      )
+    )
     .returning();
 
   if (!item) {

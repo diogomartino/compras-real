@@ -1,12 +1,19 @@
 import { AppBottomNav } from '@/components/app-bottom-nav';
-import { Inline, Media, Stack, StatusChip, Surface, Text } from '@/components/ds';
+import {
+  Inline,
+  Media,
+  Stack,
+  StatusChip,
+  Surface,
+  Text
+} from '@/components/ds';
 import { InfiniteScroll } from '@/components/infinite-scroll';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useIsAuthenticated } from '@/features/auth/hooks';
 import { useShoppingHistory } from '@/queries/shopping';
-import { formatQuantity } from '@/screens/shopping/helpers';
 import { HomeAuthScreen } from '@/screens/home/home-auth-screen';
+import { formatQuantity } from '@/screens/shopping/helpers';
 import type { TOngoingListEntry } from '@myapp/shared';
 import {
   ArrowLeft,
@@ -78,7 +85,7 @@ const ShoppingHistory = memo(() => {
     [history, historyId]
   );
   const loadMore = useCallback(() => {
-    void fetchNextPage();
+    fetchNextPage();
   }, [fetchNextPage]);
 
   if (!isAuthenticated) {
@@ -103,7 +110,9 @@ const ShoppingHistory = memo(() => {
     <main className="min-h-dvh bg-background pb-28 text-foreground">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
         {renderHeader(
-          historyId ? t('shoppingHistory.detailsTitle') : t('shoppingHistory.title')
+          historyId
+            ? t('shoppingHistory.detailsTitle')
+            : t('shoppingHistory.title')
         )}
 
         {error && (
@@ -170,7 +179,8 @@ const ShoppingHistory = memo(() => {
                           <Avatar className="size-5">
                             <AvatarImage
                               src={
-                                list.shoppingStartedByUser?.avatarUrl ?? undefined
+                                list.shoppingStartedByUser?.avatarUrl ??
+                                undefined
                               }
                               alt={startedBy}
                             />
@@ -216,12 +226,16 @@ const ShoppingHistory = memo(() => {
           <Surface radius="xl" padding="lg" className="text-center">
             <Stack gap="sm" align="center">
               <ShoppingBag className="size-8 text-muted-foreground" />
-              <Text weight="semibold">{t('shoppingHistory.notFoundTitle')}</Text>
+              <Text weight="semibold">
+                {t('shoppingHistory.notFoundTitle')}
+              </Text>
               <Text size="sm" tone="muted">
                 {t('shoppingHistory.notFoundDescription')}
               </Text>
               <Button asChild>
-                <Link to="/shopping-history">{t('shoppingHistory.backToHistory')}</Link>
+                <Link to="/shopping-history">
+                  {t('shoppingHistory.backToHistory')}
+                </Link>
               </Button>
             </Stack>
           </Surface>
@@ -254,7 +268,9 @@ const ShoppingHistory = memo(() => {
                     </Stack>
                     <div className="grid grid-cols-4 overflow-hidden rounded-xl border border-border/70 bg-background/45 text-center">
                       <div className="border-r border-border/70 p-3">
-                        <Text weight="semibold">{selectedHistory.items.length}</Text>
+                        <Text weight="semibold">
+                          {selectedHistory.items.length}
+                        </Text>
                         <Text size="xs" tone="muted">
                           {t('shoppingHistory.total')}
                         </Text>
@@ -272,7 +288,9 @@ const ShoppingHistory = memo(() => {
                         </Text>
                       </div>
                       <div className="p-3">
-                        <Text weight="semibold">{counts.ignored + counts.pending}</Text>
+                        <Text weight="semibold">
+                          {counts.ignored + counts.pending}
+                        </Text>
                         <Text size="xs" tone="muted">
                           {t('shoppingHistory.left')}
                         </Text>

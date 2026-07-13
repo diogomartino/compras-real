@@ -4,4 +4,5 @@ export type TTokenPayload = {
   iss?: string;
   aud?: string;
   exp?: number;
+  iat?: number;
 };

@@ -3,6 +3,11 @@ import { Resend } from 'resend';
 
 const sendPasswordResetEmail = async (email: string, resetUrl: string) => {
   if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
+    if (process.env.NODE_ENV === 'production') {
+      logger.error('Password reset email is not configured');
+      throw new Error('Password reset email is not configured');
+    }
+
     logger.info(`Password reset link for ${email}: ${resetUrl}`);
     return;
   }

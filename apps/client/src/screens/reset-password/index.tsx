@@ -42,7 +42,7 @@ const ResetPassword = memo(() => {
   const onSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      void submit();
+      submit();
     },
     [submit]
   );
@@ -93,7 +93,9 @@ const ResetPassword = memo(() => {
             className="w-full"
             disabled={isPending || !token}
           >
-            {isPending ? t('resetPassword.resetting') : t('resetPassword.submit')}
+            {isPending
+              ? t('resetPassword.resetting')
+              : t('resetPassword.submit')}
           </Button>
 
           <Button asChild type="button" variant="ghost" className="w-full">

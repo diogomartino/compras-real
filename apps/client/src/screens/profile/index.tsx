@@ -46,7 +46,7 @@ const Profile = memo(() => {
     });
 
   const onLogout = useCallback(() => {
-    void logout();
+    logout();
   }, []);
 
   const submit = useCallback(async () => {
@@ -64,7 +64,7 @@ const Profile = memo(() => {
   const onSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      void submit();
+      submit();
     },
     [submit]
   );
@@ -87,7 +87,7 @@ const Profile = memo(() => {
 
   const onLanguageChange = useCallback(
     (value: string) => {
-      void i18n.changeLanguage(value);
+      i18n.changeLanguage(value);
     },
     [i18n]
   );
@@ -228,7 +228,7 @@ const Profile = memo(() => {
                 checked={auth.settings?.compactShoppingList ?? true}
                 disabled={settingsPending}
                 onCheckedChange={(checked) => {
-                  void updateSetting({ compactShoppingList: checked });
+                  updateSetting({ compactShoppingList: checked });
                 }}
               />
             </Inline>
@@ -259,7 +259,7 @@ const Profile = memo(() => {
                 checked={auth.settings?.hapticsEnabled ?? true}
                 disabled={settingsPending}
                 onCheckedChange={(checked) => {
-                  void updateSetting({ hapticsEnabled: checked });
+                  updateSetting({ hapticsEnabled: checked });
                 }}
               />
             </Inline>
@@ -281,7 +281,7 @@ const Profile = memo(() => {
                 checked={auth.settings?.soundEnabled ?? false}
                 disabled={settingsPending}
                 onCheckedChange={(checked) => {
-                  void updateSetting({ soundEnabled: checked });
+                  updateSetting({ soundEnabled: checked });
                 }}
               />
             </Inline>
@@ -303,7 +303,7 @@ const Profile = memo(() => {
                 checked={auth.settings?.wakeLockEnabled ?? true}
                 disabled={settingsPending}
                 onCheckedChange={(checked) => {
-                  void updateSetting({ wakeLockEnabled: checked });
+                  updateSetting({ wakeLockEnabled: checked });
                 }}
               />
             </Inline>

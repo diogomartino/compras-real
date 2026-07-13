@@ -6,26 +6,45 @@ const scrappers: Record<string, IScrapper> = {
   [ScrapperId.CONTINENTE]: new ContinenteScrapper()
 };
 
+const normalizeUrl = (url: string): string => {
+  try {
+    const normalizedUrl = new URL(url);
+
+    normalizedUrl.search = '';
+    normalizedUrl.hash = '';
+
+    return normalizedUrl.toString();
+  } catch (error) {
+    throw new Error('Invalid URL', { cause: error });
+  }
+};
+
 const getScrapperFromUrl = (url: string): IScrapper | undefined => {
-  return Object.values(scrappers).find((scrapper) =>
-    url.startsWith(scrapper.baseUrl)
+  const origin = new URL(url).origin;
+
+  return Object.values(scrappers).find(
+    (scrapper) => origin === new URL(scrapper.baseUrl).origin
   );
 };
 
 const scrapUrl = async (url: string): Promise<TScrappedProduct> => {
-  const cachedProduct = scrapperCache.get(url);
+  const normalizedUrl = normalizeUrl(url);
+
+  const cachedProduct = scrapperCache.get(normalizedUrl);
 
   if (cachedProduct) {
     return cachedProduct;
   }
 
-  const scrapper = getScrapperFromUrl(url);
+  const scrapper = getScrapperFromUrl(normalizedUrl);
 
   if (!scrapper) {
-    throw new Error(`No scrapper found for URL: ${url}`);
+    throw new Error('No scrapper found for URL');
   }
 
-  const scrappedProduct = await scrapper.scrap(url);
+  const scrappedProduct = await scrapper.scrap(normalizedUrl);
+
+  scrapperCache.set(normalizedUrl, scrappedProduct);
 
   return scrappedProduct;
 };

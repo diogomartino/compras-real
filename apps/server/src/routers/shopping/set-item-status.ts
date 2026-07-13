@@ -5,7 +5,10 @@ import { trackProductShoppingStatus } from '../../db/mutations/product-usage-sta
 import { setShoppingItemStatus } from '../../db/mutations/shopping';
 import { getOngoingListItemById } from '../../db/queries/ongoing-list';
 import { getProductById } from '../../db/queries/products';
-import { getShoppingListDetails } from '../../db/queries/shopping';
+import {
+  getShoppingListDetails,
+  getShoppingOngoingList
+} from '../../db/queries/shopping';
 import { getRequiredHouseholdId } from '../../helpers/get-required-household-id';
 import { notifyShoppingUpdate } from '../../helpers/shopping-events';
 import { protectedProcedure } from '../../trpc';
@@ -30,13 +33,21 @@ const setItemStatusRoute = protectedProcedure
       throw new TRPCError({ code: 'NOT_FOUND', message: 'Product not found' });
     }
 
+    const shoppingList = await getShoppingOngoingList(householdId);
+
+    if (!shoppingList || shoppingList.id !== item.ongoingListId) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Product not found' });
+    }
+
     const product = await getProductById(item.productId);
 
-    await setShoppingItemStatus(
-      input.id,
-      input.status as TOngoingListItemStatus,
-      ctx.userId
-    );
+    await setShoppingItemStatus({
+      itemId: input.id,
+      householdId,
+      ongoingListId: item.ongoingListId,
+      status: input.status as TOngoingListItemStatus,
+      userId: ctx.userId
+    });
     await trackProductShoppingStatus({
       householdId,
       productId: item.productId,
