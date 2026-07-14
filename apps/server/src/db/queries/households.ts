@@ -8,8 +8,6 @@ import {
   users
 } from '@myapp/db';
 
-// Resolve the household to operate on: the user's preferred (active) one if
-// they're still a member of it, otherwise their oldest membership.
 const getResolvedHouseholdIdForUser = async (
   userId: string,
   preferredId?: string | null

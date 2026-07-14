@@ -230,7 +230,6 @@ const websocket = createBunWSHandler({
 
     return authenticatedState;
   },
-  // onError: console.error,
   batching: {
     enabled: true
   }
