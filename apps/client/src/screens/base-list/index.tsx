@@ -10,6 +10,7 @@ import {
   useUpdateBaseList,
   useUpdateBaseListItem
 } from '@/mutations/base-list';
+import { useAddBaseListToOngoing } from '@/mutations/ongoing-list';
 import { useBaseListDetails, useBaseLists } from '@/queries/base-list';
 import { useProducts } from '@/queries/products';
 import { HomeAuthScreen } from '@/screens/home/home-auth-screen';
@@ -71,6 +72,8 @@ const BaseList = memo(() => {
     useUpdateBaseList();
   const { mutateAsync: removeBaseList, isPending: removeBaseListPending } =
     useRemoveBaseList();
+  const { mutateAsync: addBaseListToOngoing, isPending: addAllPending } =
+    useAddBaseListToOngoing();
   const { mutateAsync: addBaseListItem, isPending: addBaseListItemPending } =
     useAddBaseListItem();
   const {
@@ -154,8 +157,10 @@ const BaseList = memo(() => {
       removeBaseListPending ||
       addBaseListItemPending ||
       updateBaseListItemPending ||
-      removeBaseListItemPending,
+      removeBaseListItemPending ||
+      addAllPending,
     [
+      addAllPending,
       addBaseListItemPending,
       createBaseListPending,
       removeBaseListItemPending,
@@ -361,6 +366,32 @@ const BaseList = memo(() => {
     [closeBaseList, removeBaseList, selectedBaseListId, t]
   );
 
+  const addAllToOngoing = useCallback(
+    async (baseList: { id: string; name: string }) => {
+      const confirmed = await requestConfirmation({
+        title: t('baseList.addAllTitle'),
+        message: t('baseList.addAllMessage', { name: baseList.name }),
+        confirmLabel: t('baseList.addAllConfirm'),
+        cancelLabel: t('common.cancel'),
+        variant: 'info'
+      });
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await addBaseListToOngoing(baseList.id);
+        toast.success(t('baseList.addedAllToList'));
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? t('baseList.failedToAddAll')
+        );
+      }
+    },
+    [addBaseListToOngoing, t]
+  );
+
   const removeItem = useCallback(
     async (item: TBaseListEntry) => {
       const confirmed = await requestConfirmation({
@@ -436,6 +467,7 @@ const BaseList = memo(() => {
           onCreate={openCreateItem}
           onEdit={openEditItem}
           onRemove={removeItem}
+          onAddAll={addAllToOngoing}
         />
       </main>
     );
@@ -452,6 +484,7 @@ const BaseList = memo(() => {
         onOpen={openBaseList}
         onEdit={openEditList}
         onRemove={removeList}
+        onAddAll={addAllToOngoing}
       />
     </main>
   );

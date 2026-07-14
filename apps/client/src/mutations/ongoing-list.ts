@@ -33,6 +33,13 @@ const useAddOngoingListItems = () =>
     onSuccess: invalidateOngoingList
   });
 
+const useAddBaseListToOngoing = () =>
+  useMutation({
+    mutationFn: (baseListId: string) =>
+      trpc.ongoingList.addFromBaseList.mutate({ baseListId }),
+    onSuccess: invalidateOngoingList
+  });
+
 const useUpdateOngoingListItem = () =>
   useMutation({
     mutationFn: (input: TUpdateOngoingListItemInput) =>
@@ -47,6 +54,7 @@ const useRemoveOngoingListItem = () =>
   });
 
 export {
+  useAddBaseListToOngoing,
   useAddOngoingListItems,
   useRemoveOngoingListItem,
   useUpdateOngoingListItem

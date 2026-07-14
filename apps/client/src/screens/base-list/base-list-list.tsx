@@ -8,7 +8,7 @@ import {
 } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, ListChecks, Plus, Search } from 'lucide-react';
+import { ArrowLeft, ListChecks, ListPlus, Plus, Search } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { memo, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -32,6 +32,7 @@ type TBaseListListProps = {
   onCreate: () => void;
   onEdit: (item: TBaseListEntry) => void;
   onRemove: (item: TBaseListEntry) => void;
+  onAddAll: (baseList: TBaseListDetails) => void;
 };
 
 const BaseListList = memo(
@@ -46,7 +47,8 @@ const BaseListList = memo(
     onQueryChange,
     onCreate,
     onEdit,
-    onRemove
+    onRemove,
+    onAddAll
   }: TBaseListListProps) => {
     const { t } = useTranslation();
     const reduceMotion = useReducedMotion();
@@ -98,6 +100,17 @@ const BaseListList = memo(
                 placeholder={t('baseList.searchProducts')}
               />
             </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={isMutating || itemCount === 0}
+              onClick={() => onAddAll(baseList)}
+            >
+              <ListPlus className="size-4" />
+              {t('baseList.addAllToList')}
+            </Button>
           </Stack>
         </Surface>
 

@@ -13,7 +13,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { ListChecks, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+  ListChecks,
+  ListPlus,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Trash2
+} from 'lucide-react';
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TBaseListSummary } from './types';
@@ -24,6 +31,7 @@ type TBaseListCardProps = {
   onOpen: (baseList: TBaseListSummary) => void;
   onEdit: (baseList: TBaseListSummary) => void;
   onRemove: (baseList: TBaseListSummary) => void;
+  onAddAll: (baseList: TBaseListSummary) => void;
 };
 
 type TBaseListOverviewProps = {
@@ -35,10 +43,18 @@ type TBaseListOverviewProps = {
   onOpen: (baseList: TBaseListSummary) => void;
   onEdit: (baseList: TBaseListSummary) => void;
   onRemove: (baseList: TBaseListSummary) => void;
+  onAddAll: (baseList: TBaseListSummary) => void;
 };
 
 const BaseListCard = memo(
-  ({ baseList, isMutating, onOpen, onEdit, onRemove }: TBaseListCardProps) => {
+  ({
+    baseList,
+    isMutating,
+    onOpen,
+    onEdit,
+    onRemove,
+    onAddAll
+  }: TBaseListCardProps) => {
     const { t } = useTranslation();
     const open = useCallback(() => {
       onOpen(baseList);
@@ -49,6 +65,9 @@ const BaseListCard = memo(
     const remove = useCallback(() => {
       onRemove(baseList);
     }, [baseList, onRemove]);
+    const addAll = useCallback(() => {
+      onAddAll(baseList);
+    }, [baseList, onAddAll]);
 
     return (
       <Surface radius="xl" padding="md">
@@ -86,7 +105,11 @@ const BaseListCard = memo(
                   <MoreHorizontal className="size-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44 rounded-xl">
+              <DropdownMenuContent align="end" className="w-56 rounded-xl">
+                <DropdownMenuItem onSelect={addAll}>
+                  <ListPlus className="size-4" />
+                  {t('baseList.addAllToList')}
+                </DropdownMenuItem>
                 <DropdownMenuItem onSelect={edit}>
                   <Pencil className="size-4" />
                   {t('baseList.editBaseList')}
@@ -115,7 +138,8 @@ const BaseListOverview = memo(
     onCreate,
     onOpen,
     onEdit,
-    onRemove
+    onRemove,
+    onAddAll
   }: TBaseListOverviewProps) => {
     const { t } = useTranslation();
 
@@ -165,6 +189,7 @@ const BaseListOverview = memo(
               onOpen={onOpen}
               onEdit={onEdit}
               onRemove={onRemove}
+              onAddAll={onAddAll}
             />
           ))}
       </div>
