@@ -7,9 +7,10 @@ const bottomActionBarVariants = cva(
   {
     variants: {
       position: {
-        sticky: 'sticky bottom-0 -mx-4 sm:mx-0',
+        sticky:
+          'sticky bottom-0 -mx-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:mx-0 sm:pb-3',
         fixed:
-          'fixed inset-x-0 bottom-0 sm:right-6 sm:left-auto sm:bottom-6 sm:w-[min(28rem,calc(100vw-3rem))]',
+          'fixed inset-x-0 bottom-0 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:right-6 sm:left-auto sm:bottom-6 sm:w-[min(28rem,calc(100vw-3rem))] sm:pb-3',
         static: ''
       },
       layout: {

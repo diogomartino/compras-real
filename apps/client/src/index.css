@@ -124,6 +124,19 @@
       'Segoe UI', sans-serif;
     text-rendering: optimizeLegibility;
   }
+  /* Native tap feel: kill the mobile grey/blue flash and the 300ms
+     double-tap-zoom delay on anything interactive. */
+  a,
+  button,
+  [role='button'],
+  [role='tab'],
+  label,
+  summary,
+  input[type='checkbox'],
+  input[type='radio'] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
 }
 
 html,
@@ -134,8 +147,33 @@ body,
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body {
+  /* Don't let orientation changes rescale text. */
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  /* The app is a fixed-height frame; the content area scrolls, not the page.
+     This keeps the bottom nav pinned inside the visible viewport on every
+     browser — including Firefox Android, whose URL bar sits at the bottom. */
+  height: 100%;
+  overflow: hidden;
+}
+
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

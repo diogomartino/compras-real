@@ -13,4 +13,9 @@ type TCatalogProduct = {
   updatedAt: number;
 };
 
-export type { TCatalogProduct };
+type TSuggestedProduct = TCatalogProduct & {
+  addedCount: number;
+  lastAddedAt: number | null;
+};
+
+export type { TCatalogProduct, TSuggestedProduct };

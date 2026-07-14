@@ -3,6 +3,7 @@ import { categories, db, eq, products, sql } from '@myapp/db';
 type TCategorySummary = {
   id: string;
   name: string;
+  position: number;
   productCount: number;
   createdAt: number;
   updatedAt: number;
@@ -15,6 +16,7 @@ const getCategories = async (
     .select({
       id: categories.id,
       name: categories.name,
+      position: categories.position,
       productCount: sql<number>`count(${products.id})::int`,
       createdAt: categories.createdAt,
       updatedAt: categories.updatedAt
@@ -23,7 +25,7 @@ const getCategories = async (
     .leftJoin(products, eq(products.categoryId, categories.id))
     .where(eq(categories.householdId, householdId))
     .groupBy(categories.id)
-    .orderBy(categories.name);
+    .orderBy(categories.position, categories.name);
 };
 
 const getCategoryByName = async (householdId: string, name: string) => {

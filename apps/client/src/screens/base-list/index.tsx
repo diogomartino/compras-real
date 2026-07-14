@@ -1,4 +1,3 @@
-import { AppBottomNav } from '@/components/app-bottom-nav';
 import { useIsAuthenticated } from '@/features/auth/hooks';
 import { requestConfirmation } from '@/features/dialogs/actions';
 import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
@@ -424,7 +423,7 @@ const BaseList = memo(() => {
 
   if (selectedBaseList) {
     return (
-      <main className="min-h-dvh bg-background pb-28 text-foreground">
+      <main className="bg-background text-foreground">
         <BaseListList
           baseList={selectedBaseList}
           groups={groups}
@@ -438,13 +437,12 @@ const BaseList = memo(() => {
           onEdit={openEditItem}
           onRemove={removeItem}
         />
-        <AppBottomNav />
       </main>
     );
   }
 
   return (
-    <main className="min-h-dvh bg-background pb-28 text-foreground">
+    <main className="bg-background text-foreground">
       <BaseListOverview
         baseLists={baseLists}
         isLoading={baseListsLoading}
@@ -455,7 +453,6 @@ const BaseList = memo(() => {
         onEdit={openEditList}
         onRemove={removeList}
       />
-      <AppBottomNav />
     </main>
   );
 });

@@ -61,11 +61,15 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-4 data-[state=open]:slide-in-from-bottom-4 fixed inset-x-0 bottom-0 z-50 grid w-full gap-4 rounded-t-2xl border border-border/70 p-5 shadow-lg shadow-black/10 duration-200 sm:top-[50%] sm:left-[50%] sm:bottom-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-2xl sm:p-6',
+          'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-[100%] data-[state=open]:slide-in-from-bottom-[100%] fixed inset-x-0 bottom-0 z-50 grid max-h-[92dvh] w-full gap-4 overflow-y-auto rounded-t-2xl border border-border/70 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-lg shadow-black/10 duration-300 [overscroll-behavior:contain] sm:top-[50%] sm:left-[50%] sm:bottom-auto sm:max-h-[85dvh] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-2xl sm:p-6 sm:pb-6 sm:duration-200 sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=closed]:zoom-out-95',
           className
         )}
         {...props}
       >
+        <div
+          aria-hidden
+          className="mx-auto -mt-1 mb-1 h-1.5 w-10 shrink-0 rounded-full bg-muted-foreground/25 sm:hidden"
+        />
         {children}
         {close && (
           <DialogPrimitive.Close

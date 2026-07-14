@@ -12,7 +12,10 @@
     "products": "produtos",
     "items": "artigos",
     "confirm": "Confirmar",
-    "genericError": "Algo correu mal. Tenta outra vez."
+    "genericError": "Algo correu mal. Tenta outra vez.",
+    "undo": "Anular",
+    "decrease": "Diminuir",
+    "increase": "Aumentar"
   },
   "components": {
     "bottomNav": {
@@ -83,10 +86,13 @@
     "removeProductMessage": "Remover {{title}} da lista atual?",
     "productRemoved": "Produto removido.",
     "failedToRemoveProduct": "Não foi possível remover o produto.",
+    "suggestionsTitle": "Sugeridos para ti",
+    "boughtCount": "Comprado {{count}}×",
     "addDialog": {
       "title": "Adicionar produtos",
       "description": "Escolhe produtos do catálogo para adicionar à lista.",
       "search": "Procurar no catálogo",
+      "suggestedProducts": "Sugeridos",
       "recentProducts": "Produtos recentes",
       "allProducts": "Todos os produtos",
       "addSelected": "Adicionar escolhidos ({{count}})"
@@ -346,7 +352,9 @@
     "deleteMessage": "Apagar {{name}}? Os produtos desta categoria ficarão sem categoria.",
     "loading": "A carregar categorias...",
     "empty": "Ainda não há categorias.",
-    "productCount": "{{count}} produtos"
+    "productCount": "{{count}} produtos",
+    "reorderHint": "Arrasta para seguir a ordem dos corredores da tua loja.",
+    "failedToReorder": "Não foi possível reordenar as categorias."
   },
   "profile": {
     "title": "Perfil",
@@ -383,6 +391,18 @@
     "changing": "A alterar..."
   },
   "shopping": {
+    "checkedToast": "Marcado {{title}}",
+    "skippedToast": "Ignorado {{title}}",
+    "discardedToast": "Descartado {{title}}",
+    "addItem": "Adicionar",
+    "itemsAdded": "Adicionado à tua lista.",
+    "celebrationSubtitle": "Apanhaste {{count}} produtos",
+    "statChecked": "Marcados",
+    "statSkipped": "Ignorados",
+    "statProducts": "Produtos",
+    "statDuration": "Tempo",
+    "durationMinutes": "{{count}} min",
+    "durationQuick": "< 1 min",
     "loading": "A carregar o modo de compras...",
     "noActiveList": "Não tens nenhuma lista de compras ativa",
     "backHome": "Voltar ao início",
@@ -432,6 +452,9 @@
   "shoppingHistory": {
     "title": "Histórico de compras",
     "detailsTitle": "Detalhes da compra",
+    "shopAgain": "Comprar de novo",
+    "shopAgainAdded": "Produtos adicionados à tua lista.",
+    "shopAgainFailed": "Não foi possível adicionar estes produtos.",
     "profile": "Perfil",
     "finishedShops": "Compras terminadas",
     "description": "Revê o que a tua casa comprou ou descartou.",

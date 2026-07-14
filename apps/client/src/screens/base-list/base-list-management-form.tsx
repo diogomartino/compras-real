@@ -1,6 +1,7 @@
 import { Inline, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useFullscreenScreen } from '@/features/app/hooks';
 import type { TTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { ArrowLeft } from 'lucide-react';
 import { memo, useCallback, type ChangeEvent, type FormEvent } from 'react';
@@ -31,6 +32,7 @@ const BaseListManagementForm = memo(
     onFieldChange
   }: TBaseListManagementFormProps) => {
     const { t } = useTranslation();
+    useFullscreenScreen();
     const onNameChange = useCallback(
       (event: ChangeEvent<HTMLInputElement>) => {
         onFieldChange('name', event.target.value);

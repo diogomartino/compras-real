@@ -19,9 +19,20 @@ const useRecentProducts = (enabled: boolean) =>
     enabled
   });
 
+const suggestedProductsQueryKey = ['products', 'suggestions'] as const;
+
+const useSuggestedProducts = (enabled: boolean) =>
+  useQuery({
+    queryKey: suggestedProductsQueryKey,
+    queryFn: () => trpc.products.suggestions.query({ limit: 8 }),
+    enabled
+  });
+
 export {
   productsQueryKey,
   recentProductsQueryKey,
+  suggestedProductsQueryKey,
   useProducts,
-  useRecentProducts
+  useRecentProducts,
+  useSuggestedProducts
 };

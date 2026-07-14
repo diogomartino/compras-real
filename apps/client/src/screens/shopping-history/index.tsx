@@ -1,6 +1,6 @@
-import { AppBottomNav } from '@/components/app-bottom-nav';
 import {
   Inline,
+  ListSkeleton,
   Media,
   Stack,
   StatusChip,
@@ -11,6 +11,8 @@ import { InfiniteScroll } from '@/components/infinite-scroll';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useIsAuthenticated } from '@/features/auth/hooks';
+import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
+import { useAddOngoingListItems } from '@/mutations/ongoing-list';
 import { useShoppingHistory } from '@/queries/shopping';
 import { HomeAuthScreen } from '@/screens/home/home-auth-screen';
 import { formatQuantity } from '@/screens/shopping/helpers';
@@ -21,12 +23,14 @@ import {
   ChevronRight,
   CircleUserRound,
   History,
+  RotateCcw,
   ShoppingBag,
   X
 } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router';
+import { toast } from 'sonner';
 
 const formatDate = (timestamp: number) =>
   new Date(timestamp).toLocaleDateString(undefined, {
@@ -87,6 +91,27 @@ const ShoppingHistory = memo(() => {
   const loadMore = useCallback(() => {
     fetchNextPage();
   }, [fetchNextPage]);
+  const { mutateAsync: addItems, isPending: addingItems } =
+    useAddOngoingListItems();
+  const shopAgain = useCallback(
+    async (productIds: string[]) => {
+      if (productIds.length === 0) {
+        return;
+      }
+
+      try {
+        await addItems({ productIds });
+        toast.success(t('shoppingHistory.shopAgainAdded'));
+        navigate('/');
+      } catch (shopAgainError) {
+        toast.error(
+          parseTrpcErrors(shopAgainError)._general ??
+            t('shoppingHistory.shopAgainFailed')
+        );
+      }
+    },
+    [addItems, navigate, t]
+  );
 
   if (!isAuthenticated) {
     return <HomeAuthScreen />;
@@ -107,7 +132,7 @@ const ShoppingHistory = memo(() => {
   );
 
   return (
-    <main className="min-h-dvh bg-background pb-28 text-foreground">
+    <main className="bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
         {renderHeader(
           historyId
@@ -121,11 +146,7 @@ const ShoppingHistory = memo(() => {
           </Surface>
         )}
 
-        {isLoading && (
-          <Surface radius="xl" padding="lg">
-            <Text tone="muted">{t('shoppingHistory.loading')}</Text>
-          </Surface>
-        )}
+        {isLoading && <ListSkeleton />}
 
         {!isLoading && !historyId && history.length === 0 && (
           <Surface radius="xl" padding="lg" className="text-center">
@@ -296,6 +317,19 @@ const ShoppingHistory = memo(() => {
                         </Text>
                       </div>
                     </div>
+                    <Button
+                      type="button"
+                      className="w-full"
+                      disabled={addingItems}
+                      onClick={() =>
+                        shopAgain(
+                          selectedHistory.items.map((item) => item.productId)
+                        )
+                      }
+                    >
+                      <RotateCcw className="size-4" />
+                      {t('shoppingHistory.shopAgain')}
+                    </Button>
                   </Stack>
                 </Surface>
               );
@@ -335,7 +369,6 @@ const ShoppingHistory = memo(() => {
           </Stack>
         )}
       </div>
-      <AppBottomNav />
     </main>
   );
 });

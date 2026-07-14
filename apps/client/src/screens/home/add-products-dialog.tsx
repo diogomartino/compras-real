@@ -10,7 +10,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import type { TCatalogProduct, TOngoingListEntry } from '@myapp/shared';
+import type {
+  TCatalogProduct,
+  TOngoingListEntry,
+  TSuggestedProduct
+} from '@myapp/shared';
 import { Check, Search } from 'lucide-react';
 import { memo, useCallback, useMemo, useState, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +24,7 @@ type TAddProductsDialogProps = {
   open: boolean;
   products: TCatalogProduct[];
   recentProducts: TCatalogProduct[];
+  suggestedProducts: TSuggestedProduct[];
   ongoingItems: TOngoingListEntry[];
   isPending: boolean;
   onOpenChange: (open: boolean) => void;
@@ -31,6 +36,7 @@ const AddProductsDialog = memo(
     open,
     products,
     recentProducts,
+    suggestedProducts,
     ongoingItems,
     isPending,
     onOpenChange,
@@ -42,6 +48,17 @@ const AddProductsDialog = memo(
     const ongoingProductIds = useMemo(
       () => new Set(ongoingItems.map((item) => item.productId)),
       [ongoingItems]
+    );
+    const availableSuggestedProducts = useMemo(
+      () =>
+        suggestedProducts.filter(
+          (product) => !ongoingProductIds.has(product.id)
+        ),
+      [ongoingProductIds, suggestedProducts]
+    );
+    const suggestedProductIds = useMemo(
+      () => new Set(availableSuggestedProducts.map((product) => product.id)),
+      [availableSuggestedProducts]
     );
     const visibleProducts = useMemo(() => {
       const normalizedQuery = query.trim().toLowerCase();
@@ -59,8 +76,12 @@ const AddProductsDialog = memo(
     const normalizedQuery = query.trim().toLowerCase();
     const availableRecentProducts = useMemo(
       () =>
-        recentProducts.filter((product) => !ongoingProductIds.has(product.id)),
-      [ongoingProductIds, recentProducts]
+        recentProducts.filter(
+          (product) =>
+            !ongoingProductIds.has(product.id) &&
+            !suggestedProductIds.has(product.id)
+        ),
+      [ongoingProductIds, recentProducts, suggestedProductIds]
     );
     const recentProductIds = useMemo(
       () => new Set(availableRecentProducts.map((product) => product.id)),
@@ -72,9 +93,11 @@ const AddProductsDialog = memo(
       }
 
       return visibleProducts.filter(
-        (product) => !recentProductIds.has(product.id)
+        (product) =>
+          !recentProductIds.has(product.id) &&
+          !suggestedProductIds.has(product.id)
       );
-    }, [normalizedQuery, recentProductIds, visibleProducts]);
+    }, [normalizedQuery, recentProductIds, suggestedProductIds, visibleProducts]);
     const onQueryChange = useCallback(
       (event: ChangeEvent<HTMLInputElement>) => {
         setQuery(event.target.value);
@@ -191,6 +214,17 @@ const AddProductsDialog = memo(
           </div>
 
           <div className="max-h-[55dvh] space-y-4 overflow-y-auto pr-1">
+            {!normalizedQuery && availableSuggestedProducts.length > 0 && (
+              <Stack gap="sm">
+                <span className="px-1 text-sm font-semibold">
+                  {t('home.addDialog.suggestedProducts')}
+                </span>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {availableSuggestedProducts.map(renderProduct)}
+                </div>
+              </Stack>
+            )}
+
             {!normalizedQuery && availableRecentProducts.length > 0 && (
               <Stack gap="sm">
                 <span className="px-1 text-sm font-semibold">

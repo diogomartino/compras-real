@@ -1,4 +1,3 @@
-import { AppBottomNav } from '@/components/app-bottom-nav';
 import { useIsAuthenticated } from '@/features/auth/hooks';
 import { requestConfirmation } from '@/features/dialogs/actions';
 import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
@@ -244,7 +243,7 @@ const Catalog = memo(() => {
   }
 
   return (
-    <main className="min-h-dvh bg-background pb-28 text-foreground">
+    <main className="bg-background text-foreground">
       <CatalogList
         products={visibleProducts}
         query={query}
@@ -256,7 +255,6 @@ const Catalog = memo(() => {
         onEdit={openEdit}
         onDelete={remove}
       />
-      <AppBottomNav />
     </main>
   );
 });

@@ -1,7 +1,8 @@
-import { Inline, Stack, Surface, Text } from '@/components/ds';
+import { Inline, ListSkeleton, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderTree, PackageSearch, Plus, Search } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { memo, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -33,6 +34,7 @@ const CatalogList = memo(
     onDelete
   }: TCatalogListProps) => {
     const { t } = useTranslation();
+    const reduceMotion = useReducedMotion();
 
     return (
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
@@ -71,22 +73,33 @@ const CatalogList = memo(
         )}
 
         <Stack gap="sm">
-          {isLoading && (
-            <Surface radius="xl" padding="lg">
-              <Text tone="muted">{t('catalog.loadingProducts')}</Text>
-            </Surface>
-          )}
+          {isLoading && <ListSkeleton />}
 
-          {!isLoading &&
-            products.map((product) => (
-              <CatalogProductRow
-                key={product.id}
-                product={product}
-                isMutating={isMutating}
-                onEdit={onEdit}
-                onDelete={onDelete}
-              />
-            ))}
+          {!isLoading && (
+            <AnimatePresence initial={false} mode="popLayout">
+              {products.map((product) => (
+                <motion.div
+                  key={product.id}
+                  layout={!reduceMotion}
+                  initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={
+                    reduceMotion
+                      ? { opacity: 0 }
+                      : { opacity: 0, scale: 0.95, x: -24 }
+                  }
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                >
+                  <CatalogProductRow
+                    product={product}
+                    isMutating={isMutating}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
 
           {!isLoading && products.length === 0 && (
             <Surface radius="xl" padding="lg" className="text-center">

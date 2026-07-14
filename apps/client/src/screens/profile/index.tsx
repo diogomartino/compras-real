@@ -1,4 +1,3 @@
-import { AppBottomNav } from '@/components/app-bottom-nav';
 import { Inline, Stack, Surface, Text } from '@/components/ds';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -122,7 +121,7 @@ const Profile = memo(() => {
   }
 
   return (
-    <main className="min-h-dvh bg-background pb-28 text-foreground">
+    <main className="bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
         <Surface radius="xl" padding="lg">
           <Inline justify="between" className="gap-4">
@@ -358,8 +357,6 @@ const Profile = memo(() => {
           </form>
         </Surface>
       </div>
-
-      <AppBottomNav />
     </main>
   );
 });

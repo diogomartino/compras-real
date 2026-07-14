@@ -1,4 +1,5 @@
 import { Media, StatusChip, Text } from '@/components/ds';
+import { QuantityStepper } from '@/components/quantity-stepper';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -8,30 +9,38 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { TOngoingListEntry } from '@myapp/shared';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatQuantity } from './helpers';
 
 type TOngoingListItemRowProps = {
   item: TOngoingListEntry;
   isMutating: boolean;
   onEdit: (item: TOngoingListEntry) => void;
   onRemove: (item: TOngoingListEntry) => void;
+  onQuantityChange: (item: TOngoingListEntry, quantityAmount: number) => void;
 };
 
 const OngoingListItemRow = memo(
-  ({ item, isMutating, onEdit, onRemove }: TOngoingListItemRowProps) => {
+  ({
+    item,
+    isMutating,
+    onEdit,
+    onRemove,
+    onQuantityChange
+  }: TOngoingListItemRowProps) => {
     const { t } = useTranslation();
-    const quantity = useMemo(
-      () => formatQuantity(item.quantityAmount, item.quantityUnit),
-      [item.quantityAmount, item.quantityUnit]
-    );
     const edit = useCallback(() => {
       onEdit(item);
     }, [item, onEdit]);
     const remove = useCallback(() => {
       onRemove(item);
     }, [item, onRemove]);
+    const changeQuantity = useCallback(
+      (quantityAmount: number) => {
+        onQuantityChange(item, quantityAmount);
+      },
+      [item, onQuantityChange]
+    );
 
     return (
       <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border/70 bg-card/75 p-3 transition-colors active:bg-accent/35 sm:p-4">
@@ -45,7 +54,12 @@ const OngoingListItemRow = memo(
             <StatusChip tone="muted">
               {item.categoryName ?? t('common.uncategorized')}
             </StatusChip>
-            <StatusChip tone="info">{quantity}</StatusChip>
+            <QuantityStepper
+              amount={item.quantityAmount}
+              unit={item.quantityUnit}
+              disabled={isMutating}
+              onChange={changeQuantity}
+            />
           </div>
         </div>
 

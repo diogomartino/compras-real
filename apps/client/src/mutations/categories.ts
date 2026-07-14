@@ -38,5 +38,17 @@ const useDeleteCategory = () =>
     onSuccess: invalidateCategories
   });
 
-export { useCreateCategory, useDeleteCategory, useUpdateCategory };
+const useReorderCategories = () =>
+  useMutation({
+    mutationFn: (orderedIds: string[]) =>
+      trpc.categories.reorder.mutate({ orderedIds }),
+    onSuccess: invalidateCategories
+  });
+
+export {
+  useCreateCategory,
+  useDeleteCategory,
+  useReorderCategories,
+  useUpdateCategory
+};
 export type { TCategoryInput, TUpdateCategoryInput };

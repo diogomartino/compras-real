@@ -1,4 +1,11 @@
-import { Inline, Stack, StatusChip, Surface, Text } from '@/components/ds';
+import {
+  Inline,
+  ListSkeleton,
+  Stack,
+  StatusChip,
+  Surface,
+  Text
+} from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -135,11 +142,7 @@ const BaseListOverview = memo(
           </Surface>
         )}
 
-        {isLoading && (
-          <Surface radius="xl" padding="lg">
-            <Text tone="muted">{t('baseList.loadingLists')}</Text>
-          </Surface>
-        )}
+        {isLoading && <ListSkeleton />}
 
         {!isLoading && baseLists.length === 0 && (
           <Surface radius="xl" padding="lg" className="text-center">

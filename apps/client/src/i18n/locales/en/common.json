@@ -12,7 +12,10 @@
     "products": "products",
     "items": "items",
     "confirm": "Confirm",
-    "genericError": "Something went wrong, please try again."
+    "genericError": "Something went wrong, please try again.",
+    "undo": "Undo",
+    "decrease": "Decrease",
+    "increase": "Increase"
   },
   "components": {
     "bottomNav": {
@@ -83,10 +86,13 @@
     "removeProductMessage": "Remove {{title}} from the ongoing list?",
     "productRemoved": "Product removed.",
     "failedToRemoveProduct": "Failed to remove product.",
+    "suggestionsTitle": "Suggested for you",
+    "boughtCount": "Bought {{count}}×",
     "addDialog": {
       "title": "Add products",
       "description": "Select catalog products to add to the current ongoing list.",
       "search": "Search catalog",
+      "suggestedProducts": "Suggested",
       "recentProducts": "Recent products",
       "allProducts": "All products",
       "addSelected": "Add selected ({{count}})"
@@ -346,7 +352,9 @@
     "deleteMessage": "Delete {{name}}? Products in it will become uncategorized.",
     "loading": "Loading categories...",
     "empty": "No categories yet.",
-    "productCount": "{{count}} products"
+    "productCount": "{{count}} products",
+    "reorderHint": "Drag to match your store's aisle order.",
+    "failedToReorder": "Failed to reorder categories."
   },
   "profile": {
     "title": "Profile",
@@ -383,6 +391,18 @@
     "changing": "Changing..."
   },
   "shopping": {
+    "checkedToast": "Checked {{title}}",
+    "skippedToast": "Skipped {{title}}",
+    "discardedToast": "Discarded {{title}}",
+    "addItem": "Add item",
+    "itemsAdded": "Added to your list.",
+    "celebrationSubtitle": "You picked up {{count}} products",
+    "statChecked": "Checked",
+    "statSkipped": "Skipped",
+    "statProducts": "Products",
+    "statDuration": "Time",
+    "durationMinutes": "{{count}} min",
+    "durationQuick": "< 1 min",
     "loading": "Loading shopping mode...",
     "noActiveList": "No shopping list is active",
     "backHome": "Back home",
@@ -432,6 +452,9 @@
   "shoppingHistory": {
     "title": "Shopping history",
     "detailsTitle": "Shopping details",
+    "shopAgain": "Shop again",
+    "shopAgainAdded": "Products added to your list.",
+    "shopAgainFailed": "Couldn't add these products.",
     "profile": "Profile",
     "finishedShops": "Finished shops",
     "description": "Review what your household bought or discarded before.",

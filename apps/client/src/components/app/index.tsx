@@ -2,7 +2,7 @@ import { useAuthLoading } from '@/features/auth/hooks';
 import { useAuthController } from '@/hooks/use-auth-controller';
 import { memo } from 'react';
 import { AppLoading } from '../app-loading';
-import { Routing } from '../routing';
+import { AppShell } from '../app-shell';
 import { ShoppingGuard } from '../shopping-guard';
 
 const App = memo(() => {
@@ -17,7 +17,7 @@ const App = memo(() => {
   return (
     <>
       <ShoppingGuard />
-      <Routing />
+      <AppShell />
     </>
   );
 });

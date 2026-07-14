@@ -1,4 +1,5 @@
 import { Text } from '@/components/ds';
+import Spinner from '@/components/ui/spinner';
 import { memo, useEffect, useRef } from 'react';
 
 type TInfiniteScrollProps = {
@@ -41,11 +42,9 @@ const InfiniteScroll = memo(
     }, [hasMore, isLoading, onLoadMore]);
 
     return (
-      <div ref={markerRef} className="py-3 text-center">
+      <div ref={markerRef} className="flex justify-center py-3 text-center">
         {isLoading && (
-          <Text size="sm" tone="muted">
-            {loadingLabel}
-          </Text>
+          <Spinner size="xs" aria-label={loadingLabel} />
         )}
         {!hasMore && endLabel && !isLoading && (
           <Text size="sm" tone="subtle">

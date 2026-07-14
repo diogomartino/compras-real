@@ -10,11 +10,15 @@ import { ResetPassword } from '@/screens/reset-password';
 import { Shopping } from '@/screens/shopping';
 import { ShoppingHistory } from '@/screens/shopping-history';
 import { memo } from 'react';
-import { Route, Routes } from 'react-router';
+import { Route, Routes, type Location } from 'react-router';
 
-const Routing = memo(() => {
+type TRoutingProps = {
+  location?: Location;
+};
+
+const Routing = memo(({ location }: TRoutingProps) => {
   return (
-    <Routes>
+    <Routes location={location}>
       <Route index element={<Home />} />
 
       <Route path="auth/google/callback" element={<AuthGoogleCallback />} />

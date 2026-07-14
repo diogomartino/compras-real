@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { useFullscreenScreen } from '@/features/app/hooks';
 import type { TTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { ArrowLeft } from 'lucide-react';
 import {
@@ -52,6 +53,9 @@ const CatalogForm = memo(
     onFieldChange
   }: TCatalogFormProps) => {
     const { t } = useTranslation();
+
+    useFullscreenScreen();
+
     const categoryOptions = useMemo(
       () =>
         categories.map((category) => ({
@@ -216,7 +220,9 @@ const CatalogForm = memo(
                         onValueChange={onDefaultQuantityUnitChange}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={t('catalog.form.selectUnit')} />
+                          <SelectValue
+                            placeholder={t('catalog.form.selectUnit')}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {unitOptions.map((unit) => (

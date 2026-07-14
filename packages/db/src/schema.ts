@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
+  integer,
   jsonb,
   numeric,
   pgEnum,
@@ -166,11 +167,17 @@ const categories = pgTable(
 
     name: text("name").notNull(),
 
+    position: integer("position").notNull().default(0),
+
     createdAt: numeric("created_at", { mode: "number" }).notNull(),
     updatedAt: numeric("updated_at", { mode: "number" }).notNull(),
   },
   (table) => ({
     householdIdx: index("categories_household_id_idx").on(table.householdId),
+    householdPositionIdx: index("categories_household_position_idx").on(
+      table.householdId,
+      table.position,
+    ),
     householdNameUniqueIdx: uniqueIndex(
       "categories_household_name_unique_idx",
     ).on(table.householdId, table.name),

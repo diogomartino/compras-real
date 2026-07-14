@@ -1,0 +1,2 @@
+ALTER TABLE "categories" ADD COLUMN "position" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+CREATE INDEX "categories_household_position_idx" ON "categories" USING btree ("household_id","position");

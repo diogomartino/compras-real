@@ -1,31 +1,51 @@
-import { Inline, Stack, Surface, Text } from '@/components/ds';
+import {
+  Inline,
+  ProgressSummary,
+  Stack,
+  Stat,
+  Surface,
+  Text
+} from '@/components/ds';
 import { Button } from '@/components/ui/button';
+import Spinner from '@/components/ui/spinner';
 import { useAuth } from '@/features/auth/hooks';
 import { requestConfirmation } from '@/features/dialogs/actions';
 import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { useWakeLock } from '@/hooks/use-wake-lock';
+import { queryClient } from '@/lib/query-client';
 import { cn } from '@/lib/utils';
 import { useUpdateSettings } from '@/mutations/auth';
+import { useAddOngoingListItems } from '@/mutations/ongoing-list';
 import {
   clearShoppingListState,
   useCancelShopping,
   useFinishShopping,
   useSetShoppingItemStatus
 } from '@/mutations/shopping';
+import { useCategories } from '@/queries/categories';
+import {
+  useProducts,
+  useRecentProducts,
+  useSuggestedProducts
+} from '@/queries/products';
 import {
   type TShoppingActivity,
   type TShoppingPresenceUser,
+  shoppingListQueryKey,
   useShoppingList,
   useShoppingUpdates
 } from '@/queries/shopping';
+import { AddProductsDialog } from '@/screens/home/add-products-dialog';
 import type { TOngoingListEntry, TOngoingListItemStatus } from '@myapp/shared';
 import {
   CheckCircle2,
   Hand,
   List,
+  Plus,
   RotateCcw,
   ShoppingCart
 } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -41,11 +61,13 @@ type TShoppingView = 'list' | 'swipe';
 const Shopping = memo(() => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
   const auth = useAuth();
   const [view, setView] = useState<TShoppingView>(
     auth.settings?.defaultShoppingMode ?? 'list'
   );
   const [reviewSkipped, setReviewSkipped] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [shoppingUsers, setShoppingUsers] = useState<TShoppingPresenceUser[]>([]);
   const [shoppingActivities, setShoppingActivities] = useState<
     TShoppingActivity[]
@@ -60,6 +82,12 @@ const Shopping = memo(() => {
     useCancelShopping();
   const { mutateAsync: updateSettings, isPending: updateSettingsPending } =
     useUpdateSettings();
+  const { mutateAsync: addProducts, isPending: addProductsPending } =
+    useAddOngoingListItems();
+  const { data: productsData } = useProducts(true);
+  const { data: recentProductsData } = useRecentProducts(addDialogOpen);
+  const { data: suggestedProductsData } = useSuggestedProducts(addDialogOpen);
+  const { data: categoriesData } = useCategories(true);
 
   const onPresence = useCallback((users: TShoppingPresenceUser[]) => {
     setShoppingUsers(users);
@@ -82,6 +110,15 @@ const Shopping = memo(() => {
   useWakeLock(auth.settings?.wakeLockEnabled ?? true);
 
   const items = useMemo(() => shoppingList?.items ?? [], [shoppingList]);
+  const products = useMemo(() => productsData ?? [], [productsData]);
+  const recentProducts = useMemo(
+    () => recentProductsData ?? [],
+    [recentProductsData]
+  );
+  const suggestedProducts = useMemo(
+    () => suggestedProductsData ?? [],
+    [suggestedProductsData]
+  );
   const pendingItems = useMemo(
     () => items.filter((item) => item.status === 'pending'),
     [items]
@@ -91,15 +128,13 @@ const Shopping = memo(() => {
     [items]
   );
   const activeItems = reviewSkipped ? ignoredItems : pendingItems;
-  const categoryOrder = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          items.map((item) => item.categoryName ?? t('common.uncategorized'))
-        )
-      ),
-    [items, t]
-  );
+  const categoryOrder = useMemo(() => {
+    const orderedNames = (categoriesData ?? []).map(
+      (category) => category.name
+    );
+
+    return [...orderedNames, t('common.uncategorized')];
+  }, [categoriesData, t]);
   const checkedCount = useMemo(
     () => items.filter((item) => item.status === 'checked').length,
     [items]
@@ -111,6 +146,19 @@ const Shopping = memo(() => {
   const skippedCount = ignoredItems.length + discardedCount;
   const isComplete =
     items.length > 0 && pendingItems.length === 0 && ignoredItems.length === 0;
+  const shoppingDurationMinutes = useMemo(() => {
+    const timestamps = items
+      .map((item) => item.statusUpdatedAt)
+      .filter((value): value is number => value != null);
+
+    if (timestamps.length === 0) {
+      return null;
+    }
+
+    return Math.max(0, Math.round((Date.now() - Math.min(...timestamps)) / 60000));
+  }, [items]);
+  const checkedProgress =
+    items.length > 0 ? Math.round((checkedCount / items.length) * 100) : 0;
   const shouldReviewSkipped =
     !reviewSkipped && pendingItems.length === 0 && ignoredItems.length > 0;
   const compactShoppingList = auth.settings?.compactShoppingList ?? true;
@@ -118,7 +166,11 @@ const Shopping = memo(() => {
   const soundEnabled = auth.settings?.soundEnabled ?? false;
 
   const setStatus = useCallback(
-    async (item: TOngoingListEntry, status: TOngoingListItemStatus) => {
+    async (
+      item: TOngoingListEntry,
+      status: TOngoingListItemStatus,
+      options?: { silent?: boolean }
+    ) => {
       let vibrated = true;
 
       if (hapticsEnabled && status === 'checked') {
@@ -145,6 +197,24 @@ const Shopping = memo(() => {
             status === 'discarded')
         ) {
           playActionTone(status);
+        }
+
+        if (!options?.silent && status !== 'pending') {
+          const messageKey =
+            status === 'checked'
+              ? 'shopping.checkedToast'
+              : status === 'discarded'
+                ? 'shopping.discardedToast'
+                : 'shopping.skippedToast';
+
+          toast(t(messageKey, { title: item.title }), {
+            action: {
+              label: t('common.undo'),
+              onClick: () => {
+                void setItemStatus({ id: item.id, status: 'pending' });
+              }
+            }
+          });
         }
       } catch (mutationError) {
         toast.error(
@@ -187,7 +257,9 @@ const Shopping = memo(() => {
       return;
     }
 
-    await Promise.all(ignoredItems.map((item) => setStatus(item, 'discarded')));
+    await Promise.all(
+      ignoredItems.map((item) => setStatus(item, 'discarded', { silent: true }))
+    );
   }, [ignoredItems, setStatus, t]);
   const startSkippedReview = useCallback(() => {
     setReviewSkipped(true);
@@ -212,6 +284,26 @@ const Shopping = memo(() => {
   const showMainList = useCallback(() => {
     setReviewSkipped(false);
   }, []);
+  const openAddDialog = useCallback(() => {
+    setAddDialogOpen(true);
+  }, []);
+  const addSelectedProducts = useCallback(
+    async (productIds: string[]) => {
+      try {
+        await addProducts({ productIds });
+        await queryClient.invalidateQueries({
+          queryKey: shoppingListQueryKey
+        });
+        setAddDialogOpen(false);
+        toast.success(t('shopping.itemsAdded'));
+      } catch (addError) {
+        toast.error(
+          parseTrpcErrors(addError)._general ?? t('home.failedToAddProducts')
+        );
+      }
+    },
+    [addProducts, t]
+  );
   const finish = useCallback(async () => {
     try {
       await finishShopping();
@@ -259,7 +351,7 @@ const Shopping = memo(() => {
   if (isLoading) {
     return (
       <main className="grid min-h-dvh place-items-center bg-background p-6 text-foreground">
-        <Text tone="muted">{t('shopping.loading')}</Text>
+        <Spinner size="sm" aria-label={t('shopping.loading')} />
       </main>
     );
   }
@@ -333,6 +425,16 @@ const Shopping = memo(() => {
                       ? t('shopping.compact')
                       : t('shopping.comfort')}
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full"
+                    onClick={openAddDialog}
+                  >
+                    <Plus className="size-4" />
+                    {t('shopping.addItem')}
+                  </Button>
                 </Inline>
                 {reviewSkipped && (
                   <Button
@@ -405,29 +507,81 @@ const Shopping = memo(() => {
               view === 'swipe' ? 'min-h-dvh p-4' : 'min-h-[calc(100dvh-12rem)]'
             )}
           >
-            <Surface radius="xl" padding="lg" className="w-full max-w-md text-center">
-              <Stack gap="md" align="center">
-                <CheckCircle2 className="size-12 text-green-600" />
-                <Stack gap="xs" align="center">
-                  <Text weight="semibold" className="text-xl">
-                    {t('shopping.shoppingDone')}
-                  </Text>
-                  <Text size="sm" tone="muted">
-                    {t('shopping.doneStats', {
-                      checked: checkedCount,
-                      discarded: discardedCount
-                    })}
-                  </Text>
+            <motion.div
+              className="w-full max-w-md"
+              initial={
+                reduceMotion ? false : { opacity: 0, scale: 0.96, y: 8 }
+              }
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+            >
+              <Surface radius="xl" padding="lg" className="w-full text-center">
+                <Stack gap="lg" align="center">
+                  <div className="grid size-16 place-items-center rounded-full bg-green-500/15 text-green-600">
+                    <CheckCircle2 className="size-9" />
+                  </div>
+                  <Stack gap="xs" align="center">
+                    <Text weight="semibold" className="text-2xl">
+                      {t('shopping.shoppingDone')}
+                    </Text>
+                    <Text size="sm" tone="muted">
+                      {t('shopping.celebrationSubtitle', {
+                        count: checkedCount
+                      })}
+                    </Text>
+                  </Stack>
+
+                  <ProgressSummary
+                    tone="success"
+                    size="lg"
+                    className="w-full"
+                    label={t('shopping.statChecked')}
+                    value={`${checkedCount}/${items.length}`}
+                    progress={checkedProgress}
+                  />
+
+                  <div className="grid w-full grid-cols-2 gap-3">
+                    <Stat
+                      tone="success"
+                      label={t('shopping.statChecked')}
+                      value={checkedCount}
+                    />
+                    <Stat
+                      tone="warn"
+                      label={t('shopping.statSkipped')}
+                      value={skippedCount}
+                    />
+                    <Stat
+                      tone="muted"
+                      label={t('shopping.statProducts')}
+                      value={items.length}
+                    />
+                    {shoppingDurationMinutes != null && (
+                      <Stat
+                        tone="muted"
+                        label={t('shopping.statDuration')}
+                        value={
+                          shoppingDurationMinutes < 1
+                            ? t('shopping.durationQuick')
+                            : t('shopping.durationMinutes', {
+                                count: shoppingDurationMinutes
+                              })
+                        }
+                      />
+                    )}
+                  </div>
+
+                  <Button
+                    type="button"
+                    className="w-full"
+                    disabled={finishShoppingPending}
+                    onClick={finish}
+                  >
+                    {t('shopping.finishShopping')}
+                  </Button>
                 </Stack>
-                <Button
-                  type="button"
-                  disabled={finishShoppingPending}
-                  onClick={finish}
-                >
-                  {t('shopping.finishShopping')}
-                </Button>
-              </Stack>
-            </Surface>
+              </Surface>
+            </motion.div>
           </div>
         )}
 
@@ -437,6 +591,7 @@ const Shopping = memo(() => {
             isPending={setItemStatusPending}
             compact={compactShoppingList}
             reviewSkipped={reviewSkipped}
+            categoryOrder={categoryOrder}
             onCheck={check}
             onDiscard={discard}
           />
@@ -457,10 +612,22 @@ const Shopping = memo(() => {
             onListView={showListView}
             onMainList={showMainList}
             onCancelShopping={cancel}
+            onAddItem={openAddDialog}
             onAction={onSwipeAction}
           />
         )}
       </div>
+
+      <AddProductsDialog
+        open={addDialogOpen}
+        products={products}
+        recentProducts={recentProducts}
+        suggestedProducts={suggestedProducts}
+        ongoingItems={items}
+        isPending={addProductsPending}
+        onOpenChange={setAddDialogOpen}
+        onSubmit={addSelectedProducts}
+      />
     </main>
   );
 });

@@ -19,7 +19,8 @@ const formatQuantity = (amount: number | string, unit: TUnitKind) => {
 
 const getGroupedItems = (
   items: TOngoingListEntry[],
-  uncategorizedLabel: string
+  uncategorizedLabel: string,
+  categoryOrder?: string[]
 ) => {
   const groups = new Map<string, TOngoingListEntry[]>();
 
@@ -31,10 +32,31 @@ const getGroupedItems = (
     groups.set(categoryName, groupItems);
   });
 
-  return Array.from(groups.entries()).map(([categoryName, groupItems]) => ({
-    categoryName,
-    items: groupItems
-  }));
+  const entries = Array.from(groups.entries()).map(
+    ([categoryName, groupItems]) => ({
+      categoryName,
+      items: groupItems
+    })
+  );
+
+  if (!categoryOrder || categoryOrder.length === 0) {
+    return entries;
+  }
+
+  const orderIndex = (name: string) => {
+    if (name === uncategorizedLabel) {
+      return Number.MAX_SAFE_INTEGER;
+    }
+
+    const index = categoryOrder.indexOf(name);
+
+    return index === -1 ? Number.MAX_SAFE_INTEGER - 1 : index;
+  };
+
+  return entries.sort(
+    (first, second) =>
+      orderIndex(first.categoryName) - orderIndex(second.categoryName)
+  );
 };
 
 const vibrate = (pattern: VibratePattern) => {

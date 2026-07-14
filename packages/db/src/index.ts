@@ -33,6 +33,6 @@ const loadDb = async (options: TLoadOptions) => {
   logger.info('Database is ready');
 };
 
-export { and, eq, inArray, sql } from 'drizzle-orm';
+export { and, eq, inArray, notInArray, sql } from 'drizzle-orm';
 export * from './schema';
 export { db, loadDb, sqlClient };

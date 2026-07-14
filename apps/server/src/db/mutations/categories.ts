@@ -107,9 +107,31 @@ const deleteCategory = async (householdId: string, categoryId: string) => {
   return category;
 };
 
+const reorderCategories = async (
+  householdId: string,
+  orderedIds: string[]
+) => {
+  const now = Date.now();
+
+  await db.transaction(async (tx) => {
+    for (let index = 0; index < orderedIds.length; index += 1) {
+      await tx
+        .update(categories)
+        .set({ position: index, updatedAt: now })
+        .where(
+          and(
+            eq(categories.id, orderedIds[index]!),
+            eq(categories.householdId, householdId)
+          )
+        );
+    }
+  });
+};
+
 export {
   createCategory,
   deleteCategory,
   getOrCreateCategoryId,
+  reorderCategories,
   updateCategory
 };

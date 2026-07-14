@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { useFullscreenScreen } from '@/features/app/hooks';
 import type { TTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { ArrowLeft } from 'lucide-react';
 import {
@@ -53,6 +54,7 @@ const BaseListForm = memo(
     onFieldChange
   }: TBaseListFormProps) => {
     const { t } = useTranslation();
+    useFullscreenScreen();
     const selectedProduct = useMemo(
       () => productOptions.find((product) => product.id === values.productId),
       [productOptions, values.productId]

@@ -1,5 +1,4 @@
-import { AppBottomNav } from '@/components/app-bottom-nav';
-import { Inline, Stack, Surface, Text } from '@/components/ds';
+import { Inline, ListSkeleton, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useIsAuthenticated } from '@/features/auth/hooks';
@@ -9,12 +8,27 @@ import { useForm } from '@/hooks/use-form';
 import {
   useCreateCategory,
   useDeleteCategory,
+  useReorderCategories,
   useUpdateCategory
 } from '@/mutations/categories';
 import { useCategories } from '@/queries/categories';
 import { HomeAuthScreen } from '@/screens/home/home-auth-screen';
-import { ArrowLeft, FolderPlus, Pencil, Trash2 } from 'lucide-react';
-import { memo, useCallback, useMemo, useState, type FormEvent } from 'react';
+import {
+  ArrowLeft,
+  FolderPlus,
+  GripVertical,
+  Pencil,
+  Trash2
+} from 'lucide-react';
+import { Reorder, useDragControls } from 'motion/react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
@@ -28,6 +42,103 @@ type TEditingCategory = {
   name: string;
 };
 
+type TCategory = {
+  id: string;
+  name: string;
+  position: number;
+  productCount: number;
+  createdAt: number;
+  updatedAt: number;
+};
+
+type TCategoryRowProps = {
+  category: TCategory;
+  disabled: boolean;
+  productCountLabel: string;
+  editLabel: string;
+  deleteLabel: string;
+  reorderLabel: string;
+  onEdit: (category: TEditingCategory) => void;
+  onRemove: (category: TEditingCategory) => void;
+  onCommit: () => void;
+};
+
+const CategoryRow = memo(
+  ({
+    category,
+    disabled,
+    productCountLabel,
+    editLabel,
+    deleteLabel,
+    reorderLabel,
+    onEdit,
+    onRemove,
+    onCommit
+  }: TCategoryRowProps) => {
+    const controls = useDragControls();
+
+    return (
+      <Reorder.Item
+        value={category}
+        dragListener={false}
+        dragControls={controls}
+        onDragEnd={onCommit}
+      >
+        <Surface radius="xl" padding="md">
+          <Inline justify="between" wrap={false} className="gap-3">
+            <Inline gap="sm" wrap={false} className="min-w-0">
+              <button
+                type="button"
+                aria-label={reorderLabel}
+                className="grid size-9 shrink-0 cursor-grab touch-none place-items-center rounded-lg text-muted-foreground active:cursor-grabbing"
+                onPointerDown={(event) => controls.start(event)}
+              >
+                <GripVertical className="size-5" />
+              </button>
+              <Stack gap="none" className="min-w-0">
+                <Text weight="semibold" className="truncate">
+                  {category.name}
+                </Text>
+                <Text size="sm" tone="muted">
+                  {productCountLabel}
+                </Text>
+              </Stack>
+            </Inline>
+            <Inline gap="xs" wrap={false}>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                disabled={disabled}
+                aria-label={editLabel}
+                onClick={() =>
+                  onEdit({ id: category.id, name: category.name })
+                }
+              >
+                <Pencil className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                disabled={disabled}
+                aria-label={deleteLabel}
+                onClick={() =>
+                  onRemove({ id: category.id, name: category.name })
+                }
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </Inline>
+          </Inline>
+        </Surface>
+      </Reorder.Item>
+    );
+  }
+);
+
+CategoryRow.displayName = 'CategoryRow';
+
 const Categories = memo(() => {
   const { t } = useTranslation();
   const isAuthenticated = useIsAuthenticated();
@@ -40,10 +151,34 @@ const Categories = memo(() => {
     useUpdateCategory();
   const { mutateAsync: deleteCategory, isPending: deletePending } =
     useDeleteCategory();
+  const { mutateAsync: reorderCategories, isPending: reorderPending } =
+    useReorderCategories();
   const { values, errors, setErrors, resetErrors, r, setValues } =
     useForm<TCategoryForm>({ name: '' });
   const categories = useMemo(() => data ?? [], [data]);
   const isPending = createPending || updatePending || deletePending;
+  const [orderedCategories, setOrderedCategories] = useState(categories);
+
+  // Keep local drag order in sync with the server unless we're mid-reorder.
+  useEffect(() => {
+    setOrderedCategories(categories);
+  }, [categories]);
+
+  const commitOrder = useCallback(() => {
+    const orderedIds = orderedCategories.map((category) => category.id);
+    const currentIds = categories.map((category) => category.id);
+
+    if (orderedIds.join(',') === currentIds.join(',')) {
+      return;
+    }
+
+    reorderCategories(orderedIds).catch((reorderError) => {
+      toast.error(
+        parseTrpcErrors(reorderError)._general ??
+          t('categories.failedToReorder')
+      );
+    });
+  }, [categories, orderedCategories, reorderCategories, t]);
 
   const resetForm = useCallback(() => {
     setEditingCategory(undefined);
@@ -123,7 +258,7 @@ const Categories = memo(() => {
   }
 
   return (
-    <main className="min-h-dvh bg-background pb-28 text-foreground">
+    <main className="bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
         <Inline justify="between" wrap={false} className="gap-3">
           <Button
@@ -183,57 +318,43 @@ const Categories = memo(() => {
         )}
 
         <Stack gap="sm">
-          {isLoading && (
-            <Surface radius="xl" padding="lg">
-              <Text tone="muted">{t('categories.loading')}</Text>
-            </Surface>
-          )}
+          {isLoading && <ListSkeleton />}
           {!isLoading && categories.length === 0 && (
             <Surface radius="xl" padding="lg" className="text-center">
               <Text tone="muted">{t('categories.empty')}</Text>
             </Surface>
           )}
-          {categories.map((category) => (
-            <Surface key={category.id} radius="xl" padding="md">
-              <Inline justify="between" wrap={false} className="gap-3">
-                <Stack gap="none" className="min-w-0">
-                  <Text weight="semibold" className="truncate">
-                    {category.name}
-                  </Text>
-                  <Text size="sm" tone="muted">
-                    {t('categories.productCount', {
-                      count: category.productCount
-                    })}
-                  </Text>
-                </Stack>
-                <Inline gap="xs" wrap={false}>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    disabled={isPending}
-                    onClick={() => edit(category)}
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    disabled={isPending}
-                    onClick={() => {
-                      remove(category);
-                    }}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </Inline>
-              </Inline>
-            </Surface>
-          ))}
+          {!isLoading && categories.length > 0 && (
+            <Text size="sm" tone="muted" className="px-1">
+              {t('categories.reorderHint')}
+            </Text>
+          )}
+          <Reorder.Group
+            as="div"
+            axis="y"
+            values={orderedCategories}
+            onReorder={setOrderedCategories}
+            className="space-y-2"
+          >
+            {orderedCategories.map((category) => (
+              <CategoryRow
+                key={category.id}
+                category={category}
+                disabled={isPending || reorderPending}
+                productCountLabel={t('categories.productCount', {
+                  count: category.productCount
+                })}
+                editLabel={t('common.edit')}
+                deleteLabel={t('common.delete')}
+                reorderLabel={t('categories.reorderHint')}
+                onEdit={edit}
+                onRemove={remove}
+                onCommit={commitOrder}
+              />
+            ))}
+          </Reorder.Group>
         </Stack>
       </div>
-      <AppBottomNav />
     </main>
   );
 });

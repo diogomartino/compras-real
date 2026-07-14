@@ -3,3 +3,6 @@ import { appSliceActions } from './slice';
 
 export const setAppLoading = (loading: boolean) =>
   store.dispatch(appSliceActions.setAppLoading(loading));
+
+export const setFullscreen = (fullscreen: boolean) =>
+  store.dispatch(appSliceActions.setFullscreen(fullscreen));

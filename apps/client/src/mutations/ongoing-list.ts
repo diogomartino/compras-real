@@ -3,7 +3,10 @@ import { trpc } from '@/lib/trpc';
 import type { TUnitKind } from '@myapp/shared';
 import { useMutation } from '@tanstack/react-query';
 import { ongoingListQueryKey } from '../queries/ongoing-list';
-import { recentProductsQueryKey } from '../queries/products';
+import {
+  recentProductsQueryKey,
+  suggestedProductsQueryKey
+} from '../queries/products';
 
 type TAddOngoingListItemsInput = {
   productIds: string[];
@@ -18,7 +21,8 @@ type TUpdateOngoingListItemInput = {
 const invalidateOngoingList = async () => {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: ongoingListQueryKey }),
-    queryClient.invalidateQueries({ queryKey: recentProductsQueryKey })
+    queryClient.invalidateQueries({ queryKey: recentProductsQueryKey }),
+    queryClient.invalidateQueries({ queryKey: suggestedProductsQueryKey })
   ]);
 };
 

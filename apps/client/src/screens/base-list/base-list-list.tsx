@@ -1,7 +1,15 @@
-import { Inline, Stack, StatusChip, Surface, Text } from '@/components/ds';
+import {
+  Inline,
+  ListSkeleton,
+  Stack,
+  StatusChip,
+  Surface,
+  Text
+} from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, ListChecks, Plus, Search } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { memo, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BaseListItemRow } from './base-list-item-row';
@@ -41,6 +49,7 @@ const BaseListList = memo(
     onRemove
   }: TBaseListListProps) => {
     const { t } = useTranslation();
+    const reduceMotion = useReducedMotion();
     const itemCount = groups.reduce(
       (total, group) => total + group.items.length,
       0
@@ -98,11 +107,7 @@ const BaseListList = memo(
           </Surface>
         )}
 
-        {isLoading && (
-          <Surface radius="xl" padding="lg">
-            <Text tone="muted">{t('baseList.loading')}</Text>
-          </Surface>
-        )}
+        {isLoading && <ListSkeleton />}
 
         {!isLoading && itemCount === 0 && (
           <Surface radius="xl" padding="lg" className="text-center">
@@ -125,15 +130,29 @@ const BaseListList = memo(
                   {t('baseList.itemsCount', { count: group.items.length })}
                 </Text>
               </Inline>
-              {group.items.map((item) => (
-                <BaseListItemRow
-                  key={item.id}
-                  item={item}
-                  isMutating={isMutating}
-                  onEdit={onEdit}
-                  onRemove={onRemove}
-                />
-              ))}
+              <AnimatePresence initial={false} mode="popLayout">
+                {group.items.map((item) => (
+                  <motion.div
+                    key={item.id}
+                    layout={!reduceMotion}
+                    initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={
+                      reduceMotion
+                        ? { opacity: 0 }
+                        : { opacity: 0, scale: 0.95, x: -24 }
+                    }
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                  >
+                    <BaseListItemRow
+                      item={item}
+                      isMutating={isMutating}
+                      onEdit={onEdit}
+                      onRemove={onRemove}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </Stack>
           ))}
       </div>

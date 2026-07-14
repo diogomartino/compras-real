@@ -8,6 +8,7 @@ import {
 } from '../../db/queries/ongoing-list';
 import { getProductById } from '../../db/queries/products';
 import { getRequiredHouseholdId } from '../../helpers/get-required-household-id';
+import { notifyShoppingUpdate } from '../../helpers/shopping-events';
 import { protectedProcedure } from '../../trpc';
 import { getOrCreateActiveOngoingList } from './helpers';
 
@@ -26,13 +27,6 @@ const addItemsRoute = protectedProcedure
       householdId,
       ctx.userId
     );
-
-    if (ongoingList.status === 'shopping') {
-      ctx.throwValidationError(
-        'productIds',
-        'Products cannot be added while shopping mode is active'
-      );
-    }
 
     const uniqueProductIds = Array.from(new Set(input.productIds));
 
@@ -60,6 +54,14 @@ const addItemsRoute = protectedProcedure
         });
         await trackProductAddedToOngoing({ householdId, productId });
       }
+    }
+
+    if (ongoingList.status === 'shopping') {
+      await notifyShoppingUpdate({
+        householdId,
+        ongoingListId: ongoingList.id,
+        type: 'item-updated'
+      });
     }
 
     return getOngoingListDetails(householdId, ongoingList.id);

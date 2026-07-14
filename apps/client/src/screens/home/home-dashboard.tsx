@@ -1,5 +1,4 @@
-import { AppBottomNav } from '@/components/app-bottom-nav';
-import { Inline, Stack, Surface, Text } from '@/components/ds';
+import { Inline, ListSkeleton, Stack, Surface, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { requestConfirmation } from '@/features/dialogs/actions';
@@ -10,9 +9,15 @@ import {
   useUpdateOngoingListItem
 } from '@/mutations/ongoing-list';
 import { useOngoingList } from '@/queries/ongoing-list';
-import { useProducts, useRecentProducts } from '@/queries/products';
+import { useCategories } from '@/queries/categories';
+import {
+  useProducts,
+  useRecentProducts,
+  useSuggestedProducts
+} from '@/queries/products';
 import type { TOngoingListEntry, TUnitKind } from '@myapp/shared';
 import { PackagePlus, Plus, Search, ShoppingBasket } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
   memo,
   useCallback,
@@ -31,6 +36,7 @@ import { OngoingListItemRow } from './ongoing-list-item-row';
 
 const HomeDashboard = memo(() => {
   const { t } = useTranslation();
+  const reduceMotion = useReducedMotion();
   const [query, setQuery] = useState('');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<TOngoingListEntry>();
@@ -42,6 +48,8 @@ const HomeDashboard = memo(() => {
   } = useOngoingList(true);
   const { data: productsData, isLoading: productsLoading } = useProducts(true);
   const { data: recentProductsData } = useRecentProducts(addDialogOpen);
+  const { data: suggestedProductsData } = useSuggestedProducts(true);
+  const { data: categoriesData } = useCategories(true);
   const { mutateAsync: addItems, isPending: addItemsPending } =
     useAddOngoingListItems();
   const { mutateAsync: updateItem, isPending: updateItemPending } =
@@ -55,6 +63,17 @@ const HomeDashboard = memo(() => {
     () => recentProductsData ?? [],
     [recentProductsData]
   );
+  const suggestedProducts = useMemo(
+    () => suggestedProductsData ?? [],
+    [suggestedProductsData]
+  );
+  const visibleSuggestions = useMemo(() => {
+    const ongoingProductIds = new Set(items.map((item) => item.productId));
+
+    return suggestedProducts
+      .filter((product) => !ongoingProductIds.has(product.id))
+      .slice(0, 6);
+  }, [items, suggestedProducts]);
   const visibleItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
@@ -68,9 +87,18 @@ const HomeDashboard = memo(() => {
         .includes(normalizedQuery)
     );
   }, [items, query]);
+  const categoryOrder = useMemo(
+    () => (categoriesData ?? []).map((category) => category.name),
+    [categoriesData]
+  );
   const groups = useMemo(
-    () => getGroupedOngoingListItems(visibleItems, t('common.uncategorized')),
-    [t, visibleItems]
+    () =>
+      getGroupedOngoingListItems(
+        visibleItems,
+        t('common.uncategorized'),
+        categoryOrder
+      ),
+    [categoryOrder, t, visibleItems]
   );
   const isMutating = useMemo(
     () => addItemsPending || updateItemPending || removeItemPending,
@@ -115,6 +143,19 @@ const HomeDashboard = memo(() => {
     },
     [addItems, t]
   );
+  const addSuggestion = useCallback(
+    async (productId: string) => {
+      try {
+        await addItems({ productIds: [productId] });
+        toast.success(t('home.productsAdded'));
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? t('home.failedToAddProducts')
+        );
+      }
+    },
+    [addItems, t]
+  );
   const updateQuantity = useCallback(
     async (input: {
       id: string;
@@ -125,6 +166,22 @@ const HomeDashboard = memo(() => {
         await updateItem(input);
         setEditingItem(undefined);
         toast.success(t('home.quantityUpdated'));
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? t('home.failedToUpdateQuantity')
+        );
+      }
+    },
+    [t, updateItem]
+  );
+  const changeItemQuantity = useCallback(
+    async (item: TOngoingListEntry, quantityAmount: number) => {
+      try {
+        await updateItem({
+          id: item.id,
+          quantityAmount,
+          quantityUnit: item.quantityUnit
+        });
       } catch (error) {
         toast.error(
           parseTrpcErrors(error)._general ?? t('home.failedToUpdateQuantity')
@@ -149,18 +206,47 @@ const HomeDashboard = memo(() => {
 
       try {
         await removeItem(item.id);
-        toast.success(t('home.productRemoved'));
+        toast(t('home.productRemoved'), {
+          action: {
+            label: t('common.undo'),
+            onClick: async () => {
+              try {
+                const details = await addItems({ productIds: [item.productId] });
+                const restored = details?.items.find(
+                  (currentItem) => currentItem.productId === item.productId
+                );
+
+                if (
+                  restored &&
+                  (restored.quantityAmount !== item.quantityAmount ||
+                    restored.quantityUnit !== item.quantityUnit)
+                ) {
+                  await updateItem({
+                    id: restored.id,
+                    quantityAmount: item.quantityAmount,
+                    quantityUnit: item.quantityUnit
+                  });
+                }
+              } catch (undoError) {
+                toast.error(
+                  parseTrpcErrors(undoError)._general ??
+                    t('home.failedToAddProducts')
+                );
+              }
+            }
+          }
+        });
       } catch (error) {
         toast.error(
           parseTrpcErrors(error)._general ?? t('home.failedToRemoveProduct')
         );
       }
     },
-    [removeItem, t]
+    [addItems, removeItem, updateItem, t]
   );
 
   return (
-    <main className="min-h-dvh bg-background pb-24 text-foreground">
+    <main className="bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
         <Surface variant="default" radius="xl" padding="md" className="bg-card/85">
           <Stack gap="md">
@@ -202,17 +288,37 @@ const HomeDashboard = memo(() => {
           </Stack>
         </Surface>
 
+        {!query.trim() && visibleSuggestions.length > 0 && (
+          <Stack gap="xs">
+            <Text size="sm" weight="semibold" tone="muted" className="px-1">
+              {t('home.suggestionsTitle')}
+            </Text>
+            <div className="flex flex-wrap gap-2">
+              {visibleSuggestions.map((product) => (
+                <button
+                  key={product.id}
+                  type="button"
+                  disabled={isMutating}
+                  onClick={() => addSuggestion(product.id)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/75 py-1.5 pl-3 pr-1.5 text-sm font-medium transition-colors active:bg-accent/40 disabled:opacity-50"
+                >
+                  <span className="max-w-40 truncate">{product.title}</span>
+                  <span className="grid size-5 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                    <Plus className="size-3.5" />
+                  </span>
+                </button>
+              ))}
+            </div>
+          </Stack>
+        )}
+
         {ongoingListError && (
           <Surface radius="xl" padding="md" variant="muted">
             <Text tone="destructive">{ongoingListError.message}</Text>
           </Surface>
         )}
 
-        {ongoingListLoading && (
-          <Surface radius="xl" padding="lg">
-            <Text tone="muted">{t('home.loadingOngoingList')}</Text>
-          </Surface>
-        )}
+        {ongoingListLoading && <ListSkeleton />}
 
         {!ongoingListLoading && visibleItems.length === 0 && (
           <Surface radius="xl" padding="lg" className="text-center">
@@ -244,15 +350,30 @@ const HomeDashboard = memo(() => {
                     {group.items.length} {t('common.items')}
                   </Text>
                 </Inline>
-                {group.items.map((item) => (
-                  <OngoingListItemRow
-                    key={item.id}
-                    item={item}
-                    isMutating={isMutating}
-                    onEdit={editItem}
-                    onRemove={remove}
-                  />
-                ))}
+                <AnimatePresence initial={false} mode="popLayout">
+                  {group.items.map((item) => (
+                    <motion.div
+                      key={item.id}
+                      layout={!reduceMotion}
+                      initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={
+                        reduceMotion
+                          ? { opacity: 0 }
+                          : { opacity: 0, scale: 0.95, x: -24 }
+                      }
+                      transition={{ duration: 0.18, ease: 'easeOut' }}
+                    >
+                      <OngoingListItemRow
+                        item={item}
+                        isMutating={isMutating}
+                        onEdit={editItem}
+                        onRemove={remove}
+                        onQuantityChange={changeItemQuantity}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </Stack>
             ))}
           </Stack>
@@ -276,6 +397,7 @@ const HomeDashboard = memo(() => {
         open={addDialogOpen}
         products={products}
         recentProducts={recentProducts}
+        suggestedProducts={suggestedProducts}
         ongoingItems={items}
         isPending={addItemsPending}
         onOpenChange={setAddDialogOpen}
@@ -287,7 +409,6 @@ const HomeDashboard = memo(() => {
         onClose={closeEditDialog}
         onSubmit={updateQuantity}
       />
-      <AppBottomNav />
     </main>
   );
 });

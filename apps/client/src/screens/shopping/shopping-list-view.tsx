@@ -2,6 +2,7 @@ import { Inline, Media, Stack, StatusChip, Text } from '@/components/ds';
 import { Button } from '@/components/ui/button';
 import type { TOngoingListEntry } from '@myapp/shared';
 import { Check, X } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatQuantity, getGroupedItems } from './helpers';
@@ -11,6 +12,7 @@ type TShoppingListViewProps = {
   isPending: boolean;
   compact: boolean;
   reviewSkipped: boolean;
+  categoryOrder?: string[];
   onCheck: (item: TOngoingListEntry) => void;
   onDiscard: (item: TOngoingListEntry) => void;
 };
@@ -100,13 +102,15 @@ const ShoppingListView = memo(
     isPending,
     compact,
     reviewSkipped,
+    categoryOrder,
     onCheck,
     onDiscard
   }: TShoppingListViewProps) => {
     const { t } = useTranslation();
+    const reduceMotion = useReducedMotion();
     const groups = useMemo(
-      () => getGroupedItems(items, t('common.uncategorized')),
-      [items, t]
+      () => getGroupedItems(items, t('common.uncategorized'), categoryOrder),
+      [categoryOrder, items, t]
     );
 
     return (
@@ -121,17 +125,31 @@ const ShoppingListView = memo(
               <Text weight="semibold">{group.categoryName}</Text>
               <StatusChip tone="muted">{group.items.length}</StatusChip>
             </Inline>
-            {group.items.map((item) => (
-              <ShoppingListRow
-                key={item.id}
-                item={item}
-                isPending={isPending}
-                compact={compact}
-                reviewSkipped={reviewSkipped}
-                onCheck={onCheck}
-                onDiscard={onDiscard}
-              />
-            ))}
+            <AnimatePresence initial={false} mode="popLayout">
+              {group.items.map((item) => (
+                <motion.div
+                  key={item.id}
+                  layout={!reduceMotion}
+                  initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={
+                    reduceMotion
+                      ? { opacity: 0 }
+                      : { opacity: 0, scale: 0.95, x: -24 }
+                  }
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                >
+                  <ShoppingListRow
+                    item={item}
+                    isPending={isPending}
+                    compact={compact}
+                    reviewSkipped={reviewSkipped}
+                    onCheck={onCheck}
+                    onDiscard={onDiscard}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </Stack>
         ))}
       </Stack>

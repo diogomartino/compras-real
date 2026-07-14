@@ -14,6 +14,7 @@ import {
   CircleUserRound,
   List,
   MoreHorizontal,
+  Plus,
   RotateCcw,
   X
 } from 'lucide-react';
@@ -22,6 +23,7 @@ import {
   animate,
   motion,
   useMotionValue,
+  useReducedMotion,
   useTransform,
   type PanInfo
 } from 'motion/react';
@@ -50,6 +52,7 @@ type TShoppingSwipeViewProps = {
   onListView: () => void;
   onMainList: () => void;
   onCancelShopping: () => void;
+  onAddItem: () => void;
   onAction: (item: TOngoingListEntry, action: TSwipeAction) => void;
 };
 
@@ -68,9 +71,11 @@ const ShoppingSwipeView = memo(
     onListView,
     onMainList,
     onCancelShopping,
+    onAddItem,
     onAction
   }: TShoppingSwipeViewProps) => {
     const { t } = useTranslation();
+    const reduceMotion = useReducedMotion();
     const [categoryName, setCategoryName] = useState<string>();
     const [dismissedItemIds, setDismissedItemIds] = useState<string[]>([]);
     const [activityToasts, setActivityToasts] = useState<TActivityToast[]>([]);
@@ -133,6 +138,7 @@ const ShoppingSwipeView = memo(
       );
     }, [effectiveCategoryName, swipeItems, t]);
     const currentItem = visibleItems[0];
+    const nextItem = visibleItems[1];
     const currentItemId = currentItem?.id;
     const activeCategoryName =
       currentItem?.categoryName ??
@@ -213,8 +219,13 @@ const ShoppingSwipeView = memo(
     }, [currentItemId, x]);
 
     useEffect(() => {
+      // Keep an id dismissed only while its item still exists AND is still
+      // resolved. If it comes back to `pending` (e.g. an undo), un-dismiss it
+      // so the card re-enters the deck.
       setDismissedItemIds((currentIds) =>
-        currentIds.filter((itemId) => items.some((item) => item.id === itemId))
+        currentIds.filter((itemId) =>
+          items.some((item) => item.id === itemId && item.status !== 'pending')
+        )
       );
     }, [items]);
 
@@ -262,10 +273,29 @@ const ShoppingSwipeView = memo(
     }
 
     return (
-      <div className="grid min-h-dvh flex-1">
+      <div className="relative grid min-h-dvh flex-1 overflow-hidden">
+        {nextItem && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-0 grid translate-y-3 scale-[0.94] overflow-hidden rounded-[2rem] bg-card"
+          >
+            <Media
+              src={nextItem.imageUrl}
+              alt=""
+              size={undefined}
+              className="absolute inset-0 -z-10 size-full rounded-none border-0"
+            />
+            <div className="absolute inset-0 -z-10 bg-linear-to-b from-black/45 via-black/10 to-black/75" />
+            <div className="absolute inset-x-0 bottom-0 p-5">
+              <span className="inline-block max-w-full rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-base font-semibold leading-tight text-white">
+                {nextItem.title}
+              </span>
+            </div>
+          </div>
+        )}
         <motion.div
-          className="relative isolate grid min-h-dvh touch-none select-none overflow-hidden bg-card"
-          style={{ x, rotate }}
+          className="relative isolate z-10 grid min-h-dvh touch-none select-none overflow-hidden bg-card"
+          style={{ x, rotate: reduceMotion ? 0 : rotate }}
           drag={isPending ? false : 'x'}
           dragElastic={0.18}
           dragMomentum={false}
@@ -278,28 +308,6 @@ const ShoppingSwipeView = memo(
             className="absolute inset-0 -z-10 size-full rounded-none border-0"
           />
           <div className="absolute inset-0 -z-10 bg-linear-to-b from-black/55 via-black/5 to-black/80" />
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-0 grid place-items-center bg-linear-to-l from-transparent via-zinc-700/65 to-zinc-500/85 text-white"
-            style={{ opacity: checkOpacity }}
-          >
-            <div className="grid place-items-center gap-3 rounded-2xl bg-black/25 px-8 py-6 text-center">
-              <X className="size-14" />
-              <span className="text-4xl font-black uppercase tracking-widest">
-                {reviewSkipped ? t('shopping.discard') : t('shopping.skip')}
-              </span>
-            </div>
-          </motion.div>
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-0 grid place-items-center bg-linear-to-r from-transparent via-green-500/60 to-green-400/80 text-white"
-            style={{ opacity: skipOpacity }}
-          >
-            <div className="grid place-items-center gap-3 rounded-2xl bg-black/25 px-8 py-6 text-center">
-              <Check className="size-14" />
-              <span className="text-4xl font-black uppercase tracking-widest">
-                {t('shopping.gotIt')}
-              </span>
-            </div>
-          </motion.div>
 
           <div
             className="absolute inset-x-0 top-0 z-10 flex items-start gap-3 p-4 text-white"
@@ -365,6 +373,10 @@ const ShoppingSwipeView = memo(
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44 rounded-xl">
+                  <DropdownMenuItem onSelect={onAddItem}>
+                    <Plus className="size-4" />
+                    {t('shopping.addItem')}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onSelect={onListView}>
                     <List className="size-4" />
                     {t('shopping.listView')}
@@ -485,6 +497,29 @@ const ShoppingSwipeView = memo(
                 </Button>
               </Inline>
             </Stack>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="pointer-events-none absolute inset-0 z-30 grid place-items-center bg-linear-to-l from-transparent via-zinc-700/45 to-zinc-700/65 text-white"
+          style={{ opacity: checkOpacity }}
+        >
+          <div className="grid place-items-center gap-3 rounded-2xl bg-black/25 px-8 py-6 text-center">
+            <X className="size-14" />
+            <span className="text-4xl font-black uppercase tracking-widest">
+              {reviewSkipped ? t('shopping.discard') : t('shopping.skip')}
+            </span>
+          </div>
+        </motion.div>
+        <motion.div
+          className="pointer-events-none absolute inset-0 z-30 grid place-items-center bg-linear-to-r from-transparent via-green-500/40 to-green-500/60 text-white"
+          style={{ opacity: skipOpacity }}
+        >
+          <div className="grid place-items-center gap-3 rounded-2xl bg-black/25 px-8 py-6 text-center">
+            <Check className="size-14" />
+            <span className="text-4xl font-black uppercase tracking-widest">
+              {t('shopping.gotIt')}
+            </span>
           </div>
         </motion.div>
       </div>
