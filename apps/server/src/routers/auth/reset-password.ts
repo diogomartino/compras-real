@@ -8,9 +8,9 @@ import { publicProcedure } from '../../trpc';
 const resetPasswordRoute = publicProcedure
   .input(
     z.object({
-      token: z.string(),
-      password: z.string(),
-      confirmPassword: z.string()
+      token: z.string().max(4096),
+      password: z.string().max(200),
+      confirmPassword: z.string().max(200)
     })
   )
   .mutation(async ({ ctx, input }) => {

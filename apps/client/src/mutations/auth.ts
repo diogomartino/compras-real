@@ -83,7 +83,12 @@ const useResetPassword = () =>
 const useChangePassword = () =>
   useMutation({
     mutationFn: (input: TChangePasswordInput) =>
-      trpc.auth.changePassword.mutate(input)
+      trpc.auth.changePassword.mutate(input),
+    onSuccess: async (result) => {
+      if (result?.token) {
+        await setAuthToken(result.token);
+      }
+    }
   });
 
 const useUpdateSettings = () =>

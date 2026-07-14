@@ -8,10 +8,10 @@ const registerRoute = publicProcedure
   .input(
     z
       .object({
-        name: z.string(),
-        email: z.email(),
-        password: z.string(),
-        confirmPassword: z.string()
+        name: z.string().trim().min(1).max(100),
+        email: z.email().max(200),
+        password: z.string().max(200),
+        confirmPassword: z.string().max(200)
       })
       .transform((data) => ({
         name: data.name.trim(),

@@ -22,6 +22,13 @@
       "when": 1784041005286,
       "tag": "0002_vengeful_kinsey_walden",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784042735220,
+      "tag": "0003_many_lady_deathstrike",
+      "breakpoints": true
     }
   ]
 }

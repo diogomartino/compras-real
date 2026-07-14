@@ -101,6 +101,8 @@ const users = pgTable(
         soundEnabled: false,
         wakeLockEnabled: true,
       }),
+    // Access tokens issued before this are rejected (password-change logout).
+    passwordChangedAt: numeric("password_changed_at", { mode: "number" }),
     createdAt: numeric("created_at", { mode: "number" }).notNull(),
     updatedAt: numeric("updated_at", { mode: "number" }).notNull(),
   },

@@ -2,6 +2,7 @@ import z from 'zod';
 import { getUserByEmail } from '../../db/queries/users';
 import { createPasswordResetToken } from '../../helpers/auth-tokens';
 import { sendPasswordResetEmail } from '../../helpers/password-reset-email';
+import { enforceRateLimit } from '../../helpers/rate-limit';
 import { requireEnv } from '../../helpers/require-env';
 import { publicProcedure } from '../../trpc';
 
@@ -16,6 +17,8 @@ const requestPasswordResetRoute = publicProcedure
       }))
   )
   .mutation(async ({ input }) => {
+    enforceRateLimit(`reset:${input.email}`, 5, 15 * 60_000);
+
     const user = await getUserByEmail(input.email);
 
     if (user) {

@@ -193,15 +193,17 @@ const websocket = createBunWSHandler({
     }
 
     let userId: string;
+    let issuedAt: number;
 
     try {
-      const verifiedUserId = verifyAccessToken(token);
+      const verified = verifyAccessToken(token);
 
-      if (!verifiedUserId) {
+      if (!verified) {
         return unauthorizedState;
       }
 
-      userId = verifiedUserId;
+      userId = verified.userId;
+      issuedAt = verified.issuedAt;
     } catch {
       return unauthorizedState;
     }
@@ -209,6 +211,13 @@ const websocket = createBunWSHandler({
     const user = await getUserById(userId);
 
     if (!user) {
+      return unauthorizedState;
+    }
+
+    if (
+      user.passwordChangedAt &&
+      issuedAt < Math.floor(user.passwordChangedAt / 1000)
+    ) {
       return unauthorizedState;
     }
 

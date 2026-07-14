@@ -40,11 +40,17 @@ const verifyAccessToken = (token: string) => {
     issuer: JWT_ISSUER
   }) as TTokenPayload | string;
 
-  if (typeof payload === 'string' || !payload.exp) {
+  if (typeof payload === 'string' || !payload.exp || !payload.iat) {
     return undefined;
   }
 
-  return payload.sub || payload.userId;
+  const userId = payload.sub || payload.userId;
+
+  if (!userId) {
+    return undefined;
+  }
+
+  return { userId, issuedAt: payload.iat };
 };
 
 const verifyPasswordResetToken = (token: string) => {

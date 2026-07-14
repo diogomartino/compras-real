@@ -6,12 +6,15 @@ import {
   getResolvedHouseholdIdForUser
 } from '../../db/queries/households';
 import { getUserByEmail } from '../../db/queries/users';
+import { enforceRateLimit } from '../../helpers/rate-limit';
 import { protectedProcedure } from '../../trpc';
 import { buildHouseholdOverview } from './build-overview';
 
 const inviteRoute = protectedProcedure
-  .input(z.object({ email: z.string().trim().min(1).max(200) }))
+  .input(z.object({ email: z.email().max(200) }))
   .mutation(async ({ ctx, input }) => {
+    enforceRateLimit(`invite:${ctx.userId}`, 20, 60 * 60_000);
+
     const householdId = await getResolvedHouseholdIdForUser(
       ctx.userId,
       ctx.user.activeHouseholdId

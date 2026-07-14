@@ -2,14 +2,15 @@ import { TRPCError } from '@trpc/server';
 import z from 'zod';
 import { updateUserPassword } from '../../db/mutations/users';
 import { getUserByEmailWithPassword } from '../../db/queries/users';
+import { createAccessToken } from '../../helpers/auth-tokens';
 import { protectedProcedure } from '../../trpc';
 
 const changePasswordRoute = protectedProcedure
   .input(
     z.object({
-      currentPassword: z.string(),
-      password: z.string(),
-      confirmPassword: z.string()
+      currentPassword: z.string().max(200),
+      password: z.string().max(200),
+      confirmPassword: z.string().max(200)
     })
   )
   .mutation(async ({ ctx, input }) => {
@@ -48,7 +49,8 @@ const changePasswordRoute = protectedProcedure
     );
 
     return {
-      success: true
+      success: true,
+      token: createAccessToken(ctx.userId)
     };
   });
 

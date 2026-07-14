@@ -9,6 +9,7 @@ const publicUserColumns = {
   isAdmin: users.isAdmin,
   activeHouseholdId: users.activeHouseholdId,
   settings: users.settings,
+  passwordChangedAt: users.passwordChangedAt,
   createdAt: users.createdAt,
   updatedAt: users.updatedAt
 };

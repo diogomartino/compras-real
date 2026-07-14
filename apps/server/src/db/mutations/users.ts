@@ -26,6 +26,7 @@ const createUser = async (data: TIUser): Promise<TUser> => {
     isAdmin: users.isAdmin,
     activeHouseholdId: users.activeHouseholdId,
     settings: users.settings,
+    passwordChangedAt: users.passwordChangedAt,
     createdAt: users.createdAt,
     updatedAt: users.updatedAt
   });
@@ -51,6 +52,7 @@ const createUserWithHousehold = async (
       isAdmin: users.isAdmin,
       activeHouseholdId: users.activeHouseholdId,
       settings: users.settings,
+      passwordChangedAt: users.passwordChangedAt,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt
     });
@@ -101,11 +103,13 @@ const createUserWithHousehold = async (
 };
 
 const updateUserPassword = async (userId: string, passwordHash: string) => {
+  const now = Date.now();
   const [user] = await db
     .update(users)
     .set({
       passwordHash,
-      updatedAt: Date.now()
+      passwordChangedAt: now,
+      updatedAt: now
     })
     .where(eq(users.id, userId))
     .returning({ id: users.id });
@@ -149,6 +153,7 @@ const updateUserSettings = async (
       isAdmin: users.isAdmin,
       activeHouseholdId: users.activeHouseholdId,
       settings: users.settings,
+      passwordChangedAt: users.passwordChangedAt,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt
     });
