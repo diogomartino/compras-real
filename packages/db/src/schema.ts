@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   boolean,
   index,
   integer,
@@ -84,6 +85,12 @@ const users = pgTable(
     passwordHash: text("password_hash").notNull(),
     avatarUrl: text("avatar_url"),
     isAdmin: boolean("is_admin").notNull().default(false),
+    activeHouseholdId: uuid("active_household_id").references(
+      (): AnyPgColumn => households.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     settings: jsonb("settings")
       .$type<TUserSettings>()
       .notNull()

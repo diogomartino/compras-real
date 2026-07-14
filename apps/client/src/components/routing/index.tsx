@@ -4,6 +4,7 @@ import { Catalog } from '@/screens/catalog';
 import { Categories } from '@/screens/categories';
 import { Ds } from '@/screens/ds';
 import { Home } from '@/screens/home';
+import { Household } from '@/screens/household';
 import { NotFound } from '@/screens/not-found';
 import { Profile } from '@/screens/profile';
 import { ResetPassword } from '@/screens/reset-password';
@@ -29,6 +30,7 @@ const Routing = memo(({ location }: TRoutingProps) => {
       <Route path="shopping-history" element={<ShoppingHistory />} />
       <Route path="shopping-history/:historyId" element={<ShoppingHistory />} />
       <Route path="profile" element={<Profile />} />
+      <Route path="household" element={<Household />} />
       <Route path="reset-password" element={<ResetPassword />} />
       <Route path="ds" element={<Ds />} />
       <Route path="*" element={<NotFound />} />

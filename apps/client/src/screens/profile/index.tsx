@@ -16,9 +16,11 @@ import { useAuth, useIsAuthenticated } from '@/features/auth/hooks';
 import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { useForm } from '@/hooks/use-form';
 import { useChangePassword, useUpdateSettings } from '@/mutations/auth';
+import { useSwitchHousehold } from '@/mutations/household';
+import { useHouseholdOverview } from '@/queries/household';
 import { HomeAuthScreen } from '@/screens/home/home-auth-screen';
 import { vibrate } from '@/screens/shopping/helpers';
-import { CircleUserRound, History, LogOut } from 'lucide-react';
+import { CircleUserRound, History, LogOut, Users } from 'lucide-react';
 import { memo, useCallback, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -37,6 +39,9 @@ const Profile = memo(() => {
   const { mutateAsync: changePassword, isPending } = useChangePassword();
   const { mutateAsync: updateSettings, isPending: settingsPending } =
     useUpdateSettings();
+  const { data: householdOverview } = useHouseholdOverview(isAuthenticated);
+  const { mutateAsync: switchHousehold, isPending: switchingHousehold } =
+    useSwitchHousehold();
   const { values, errors, setErrors, resetErrors, r, setValues } =
     useForm<TChangePasswordForm>({
       currentPassword: '',
@@ -47,6 +52,25 @@ const Profile = memo(() => {
   const onLogout = useCallback(() => {
     logout();
   }, []);
+  const households = householdOverview?.households ?? [];
+  const activeHouseholdId = householdOverview?.active?.id;
+  const onSwitchHousehold = useCallback(
+    async (householdId: string) => {
+      if (householdId === activeHouseholdId) {
+        return;
+      }
+
+      try {
+        await switchHousehold(householdId);
+        toast.success(t('household.switched'));
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? t('household.failedToSwitch')
+        );
+      }
+    },
+    [activeHouseholdId, switchHousehold, t]
+  );
 
   const submit = useCallback(async () => {
     resetErrors();
@@ -164,6 +188,45 @@ const Profile = memo(() => {
               </Link>
             </Button>
           </Inline>
+        </Surface>
+
+        <Surface radius="xl" padding="lg">
+          <Stack gap="md">
+            <Inline justify="between" wrap={false} className="gap-4">
+              <Stack gap="xs" className="min-w-0">
+                <Text weight="semibold">{t('profile.household')}</Text>
+                <Text size="sm" tone="muted">
+                  {t('profile.householdDescription')}
+                </Text>
+              </Stack>
+              <Button asChild variant="outline" className="shrink-0">
+                <Link to="/household">
+                  <Users className="size-4" />
+                  {t('common.open')}
+                </Link>
+              </Button>
+            </Inline>
+            {households.length > 1 && (
+              <Group label={t('profile.activeHousehold')}>
+                <Select
+                  value={activeHouseholdId}
+                  onValueChange={onSwitchHousehold}
+                  disabled={switchingHousehold}
+                >
+                  <SelectTrigger className="h-11 w-full rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {households.map((household) => (
+                      <SelectItem key={household.id} value={household.id}>
+                        {household.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Group>
+            )}
+          </Stack>
         </Surface>
 
         <Surface radius="xl" padding="lg">

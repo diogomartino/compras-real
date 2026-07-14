@@ -24,6 +24,7 @@ const createUser = async (data: TIUser): Promise<TUser> => {
     email: users.email,
     avatarUrl: users.avatarUrl,
     isAdmin: users.isAdmin,
+    activeHouseholdId: users.activeHouseholdId,
     settings: users.settings,
     createdAt: users.createdAt,
     updatedAt: users.updatedAt
@@ -48,6 +49,7 @@ const createUserWithHousehold = async (
       email: users.email,
       avatarUrl: users.avatarUrl,
       isAdmin: users.isAdmin,
+      activeHouseholdId: users.activeHouseholdId,
       settings: users.settings,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt
@@ -87,7 +89,12 @@ const createUserWithHousehold = async (
       updatedAt: now
     });
 
-    return createdUser;
+    await tx
+      .update(users)
+      .set({ activeHouseholdId: household.id })
+      .where(eq(users.id, createdUser.id));
+
+    return { ...createdUser, activeHouseholdId: household.id };
   });
 
   return user;
@@ -140,6 +147,7 @@ const updateUserSettings = async (
       email: users.email,
       avatarUrl: users.avatarUrl,
       isAdmin: users.isAdmin,
+      activeHouseholdId: users.activeHouseholdId,
       settings: users.settings,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt

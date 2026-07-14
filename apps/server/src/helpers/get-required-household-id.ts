@@ -1,12 +1,15 @@
 import { TRPCError } from '@trpc/server';
-import { getFirstHouseholdIdForUser } from '../db/queries/households';
+import { getResolvedHouseholdIdForUser } from '../db/queries/households';
 import type { TProtectedContext } from '../trpc';
 
 const getRequiredHouseholdId = async (
   ctx: TProtectedContext,
   action: string
 ) => {
-  const householdId = await getFirstHouseholdIdForUser(ctx.userId);
+  const householdId = await getResolvedHouseholdIdForUser(
+    ctx.userId,
+    ctx.user.activeHouseholdId
+  );
 
   if (!householdId) {
     throw new TRPCError({

@@ -56,6 +56,7 @@ const loginRoute = publicProcedure
       email: user.email,
       avatarUrl: user.avatarUrl,
       isAdmin: user.isAdmin,
+      activeHouseholdId: user.activeHouseholdId,
       settings: user.settings,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt

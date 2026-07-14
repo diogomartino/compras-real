@@ -12,7 +12,8 @@ const TAB_ROUTES = [
   '/catalog',
   '/categories',
   '/profile',
-  '/shopping-history'
+  '/shopping-history',
+  '/household'
 ];
 
 const isTabRoute = (pathname: string) =>
