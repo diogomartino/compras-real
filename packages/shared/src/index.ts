@@ -5,6 +5,7 @@ export type * from "./ongoing-list";
 export type * from "./pagination";
 export * from "./trpc";
 export * from "./helpers";
+export * from "./scrappers";
 
 export type TGenericObject = {
   [key: string]: any;

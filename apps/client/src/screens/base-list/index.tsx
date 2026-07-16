@@ -3,7 +3,7 @@ import { requestConfirmation } from '@/features/dialogs/actions';
 import { parseTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { useForm } from '@/hooks/use-form';
 import {
-  useAddBaseListItem,
+  useAddBaseListItems,
   useCreateBaseList,
   useRemoveBaseList,
   useRemoveBaseListItem,
@@ -24,6 +24,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { BaseListAddDialog } from './base-list-add-dialog';
 import { BaseListForm } from './base-list-form';
 import { BaseListList } from './base-list-list';
 import { BaseListManagementForm } from './base-list-management-form';
@@ -74,8 +75,8 @@ const BaseList = memo(() => {
     useRemoveBaseList();
   const { mutateAsync: addBaseListToOngoing, isPending: addAllPending } =
     useAddBaseListToOngoing();
-  const { mutateAsync: addBaseListItem, isPending: addBaseListItemPending } =
-    useAddBaseListItem();
+  const { mutateAsync: addBaseListItems, isPending: addBaseListItemsPending } =
+    useAddBaseListItems();
   const {
     mutateAsync: updateBaseListItem,
     isPending: updateBaseListItemPending
@@ -86,6 +87,7 @@ const BaseList = memo(() => {
   } = useRemoveBaseListItem();
 
   const [query, setQuery] = useState('');
+  const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
   const [listFormMode, setListFormMode] = useState<
     TBaseListFormMode | undefined
   >();
@@ -155,13 +157,13 @@ const BaseList = memo(() => {
       createBaseListPending ||
       updateBaseListPending ||
       removeBaseListPending ||
-      addBaseListItemPending ||
+      addBaseListItemsPending ||
       updateBaseListItemPending ||
       removeBaseListItemPending ||
       addAllPending,
     [
       addAllPending,
-      addBaseListItemPending,
+      addBaseListItemsPending,
       createBaseListPending,
       removeBaseListItemPending,
       removeBaseListPending,
@@ -208,18 +210,8 @@ const BaseList = memo(() => {
   }, []);
 
   const openCreateItem = useCallback(() => {
-    if (!selectedBaseList) {
-      return;
-    }
-
-    setItemValues(emptyBaseListItemForm);
-    resetItemErrors();
-    setItemFormMode({
-      type: 'create',
-      baseListId: selectedBaseList.id,
-      baseListName: selectedBaseList.name
-    });
-  }, [resetItemErrors, selectedBaseList, setItemValues]);
+    setAddItemDialogOpen(true);
+  }, []);
 
   const openEditItem = useCallback(
     (item: TBaseListEntry) => {
@@ -295,28 +287,20 @@ const BaseList = memo(() => {
       event.preventDefault();
       resetItemErrors();
 
-      if (!itemFormMode) {
+      if (!itemFormMode || itemFormMode.type !== 'edit') {
         return;
       }
 
       const input = getBaseListItemInput(itemValues);
 
       try {
-        if (itemFormMode.type === 'create') {
-          await addBaseListItem({
-            ...input,
-            baseListId: itemFormMode.baseListId
-          });
-          toast.success(t('baseList.productAdded'));
-        } else {
-          await updateBaseListItem({
-            id: itemFormMode.id,
-            baseListId: itemFormMode.baseListId,
-            quantityAmount: input.quantityAmount,
-            quantityUnit: input.quantityUnit
-          });
-          toast.success(t('baseList.quantityUpdated'));
-        }
+        await updateBaseListItem({
+          id: itemFormMode.id,
+          baseListId: itemFormMode.baseListId,
+          quantityAmount: input.quantityAmount,
+          quantityUnit: input.quantityUnit
+        });
+        toast.success(t('baseList.quantityUpdated'));
 
         closeItemForm();
       } catch (error) {
@@ -324,7 +308,6 @@ const BaseList = memo(() => {
       }
     },
     [
-      addBaseListItem,
       closeItemForm,
       itemFormMode,
       itemValues,
@@ -364,6 +347,53 @@ const BaseList = memo(() => {
       }
     },
     [closeBaseList, removeBaseList, selectedBaseListId, t]
+  );
+
+  const addSelectedItems = useCallback(
+    async (
+      items: {
+        productId: string;
+        quantityAmount: number;
+        quantityUnit: TBaseListEntry['quantityUnit'];
+      }[]
+    ) => {
+      if (!selectedBaseList) {
+        return;
+      }
+
+      try {
+        await addBaseListItems({ baseListId: selectedBaseList.id, items });
+        setAddItemDialogOpen(false);
+        toast.success(t('baseList.productsAdded'));
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? t('baseList.failedToAddProducts')
+        );
+      }
+    },
+    [addBaseListItems, selectedBaseList, t]
+  );
+
+  const toggleEnabled = useCallback(
+    async (baseList: TBaseListSummary) => {
+      try {
+        await updateBaseList({
+          id: baseList.id,
+          name: baseList.name,
+          isEnabled: !baseList.isEnabled
+        });
+        toast.success(
+          baseList.isEnabled
+            ? t('baseList.listDisabled')
+            : t('baseList.listEnabled')
+        );
+      } catch (error) {
+        toast.error(
+          parseTrpcErrors(error)._general ?? t('baseList.failedToUpdate')
+        );
+      }
+    },
+    [t, updateBaseList]
   );
 
   const addAllToOngoing = useCallback(
@@ -469,6 +499,14 @@ const BaseList = memo(() => {
           onRemove={removeItem}
           onAddAll={addAllToOngoing}
         />
+
+        <BaseListAddDialog
+          open={addItemDialogOpen}
+          products={productOptions}
+          isPending={addBaseListItemsPending}
+          onOpenChange={setAddItemDialogOpen}
+          onSubmit={addSelectedItems}
+        />
       </main>
     );
   }
@@ -485,6 +523,7 @@ const BaseList = memo(() => {
         onEdit={openEditList}
         onRemove={removeList}
         onAddAll={addAllToOngoing}
+        onToggleEnabled={toggleEnabled}
       />
     </main>
   );

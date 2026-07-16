@@ -1,12 +1,7 @@
 import { Media, StatusChip, Text } from '@/components/ds';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { KebabMenu, type TKebabMenuItem } from '@/components/kebab-menu';
+import { CardContextMenu } from '@/components/kebab-menu/card-context-menu';
+import { Pencil, Trash2 } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatQuantity } from './helpers';
@@ -33,47 +28,49 @@ const BaseListItemRow = memo(
       onRemove(item);
     }, [item, onRemove]);
 
+    const menuItems = useMemo<TKebabMenuItem[]>(
+      () => [
+        {
+          key: 'edit',
+          icon: <Pencil className="size-4" />,
+          label: t('baseList.editQuantity'),
+          onSelect: edit
+        },
+        {
+          key: 'remove',
+          icon: <Trash2 className="size-4" />,
+          label: t('baseList.removeProduct'),
+          onSelect: remove,
+          variant: 'destructive'
+        }
+      ],
+      [edit, remove, t]
+    );
+
     return (
-      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border/70 bg-card/75 p-3 transition-colors active:bg-accent/35 sm:p-4">
-        <Media src={item.imageUrl} alt={item.title} size="lg" />
+      <CardContextMenu items={menuItems}>
+        <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border/70 bg-card/75 p-3 transition-colors active:bg-accent/35 sm:p-4">
+          <Media src={item.imageUrl} alt={item.title} size="lg" />
 
-        <div className="min-w-0 space-y-2">
-          <Text as="div" weight="semibold" className="truncate leading-tight">
-            {item.title}
-          </Text>
-          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-            <StatusChip tone="muted">
-              {item.categoryName ?? t('common.uncategorized')}
-            </StatusChip>
-            <StatusChip tone="info">{quantity}</StatusChip>
+          <div className="min-w-0 space-y-2">
+            <Text as="div" weight="semibold" className="truncate leading-tight">
+              {item.title}
+            </Text>
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+              <StatusChip tone="muted">
+                {item.categoryName ?? t('common.uncategorized')}
+              </StatusChip>
+              <StatusChip tone="info">{quantity}</StatusChip>
+            </div>
           </div>
-        </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="rounded-full"
-              disabled={isMutating}
-              aria-label={t('baseList.baseListItemActions')}
-            >
-              <MoreHorizontal className="size-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44 rounded-xl">
-            <DropdownMenuItem onSelect={edit}>
-              <Pencil className="size-4" />
-              {t('baseList.editQuantity')}
-            </DropdownMenuItem>
-            <DropdownMenuItem variant="destructive" onSelect={remove}>
-              <Trash2 className="size-4" />
-              {t('baseList.removeProduct')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+          <KebabMenu
+            label={t('baseList.baseListItemActions')}
+            disabled={isMutating}
+            items={menuItems}
+          />
+        </div>
+      </CardContextMenu>
     );
   }
 );

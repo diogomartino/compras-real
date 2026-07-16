@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFullscreenScreen } from '@/features/app/hooks';
 import type { TTrpcErrors } from '@/helpers/parse-trpc-errors';
 import { ArrowLeft } from 'lucide-react';
@@ -15,14 +16,23 @@ import {
   memo,
   useCallback,
   useMemo,
+  useState,
   type ChangeEvent,
-  type FormEvent
+  type FormEvent,
+  type ReactNode
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CatalogImportCard } from './catalog-import-card';
 import { CatalogPreview } from './catalog-preview';
+import { CatalogSearch } from './catalog-search';
 import { formatUnit, unitOptions } from './helpers';
-import type { TCatalogFormMode, TCatalogFormValues } from './types';
+import type {
+  TCatalogFormMode,
+  TCatalogFormValues,
+  TStoreSearchResult
+} from './types';
+
+const CATALOG_FORM_ID = 'catalog-form';
 
 type TCatalogFormProps = {
   formMode: TCatalogFormMode;
@@ -36,6 +46,7 @@ type TCatalogFormProps = {
   onImportUrlChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onExtractDetails: () => void;
   onFieldChange: (field: keyof TCatalogFormValues, value: string) => void;
+  onSelectSearchResult: (result: TStoreSearchResult) => void;
 };
 
 const CatalogForm = memo(
@@ -50,11 +61,27 @@ const CatalogForm = memo(
     onSubmit,
     onImportUrlChange,
     onExtractDetails,
-    onFieldChange
+    onFieldChange,
+    onSelectSearchResult
   }: TCatalogFormProps) => {
     const { t } = useTranslation();
 
     useFullscreenScreen();
+
+    const isCreate = formMode.type === 'create';
+    const [tab, setTab] = useState<'search' | 'manual'>('search');
+
+    const onTabChange = useCallback((value: string) => {
+      setTab(value === 'manual' ? 'manual' : 'search');
+    }, []);
+
+    const handleSelectSearchResult = useCallback(
+      (result: TStoreSearchResult) => {
+        onSelectSearchResult(result);
+        setTab('manual');
+      },
+      [onSelectSearchResult]
+    );
 
     const categoryOptions = useMemo(
       () =>
@@ -104,31 +131,15 @@ const CatalogForm = memo(
       },
       [onFieldChange]
     );
-    return (
-      <main className="min-h-dvh bg-background text-foreground">
-        <form
-          className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col px-4 py-4 sm:px-6"
-          onSubmit={onSubmit}
-        >
-          <Inline justify="between" wrap={false} className="mb-6 gap-3">
-            <Button type="button" variant="ghost" onClick={onCancel}>
-              <ArrowLeft className="size-4" />
-              {t('catalog.form.back')}
-            </Button>
-            <Inline gap="sm" wrap={false}>
-              <Button type="button" variant="outline" onClick={onCancel}>
-                {t('common.cancel')}
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {formMode.type === 'create'
-                  ? t('catalog.form.createProduct')
-                  : t('catalog.form.saveChanges')}
-              </Button>
-            </Inline>
-          </Inline>
+    const showSubmit = !isCreate || tab === 'manual';
 
-          <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-            <Stack gap="lg">
+    const manualForm: ReactNode = (
+      <form
+        id={CATALOG_FORM_ID}
+        className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]"
+        onSubmit={onSubmit}
+      >
+        <Stack gap="lg">
               <Surface radius="xl" padding="lg">
                 <Stack gap="lg">
                   {errors._general && (
@@ -238,9 +249,55 @@ const CatalogForm = memo(
               </Surface>
             </Stack>
 
-            <CatalogPreview form={values} />
-          </div>
-        </form>
+        <CatalogPreview form={values} />
+      </form>
+    );
+
+    return (
+      <main className="min-h-dvh bg-background text-foreground">
+        <div className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col px-4 py-4 sm:px-6">
+          <Inline justify="between" wrap={false} className="mb-6 gap-3">
+            <Button type="button" variant="ghost" onClick={onCancel}>
+              <ArrowLeft className="size-4" />
+              {t('catalog.form.back')}
+            </Button>
+            <Inline gap="sm" wrap={false}>
+              <Button type="button" variant="outline" onClick={onCancel}>
+                {t('common.cancel')}
+              </Button>
+              {showSubmit && (
+                <Button type="submit" form={CATALOG_FORM_ID} disabled={isPending}>
+                  {isCreate
+                    ? t('catalog.form.createProduct')
+                    : t('catalog.form.saveChanges')}
+                </Button>
+              )}
+            </Inline>
+          </Inline>
+
+          {isCreate ? (
+            <Tabs
+              value={tab}
+              onValueChange={onTabChange}
+              className="flex-1 gap-4"
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="search">
+                  {t('catalog.searchTab')}
+                </TabsTrigger>
+                <TabsTrigger value="manual">
+                  {t('catalog.manualTab')}
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="search">
+                <CatalogSearch onSelect={handleSelectSearchResult} />
+              </TabsContent>
+              <TabsContent value="manual">{manualForm}</TabsContent>
+            </Tabs>
+          ) : (
+            manualForm
+          )}
+        </div>
       </main>
     );
   }

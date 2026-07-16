@@ -5,6 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "start": "bun ./src/index.ts",
     "dev": "bun --watch ./src/index.ts",
     "db:gen": "bunx drizzle-kit generate --dialect postgresql --schema ../../packages/db/src/schema.ts --out ./src/db/migrations",
     "format": "prettier --write \"**/*.ts*\" --config ./.prettierrc.json",

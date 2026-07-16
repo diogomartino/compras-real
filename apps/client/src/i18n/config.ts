@@ -22,6 +22,7 @@ const initI18n = () => {
       resources,
       fallbackLng: fallbackLanguage,
       supportedLngs: [...supportedLanguages],
+      load: 'languageOnly',
       defaultNS: defaultNamespace,
       ns: [defaultNamespace],
       interpolation: {

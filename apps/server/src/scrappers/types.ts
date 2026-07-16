@@ -1,3 +1,4 @@
+import { ScrapperId } from '@myapp/shared';
 import z from 'zod';
 
 const scrappedProduct = z.object({
@@ -10,13 +11,14 @@ interface IScrapper {
   id: ScrapperId;
   baseUrl: string;
   scrap(url: string): Promise<TScrappedProduct>;
-}
-
-enum ScrapperId {
-  CONTINENTE = 'continente'
+  search?(query: string): Promise<TSearchProduct[]>;
 }
 
 type TScrappedProduct = z.infer<typeof scrappedProduct>;
+type TSearchProduct = TScrappedProduct & {
+  source: ScrapperId;
+  url: string | null;
+};
 
 export { ScrapperId, scrappedProduct };
-export type { IScrapper, TScrappedProduct };
+export type { IScrapper, TScrappedProduct, TSearchProduct };

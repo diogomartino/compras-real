@@ -6,22 +6,19 @@ import {
   Surface,
   Text
 } from '@/components/ds';
+import { KebabMenu, type TKebabMenuItem } from '@/components/kebab-menu';
+import { CardContextMenu } from '@/components/kebab-menu/card-context-menu';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
 import {
   ListChecks,
   ListPlus,
-  MoreHorizontal,
   Pencil,
   Plus,
+  Power,
+  PowerOff,
   Trash2
 } from 'lucide-react';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TBaseListSummary } from './types';
 
@@ -32,6 +29,7 @@ type TBaseListCardProps = {
   onEdit: (baseList: TBaseListSummary) => void;
   onRemove: (baseList: TBaseListSummary) => void;
   onAddAll: (baseList: TBaseListSummary) => void;
+  onToggleEnabled: (baseList: TBaseListSummary) => void;
 };
 
 type TBaseListOverviewProps = {
@@ -44,6 +42,7 @@ type TBaseListOverviewProps = {
   onEdit: (baseList: TBaseListSummary) => void;
   onRemove: (baseList: TBaseListSummary) => void;
   onAddAll: (baseList: TBaseListSummary) => void;
+  onToggleEnabled: (baseList: TBaseListSummary) => void;
 };
 
 const BaseListCard = memo(
@@ -53,7 +52,8 @@ const BaseListCard = memo(
     onOpen,
     onEdit,
     onRemove,
-    onAddAll
+    onAddAll,
+    onToggleEnabled
   }: TBaseListCardProps) => {
     const { t } = useTranslation();
     const open = useCallback(() => {
@@ -68,61 +68,81 @@ const BaseListCard = memo(
     const addAll = useCallback(() => {
       onAddAll(baseList);
     }, [baseList, onAddAll]);
+    const toggleEnabled = useCallback(() => {
+      onToggleEnabled(baseList);
+    }, [baseList, onToggleEnabled]);
+
+    const menuItems = useMemo<TKebabMenuItem[]>(
+      () => [
+        {
+          key: 'add-all',
+          icon: <ListPlus className="size-4" />,
+          label: t('baseList.addAllToList'),
+          onSelect: addAll
+        },
+        {
+          key: 'toggle-enabled',
+          icon: baseList.isEnabled ? (
+            <PowerOff className="size-4" />
+          ) : (
+            <Power className="size-4" />
+          ),
+          label: baseList.isEnabled
+            ? t('baseList.disable')
+            : t('baseList.enable'),
+          onSelect: toggleEnabled
+        },
+        {
+          key: 'edit',
+          icon: <Pencil className="size-4" />,
+          label: t('baseList.editBaseList'),
+          onSelect: edit
+        },
+        {
+          key: 'delete',
+          icon: <Trash2 className="size-4" />,
+          label: t('baseList.deleteBaseList'),
+          onSelect: remove,
+          variant: 'destructive'
+        }
+      ],
+      [addAll, baseList.isEnabled, edit, remove, t, toggleEnabled]
+    );
 
     return (
-      <Surface radius="xl" padding="md">
-        <Inline justify="between" className="gap-3" wrap={false}>
-          <Stack gap="xs" className="min-w-0">
-            <Inline gap="sm" wrap={false} className="min-w-0">
-              <Text weight="semibold" className="truncate">
-                {baseList.name}
+      <CardContextMenu items={menuItems} contentClassName="w-56">
+        <Surface radius="xl" padding="md">
+          <Inline justify="between" className="gap-3" wrap={false}>
+            <Stack gap="xs" className="min-w-0">
+              <Inline gap="sm" wrap={false} className="min-w-0">
+                <Text weight="semibold" className="truncate">
+                  {baseList.name}
+                </Text>
+                <StatusChip tone={baseList.isEnabled ? 'success' : 'skipped'}>
+                  {baseList.isEnabled
+                    ? t('baseList.enabled')
+                    : t('baseList.disabled')}
+                </StatusChip>
+              </Inline>
+              <Text size="sm" tone="muted">
+                {t('baseList.productCount', { count: baseList.itemCount })}
               </Text>
-              <StatusChip tone={baseList.isEnabled ? 'success' : 'skipped'}>
-                {baseList.isEnabled
-                  ? t('baseList.enabled')
-                  : t('baseList.disabled')}
-              </StatusChip>
-            </Inline>
-            <Text size="sm" tone="muted">
-              {t('baseList.productCount', { count: baseList.itemCount })}
-            </Text>
-          </Stack>
+            </Stack>
 
-          <Inline gap="xs" wrap={false}>
-            <Button type="button" onClick={open}>
-              {t('baseList.open')}
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full"
-                  disabled={isMutating}
-                  aria-label={t('baseList.baseListActions')}
-                >
-                  <MoreHorizontal className="size-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-xl">
-                <DropdownMenuItem onSelect={addAll}>
-                  <ListPlus className="size-4" />
-                  {t('baseList.addAllToList')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={edit}>
-                  <Pencil className="size-4" />
-                  {t('baseList.editBaseList')}
-                </DropdownMenuItem>
-                <DropdownMenuItem variant="destructive" onSelect={remove}>
-                  <Trash2 className="size-4" />
-                  {t('baseList.deleteBaseList')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Inline gap="xs" wrap={false}>
+              <Button type="button" onClick={open}>
+                {t('baseList.open')}
+              </Button>
+              <KebabMenu
+                label={t('baseList.baseListActions')}
+                disabled={isMutating}
+                contentClassName="w-56"
+                items={menuItems}
+              />
+            </Inline>
           </Inline>
-        </Inline>
-      </Surface>
+        </Surface>
+      </CardContextMenu>
     );
   }
 );
@@ -139,7 +159,8 @@ const BaseListOverview = memo(
     onOpen,
     onEdit,
     onRemove,
-    onAddAll
+    onAddAll,
+    onToggleEnabled
   }: TBaseListOverviewProps) => {
     const { t } = useTranslation();
 
@@ -190,6 +211,7 @@ const BaseListOverview = memo(
               onEdit={onEdit}
               onRemove={onRemove}
               onAddAll={onAddAll}
+              onToggleEnabled={onToggleEnabled}
             />
           ))}
       </div>

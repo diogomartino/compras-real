@@ -1,5 +1,6 @@
 import { t } from '../../trpc';
 import { addItemRoute } from './add-item';
+import { addItemsRoute } from './add-items';
 import { createRoute } from './create';
 import { getRoute } from './get';
 import { listRoute } from './list';
@@ -15,6 +16,7 @@ const baseListRouter = t.router({
   update: updateListRoute,
   remove: removeListRoute,
   addItem: addItemRoute,
+  addItems: addItemsRoute,
   updateItem: updateItemRoute,
   removeItem: removeItemRoute
 });

@@ -28,11 +28,23 @@ const useSuggestedProducts = (enabled: boolean) =>
     enabled
   });
 
+const useStoreSearch = (query: string, enabled: boolean) => {
+  const trimmed = query.trim();
+
+  return useQuery({
+    queryKey: ['products', 'store-search', trimmed],
+    queryFn: () => trpc.products.search.query({ query: trimmed }),
+    enabled: enabled && trimmed.length >= 2,
+    staleTime: 60 * 60 * 1000
+  });
+};
+
 export {
   productsQueryKey,
   recentProductsQueryKey,
   suggestedProductsQueryKey,
   useProducts,
   useRecentProducts,
+  useStoreSearch,
   useSuggestedProducts
 };

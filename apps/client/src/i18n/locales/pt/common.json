@@ -31,7 +31,7 @@
       "message": "Tens a certeza?"
     },
     "authDialogs": {
-      "loginDescription": "Entra com o teu e-mail e palavra-passe.",
+      "loginDescription": "Bem-vindo de volta ao KartFlex — entra com o teu e-mail e palavra-passe.",
       "registerDescription": "Cria conta com nome, e-mail e palavra-passe.",
       "alreadyHaveAccount": "Já tens conta?",
       "creating": "A criar...",
@@ -127,8 +127,9 @@
       "createAccount": "Criar conta",
       "registerWithGoogle": "Registar com Google",
       "resetLinkSent": "Se esse e-mail existir, foi enviada uma ligação de reposição.",
-      "heroTitle": "A lista de compras da tua casa, sempre pronta.",
-      "heroSubtitle": "Cria um catálogo partilhado, mantém listas e faz compras em conjunto em tempo real.",
+      "welcome": "Bem-vindo ao KartFlex",
+      "heroTitle": "Um carrinho, todos em sintonia.",
+      "heroSubtitle": "O KartFlex dá à tua casa um catálogo partilhado e listas sempre prontas — planeiem juntos, dividam os corredores e vão marcando em tempo real.",
       "featureBaseLists": "Listas reutilizáveis",
       "featureRealtime": "Modo de compras em tempo real",
       "featureCatalog": "Catálogo inteligente de produtos",
@@ -288,6 +289,8 @@
   },
   "catalog": {
     "search": "Procurar produtos ou categorias",
+    "searchTab": "Procurar nas lojas",
+    "manualTab": "Manual",
     "categories": "Categorias",
     "addProduct": "Adicionar produto",
     "loadingProducts": "A carregar produtos...",
@@ -328,6 +331,12 @@
       "url": "URL do produto",
       "extracting": "A extrair...",
       "extract": "Extrair"
+    },
+    "storeSearch": {
+      "placeholder": "Procurar nas lojas (ex: coca cola)",
+      "prompt": "Escreve pelo menos 2 caracteres para procurar.",
+      "noResults": "Nenhum produto encontrado nas lojas.",
+      "error": "Não foi possível procurar. Tenta novamente."
     },
     "preview": {
       "title": "Pré-visualização",
@@ -515,6 +524,11 @@
   "baseList": {
     "enabled": "Ativa",
     "disabled": "Inativa",
+    "enable": "Ativar",
+    "disable": "Desativar",
+    "listEnabled": "Lista ativada.",
+    "listDisabled": "Lista desativada.",
+    "failedToUpdate": "Não foi possível atualizar a lista.",
     "back": "Voltar",
     "addProduct": "Adicionar produto",
     "saveQuantity": "Guardar quantidade",
@@ -562,6 +576,8 @@
     "deleted": "Lista apagada.",
     "failedToDelete": "Não consegui apagar a lista.",
     "productAdded": "Produto adicionado à lista.",
+    "productsAdded": "Produtos adicionados à lista.",
+    "failedToAddProducts": "Não foi possível adicionar produtos à lista.",
     "quantityUpdated": "Quantidade da lista atualizada.",
     "productRemoved": "Produto removido da lista.",
     "failedToRemoveProduct": "Não consegui remover o produto.",
@@ -570,6 +586,12 @@
     "removeProductTitle": "Remover produto",
     "removeProductMessage": "Remover {{title}} desta lista?",
     "baseListActions": "Acções da lista",
-    "baseListItemActions": "Acções do item da lista"
+    "baseListItemActions": "Acções do item da lista",
+    "addDialog": {
+      "title": "Adicionar produtos",
+      "description": "Escolhe os produtos para adicionar a esta lista.",
+      "empty": "Nenhum produto disponível.",
+      "addSelected": "Adicionar {{count}} selecionados"
+    }
   }
 }

@@ -16,11 +16,13 @@ type TUpdateBaseListInput = TBaseListInput & {
   id: string;
 };
 
-type TBaseListItemInput = {
+type TBaseListItemsInput = {
   baseListId: string;
-  productId: string;
-  quantityAmount: number;
-  quantityUnit: TUnitKind;
+  items: {
+    productId: string;
+    quantityAmount: number;
+    quantityUnit: TUnitKind;
+  }[];
 };
 
 type TUpdateBaseListItemInput = {
@@ -62,10 +64,10 @@ const useRemoveBaseList = () =>
     onSuccess: invalidateBaseLists
   });
 
-const useAddBaseListItem = () =>
+const useAddBaseListItems = () =>
   useMutation({
-    mutationFn: (input: TBaseListItemInput) =>
-      trpc.baseList.addItem.mutate(input),
+    mutationFn: (input: TBaseListItemsInput) =>
+      trpc.baseList.addItems.mutate(input),
     onSuccess: (_data, variables) =>
       invalidateBaseListDetails(variables.baseListId)
   });
@@ -91,7 +93,7 @@ const useRemoveBaseListItem = () =>
   });
 
 export {
-  useAddBaseListItem,
+  useAddBaseListItems,
   useCreateBaseList,
   useRemoveBaseList,
   useRemoveBaseListItem,
@@ -100,7 +102,7 @@ export {
 };
 export type {
   TBaseListInput,
-  TBaseListItemInput,
+  TBaseListItemsInput,
   TUpdateBaseListInput,
   TUpdateBaseListItemInput
 };

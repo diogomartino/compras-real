@@ -31,7 +31,8 @@ import {
 import type {
   TCatalogFormMode,
   TCatalogFormValues,
-  TCatalogProduct
+  TCatalogProduct,
+  TStoreSearchResult
 } from './types';
 
 const Catalog = memo(() => {
@@ -110,6 +111,20 @@ const Catalog = memo(() => {
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   }, []);
+
+  const onSelectSearchResult = useCallback(
+    (result: TStoreSearchResult) => {
+      resetErrors();
+      setValues((currentForm) => ({
+        ...currentForm,
+        title: result.name,
+        imageUrl: result.imageUrl,
+        categoryName: result.category ?? '',
+        sourceUrl: result.url ?? ''
+      }));
+    },
+    [resetErrors, setValues]
+  );
 
   const onImportUrlChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -238,6 +253,7 @@ const Catalog = memo(() => {
         onImportUrlChange={onImportUrlChange}
         onExtractDetails={extractDetails}
         onFieldChange={onChange}
+        onSelectSearchResult={onSelectSearchResult}
       />
     );
   }

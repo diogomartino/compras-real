@@ -1,23 +1,10 @@
 import { Inline, Media, Stack, StatusChip, Text } from '@/components/ds';
+import { KebabMenu } from '@/components/kebab-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import type { TOngoingListEntry } from '@myapp/shared';
-import {
-  Check,
-  CircleUserRound,
-  List,
-  MoreHorizontal,
-  Plus,
-  RotateCcw,
-  X
-} from 'lucide-react';
+import { Check, CircleUserRound, List, Plus, RotateCcw, X } from 'lucide-react';
 import {
   AnimatePresence,
   animate,
@@ -360,42 +347,41 @@ const ShoppingSwipeView = memo(
                   )}
                 </div>
               )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="shrink-0 rounded-full border border-white/30 bg-white/15 text-white shadow-sm hover:bg-white/25 hover:text-white"
-                    aria-label={t('shopping.viewOptions')}
-                  >
-                    <MoreHorizontal className="size-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-44 rounded-xl">
-                  <DropdownMenuItem onSelect={onAddItem}>
-                    <Plus className="size-4" />
-                    {t('shopping.addItem')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={onListView}>
-                    <List className="size-4" />
-                    {t('shopping.listView')}
-                  </DropdownMenuItem>
-                  {reviewSkipped && (
-                    <DropdownMenuItem onSelect={onMainList}>
-                      <RotateCcw className="size-4" />
-                      {t('shopping.mainList')}
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onSelect={onCancelShopping}
-                  >
-                    <X className="size-4" />
-                    {t('shopping.cancelShopping')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <KebabMenu
+                label={t('shopping.viewOptions')}
+                triggerClassName="shrink-0 border border-white/30 bg-white/15 text-white shadow-sm hover:bg-white/25 hover:text-white"
+                items={[
+                  {
+                    key: 'add',
+                    icon: <Plus className="size-4" />,
+                    label: t('shopping.addItem'),
+                    onSelect: onAddItem
+                  },
+                  {
+                    key: 'list',
+                    icon: <List className="size-4" />,
+                    label: t('shopping.listView'),
+                    onSelect: onListView
+                  },
+                  ...(reviewSkipped
+                    ? [
+                        {
+                          key: 'main',
+                          icon: <RotateCcw className="size-4" />,
+                          label: t('shopping.mainList'),
+                          onSelect: onMainList
+                        }
+                      ]
+                    : []),
+                  {
+                    key: 'cancel',
+                    icon: <X className="size-4" />,
+                    label: t('shopping.cancelShopping'),
+                    onSelect: onCancelShopping,
+                    variant: 'destructive'
+                  }
+                ]}
+              />
             </div>
           </div>
 

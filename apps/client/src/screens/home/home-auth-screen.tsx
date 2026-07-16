@@ -258,9 +258,6 @@ const HomeAuthScreen = memo(() => {
       <div className="mx-auto grid min-h-dvh w-full max-w-5xl content-center gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[0.9fr_1fr] lg:px-8">
         <Stack gap="lg" className="mx-auto max-w-xl self-center lg:mx-0">
           <Stack gap="sm">
-            <span className="w-fit rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
-              Compras Real
-            </span>
             <Heading level={1} size="display">
               {t('home.auth.heroTitle')}
             </Heading>
@@ -277,14 +274,9 @@ const HomeAuthScreen = memo(() => {
           className="mx-auto w-full max-w-md self-center bg-card/90"
         >
           <Stack gap="md">
-            <Stack gap="xs" className="text-left">
-              <Heading level={2} size="h3">
-                {t('home.auth.logIn')}
-              </Heading>
-              <Text tone="muted">
-                {t('components.authDialogs.loginDescription')}
-              </Text>
-            </Stack>
+            <Heading level={2} size="h3" className="text-center">
+              {t('home.auth.welcome')}
+            </Heading>
 
             <Tabs defaultValue="login" className="gap-5">
               <TabsList className="grid w-full grid-cols-2">

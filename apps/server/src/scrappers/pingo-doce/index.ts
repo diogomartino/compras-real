@@ -6,17 +6,11 @@ import {
   type TScrappedProduct,
   type TSearchProduct
 } from '../types';
-import {
-  getCategory,
-  getImageUrl,
-  getName,
-  getProducts,
-  waitForCookieConsent
-} from './helpers';
+import { getCategory, getImageUrl, getName, getProducts } from './helpers';
 
-class ContinenteScrapper implements IScrapper {
-  public id = ScrapperId.CONTINENTE;
-  public baseUrl = 'https://www.continente.pt';
+class PingoDoceScrapper implements IScrapper {
+  public id = ScrapperId.PINGO_DOCE;
+  public baseUrl = 'https://www.pingodoce.pt';
 
   public scrap = async (url: string): Promise<TScrappedProduct> => {
     const browser = await getBrowser();
@@ -25,8 +19,6 @@ class ContinenteScrapper implements IScrapper {
       const page = await browser.newPage();
 
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
-
-      await waitForCookieConsent(page);
 
       const name = await getName(page);
       const imageUrl = await getImageUrl(page);
@@ -46,9 +38,15 @@ class ContinenteScrapper implements IScrapper {
     const browser = await getBrowser();
 
     try {
-      const searchUrl = new URL(`${this.baseUrl}/pesquisa/`);
+      // https://www.pingodoce.pt/on/demandware.store/Sites-pingo-doce-Site/default/Search-Show?q=coca%2520cola
+
+      const searchUrl = new URL(
+        `${this.baseUrl}/on/demandware.store/Sites-pingo-doce-Site/default/Search-Show`
+      );
 
       searchUrl.searchParams.set('q', query);
+
+      console.log(`searching url: ${searchUrl.toString()}`);
 
       const page = await browser.newPage();
 
@@ -56,8 +54,6 @@ class ContinenteScrapper implements IScrapper {
         waitUntil: 'domcontentloaded',
         timeout: 15000
       });
-
-      await waitForCookieConsent(page);
 
       return await getProducts(page);
     } finally {
@@ -68,4 +64,4 @@ class ContinenteScrapper implements IScrapper {
   };
 }
 
-export { ContinenteScrapper };
+export { PingoDoceScrapper };

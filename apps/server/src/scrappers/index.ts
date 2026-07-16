@@ -1,9 +1,16 @@
 import { scrapperCache } from './cache';
 import { ContinenteScrapper } from './continente';
-import { ScrapperId, type IScrapper, type TScrappedProduct } from './types';
+import { PingoDoceScrapper } from './pingo-doce';
+import {
+  ScrapperId,
+  type IScrapper,
+  type TScrappedProduct,
+  type TSearchProduct
+} from './types';
 
 const scrappers: Record<string, IScrapper> = {
-  [ScrapperId.CONTINENTE]: new ContinenteScrapper()
+  [ScrapperId.CONTINENTE]: new ContinenteScrapper(),
+  [ScrapperId.PINGO_DOCE]: new PingoDoceScrapper()
 };
 
 const normalizeUrl = (url: string): string => {
@@ -49,4 +56,30 @@ const scrapUrl = async (url: string): Promise<TScrappedProduct> => {
   return scrappedProduct;
 };
 
-export { scrapUrl };
+const SEARCH_CACHE_TTL_MS = 60 * 60 * 1000;
+const searchCache = new Map<string, { data: TSearchProduct[]; ts: number }>();
+
+const scrapSearch = async (query: string): Promise<TSearchProduct[]> => {
+  const cacheKey = query.trim().toLowerCase();
+  const cached = searchCache.get(cacheKey);
+
+  if (cached && Date.now() - cached.ts < SEARCH_CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  const scrappedProducts: TSearchProduct[] = [];
+
+  for (const scrapper of Object.values(scrappers)) {
+    if (scrapper.search) {
+      const products = await scrapper.search(query);
+
+      scrappedProducts.push(...products);
+    }
+  }
+
+  searchCache.set(cacheKey, { data: scrappedProducts, ts: Date.now() });
+
+  return scrappedProducts;
+};
+
+export { scrapSearch, scrapUrl };

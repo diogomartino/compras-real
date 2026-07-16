@@ -37,29 +37,25 @@ const getPrice = async (page: Page) => {
 };
 
 const getImageUrl = async (page: Page) => {
-  await page.waitForSelector('.ct-product-image', {
+  await page.waitForSelector('.zoom-image', {
     state: 'visible'
   });
 
-  const imageUrl = await page.getAttribute('.ct-product-image', 'src');
+  const imageUrl = await page.getAttribute('.zoom-image', 'src');
 
   return imageUrl!;
 };
 
 const getCategory = async (page: Page) => {
-  await page.waitForSelector('.breadcrumbs-item', {
-    state: 'visible'
-  });
+  const url = page.url();
 
-  const category = await page.$$eval('.breadcrumbs-item', (elements) => {
-    if (elements.length < 3) {
-      return null;
-    }
+  const category = url.split('/')[5];
 
-    return elements[2].textContent;
-  });
+  if (!category) {
+    throw new Error('Category not found in URL');
+  }
 
-  return category?.replace(/\n/g, '').replace(/\t/g, '').trim() ?? null;
+  return category.charAt(0).toUpperCase() + category.slice(1);
 };
 
 const getProducts = async (page: Page): Promise<TSearchProduct[]> => {
@@ -74,27 +70,23 @@ const getProducts = async (page: Page): Promise<TSearchProduct[]> => {
 
       return elements.map((element) => {
         const getSearchProductUrl = () => {
-          const link = element.querySelector('a[href]');
-          const href = link?.getAttribute('href');
+          const linkElement = element.querySelector('.product-name-link a');
+
+          if (!linkElement) {
+            throw new Error('Link element not found');
+          }
+
+          const href = linkElement.getAttribute('href');
 
           if (!href) {
-            return null;
+            throw new Error('Href not found');
           }
 
-          try {
-            const url = new URL(href, baseUrl);
-
-            url.search = '';
-            url.hash = '';
-
-            return url.toString();
-          } catch {
-            return null;
-          }
+          return `${baseUrl}${href}`;
         };
 
         const getSearchProductName = () => {
-          const nameElement = element.querySelector('.pwc-tile--description');
+          const nameElement = element.querySelector('.product-name-link');
 
           if (!nameElement) {
             throw new Error('Name element not found');
@@ -106,56 +98,47 @@ const getProducts = async (page: Page): Promise<TSearchProduct[]> => {
         };
 
         const getSearchProductImageUrl = () => {
+          // find img with "product-tile-component-image" class and get src attribute
           const imageElement = element.querySelector(
-            '[data-confirmation-image]'
+            '.product-tile-component-image'
           );
 
           if (!imageElement) {
             throw new Error('Image element not found');
           }
 
-          const imageData = imageElement.getAttribute(
-            'data-confirmation-image'
-          );
+          const imageUrl = imageElement.getAttribute('src');
 
-          if (!imageData) {
-            throw new Error('Image data not found');
+          if (!imageUrl) {
+            throw new Error('Image url not found');
           }
 
-          const imageDataJson = JSON.parse(imageData);
-
-          const imageUrl = new URL(imageDataJson.url);
-
-          imageUrl.searchParams.set('sw', '300');
-          imageUrl.searchParams.set('sh', '300');
-
-          return imageUrl.toString() ?? null;
+          return imageUrl;
         };
 
         const getSearchProductCategory = () => {
-          const productTileElement = element.querySelector('.product-tile');
+          const categoryElement = element.querySelector('.product-name-link a');
 
-          if (!productTileElement) {
-            throw new Error('Product tile element not found');
+          if (!categoryElement) {
+            throw new Error('Category element not found');
           }
 
-          const productTileImpression = productTileElement.getAttribute(
-            'data-product-tile-impression'
-          );
+          const categoryHref = categoryElement.getAttribute('href');
 
-          if (!productTileImpression) {
-            throw new Error('Product tile impression not found');
+          if (!categoryHref) {
+            throw new Error('Category href not found');
           }
 
-          const productTileImpressionJson = JSON.parse(productTileImpression);
+          const category = categoryHref.split('/')[3];
 
-          const category: string = productTileImpressionJson.category ?? '';
-
-          if (category.includes('/')) {
-            return category.split('/')[0] || null;
+          if (!category) {
+            throw new Error('Category not found in href');
           }
 
-          return productTileImpressionJson.category ?? null;
+          return category
+            .split('-')
+            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
         };
 
         const searchProduct: TSearchProduct = {
@@ -169,7 +152,7 @@ const getProducts = async (page: Page): Promise<TSearchProduct[]> => {
         return searchProduct;
       });
     },
-    { source: ScrapperId.CONTINENTE, baseUrl: 'https://www.continente.pt' }
+    { source: ScrapperId.PINGO_DOCE, baseUrl: 'https://www.pingodoce.pt' }
   );
 
   return products;

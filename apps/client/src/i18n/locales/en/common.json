@@ -31,7 +31,7 @@
       "message": "Are you sure you want to perform this action?"
     },
     "authDialogs": {
-      "loginDescription": "Access your account with your email and password.",
+      "loginDescription": "Welcome back to KartFlex — sign in with your email and password.",
       "registerDescription": "Register with your name, email, and password.",
       "alreadyHaveAccount": "Already have an account?",
       "creating": "Creating...",
@@ -127,8 +127,9 @@
       "createAccount": "Create account",
       "registerWithGoogle": "Register with Google",
       "resetLinkSent": "If that email exists, a reset link has been sent.",
-      "heroTitle": "Your household grocery list, always ready.",
-      "heroSubtitle": "Build a shared catalog, maintain lists, and shop together in real time.",
+      "welcome": "Welcome to KartFlex",
+      "heroTitle": "One cart, everyone in sync.",
+      "heroSubtitle": "KartFlex gives your household a shared catalog and always-ready lists — plan together, split the aisles, and check things off in real time.",
       "featureBaseLists": "Reusable lists",
       "featureRealtime": "Realtime shopping mode",
       "featureCatalog": "Smart product catalog",
@@ -288,6 +289,8 @@
   },
   "catalog": {
     "search": "Search products or categories",
+    "searchTab": "Search stores",
+    "manualTab": "Manual",
     "categories": "Categories",
     "addProduct": "Add product",
     "loadingProducts": "Loading products...",
@@ -328,6 +331,12 @@
       "url": "Product URL",
       "extracting": "Extracting...",
       "extract": "Extract details"
+    },
+    "storeSearch": {
+      "placeholder": "Search stores (e.g. coca cola)",
+      "prompt": "Type at least 2 characters to search stores.",
+      "noResults": "No products found in stores.",
+      "error": "Failed to search stores. Please try again."
     },
     "preview": {
       "title": "Preview",
@@ -515,6 +524,11 @@
   "baseList": {
     "enabled": "Enabled",
     "disabled": "Disabled",
+    "enable": "Enable",
+    "disable": "Disable",
+    "listEnabled": "List enabled.",
+    "listDisabled": "List disabled.",
+    "failedToUpdate": "Failed to update list.",
     "back": "Back",
     "addProduct": "Add product",
     "saveQuantity": "Save quantity",
@@ -562,6 +576,8 @@
     "deleted": "List deleted.",
     "failedToDelete": "Failed to delete list.",
     "productAdded": "Product added to the list.",
+    "productsAdded": "Products added to the list.",
+    "failedToAddProducts": "Couldn't add products to the list.",
     "quantityUpdated": "List quantity updated.",
     "productRemoved": "Product removed from the list.",
     "failedToRemoveProduct": "Failed to remove product.",
@@ -570,6 +586,12 @@
     "removeProductTitle": "Remove product",
     "removeProductMessage": "Remove {{title}} from this list?",
     "baseListActions": "List actions",
-    "baseListItemActions": "List item actions"
+    "baseListItemActions": "List item actions",
+    "addDialog": {
+      "title": "Add products",
+      "description": "Select products to add to this list.",
+      "empty": "No products available.",
+      "addSelected": "Add {{count}} selected"
+    }
   }
 }

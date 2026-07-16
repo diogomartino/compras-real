@@ -16,7 +16,7 @@ import {
   useSuggestedProducts
 } from '@/queries/products';
 import type { TOngoingListEntry, TUnitKind } from '@myapp/shared';
-import { PackagePlus, Plus, Search, ShoppingBasket } from 'lucide-react';
+import { PackagePlus, Plus } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
   memo,
@@ -249,43 +249,22 @@ const HomeDashboard = memo(() => {
     <main className="bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-4 sm:px-6 sm:py-6">
         <Surface variant="default" radius="xl" padding="md" className="bg-card/85">
-          <Stack gap="md">
-            <Inline justify="between" className="gap-3" wrap={false}>
-              <Inline gap="sm" wrap={false} className="min-w-0">
-                <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                  <ShoppingBasket className="size-5" />
-                </div>
-                <Stack gap="none" className="min-w-0">
-                  <Text weight="semibold" className="truncate">
-                    {t('home.currentList')}
-                  </Text>
-                  <Text size="sm" tone="muted" className="truncate">
-                    {t('home.productsReady', { count: items.length })}
-                  </Text>
-                </Stack>
-              </Inline>
-              <Button
-                type="button"
-                className="shrink-0"
-                onClick={openAddDialog}
-              >
-                <Plus className="size-4" />
-                <span className="sr-only sm:not-sr-only">
-                  {t('home.addProducts')}
-                </span>
-              </Button>
-            </Inline>
-
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={onQueryChange}
-                className="pl-9"
-                placeholder={t('home.searchOngoingProducts')}
-              />
-            </div>
-          </Stack>
+          <Inline justify="between" className="gap-3" wrap={false}>
+            <Input
+              value={query}
+              onChange={onQueryChange}
+              placeholder={t('home.searchOngoingProducts')}
+            />
+            <Button
+              type="button"
+              size="icon"
+              className="shrink-0"
+              onClick={openAddDialog}
+              aria-label={t('home.addProducts')}
+            >
+              <Plus className="size-5" />
+            </Button>
+          </Inline>
         </Surface>
 
         {!query.trim() && visibleSuggestions.length > 0 && (
