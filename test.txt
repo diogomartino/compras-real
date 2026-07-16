@@ -1,0 +1,2 @@
+docker build -f apps/server/Dockerfile -t server .
+docker run -p 3000:3000 server
